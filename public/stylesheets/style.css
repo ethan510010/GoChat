@@ -14,7 +14,6 @@ body, html {
   background-position: center;
   background-size: cover;
   padding-top: 60px;
-  opacity: 0.8;
 }
 
 .sign_in_block {
@@ -37,6 +36,7 @@ body, html {
 .sign_in_block .enter_email,
 .sign_in_block .enter_password,
 .sign_in_block .sign_in_button,
+.signup_area,
 .horizontal_line,
 .facebook_login_area,
 .google_login_area
@@ -59,6 +59,18 @@ body, html {
 
 .sign_in_button input {
   background-color: #0352fc;
+  height: 40px;
+  color: #ffffff;
+}
+
+.signup_area p {
+  font-size: 10px;
+  color: #bec2c4;
+  text-align: center;
+}
+
+.signup_area .signup_btn {
+  background-color: #0BD1DB;
   height: 40px;
   color: #ffffff;
 }
