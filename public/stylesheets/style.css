@@ -30,7 +30,9 @@ body, html {
 .sign_in_block p {
   margin: 10px 0 20px 0;
   font-size: 24px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif; 
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold; 
+  color: #555956;
 }
 
 .sign_in_block .enter_email,
@@ -67,12 +69,18 @@ body, html {
   font-size: 10px;
   color: #bec2c4;
   text-align: center;
+  font-weight: normal;
+  margin-bottom: 10px;
 }
 
 .signup_area .signup_btn {
   background-color: #0BD1DB;
   height: 40px;
   color: #ffffff;
+}
+
+.signup_info {
+  display: none;
 }
 
 .horizontal_line {
