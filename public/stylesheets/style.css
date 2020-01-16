@@ -28,16 +28,14 @@ body, html {
 }
 
 .sign_in_block p {
-  margin: 10px 0 20px 0;
+  margin: 10px 0 10px 0;
   font-size: 24px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-weight: bold; 
   color: #555956;
 }
 
-.sign_in_block .enter_email,
-.sign_in_block .enter_password,
-.sign_in_block .sign_in_button,
+.sign_in_area,
 .signup_area,
 .horizontal_line,
 .facebook_login_area,
