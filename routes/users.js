@@ -1,9 +1,12 @@
 var express = require('express');
 var router = express.Router();
+const { signupUser } = require('../controller/users')
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.post('/signin', function (req, res, next) {
+  
+  res.send('登入')
+})
+
+router.post('/signup', signupUser);
 
 module.exports = router;
