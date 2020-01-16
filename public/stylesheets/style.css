@@ -1,0 +1,117 @@
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+}
+
+.scene_background {
+  background-image: url('/images/sky.jpg');
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  padding-top: 60px;
+  opacity: 0.8;
+}
+
+.sign_in_block {
+  background-color: #ffffff;
+  width: 40%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  padding-bottom: 5px;
+}
+
+.sign_in_block p {
+  margin: 10px 0 20px 0;
+  font-size: 24px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif; 
+}
+
+.sign_in_block .enter_email,
+.sign_in_block .enter_password,
+.sign_in_block .sign_in_button,
+.horizontal_line,
+.facebook_login_area,
+.google_login_area
+{
+  width: 80%;
+}
+
+.sign_in_block input {
+  width: 100%;
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border: 1px solid #CCC;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  /* 外框效果消失 */
+  outline: none
+}
+
+.sign_in_button input {
+  background-color: #0352fc;
+  height: 40px;
+  color: #ffffff;
+}
+
+.horizontal_line {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  height: 1.5px;
+  background-color: #ECF0F1;
+}
+
+.facebook_login_area, 
+.google_login_area {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.facebook_login_area {
+  border: 1px solid #273c75; 
+  background-color: #273c75;
+}
+
+.google_login_area {
+  border: 1px solid #E84118;
+  background-color: #E84118;
+}
+
+.facebook_login_area img,
+.google_login_area img {
+  width: 30px;
+  height: 30px;
+}
+
+.facebook_login_area input,
+.google_login_area input {
+  margin: 0;
+  border: none;
+  width: 60%;
+  padding: 0;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.facebook_login_area input {
+  background-color: #273c75;
+}
+
+.google_login_area input {
+  background-color: #E84118;
+}
