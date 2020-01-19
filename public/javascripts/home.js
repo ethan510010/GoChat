@@ -52,3 +52,32 @@ signupBtn.addEventListener('click', (e) => {
     alert('You have the wrong email format');
   }
 })
+
+// 一般登入
+const signinUserEmailTag = document.querySelector('.enter_email input');
+const signinUserPasswordTag = document.querySelector('.enter_password input');
+const signinBtn = document.querySelector('.sign_in_button');
+console.log(signinUserEmailTag, signinUserPasswordTag)
+signinBtn.addEventListener('click', function(event) {
+  fetch('/users/signin', { 
+    method: 'POST',
+    body: JSON.stringify({
+      email: signinUserEmailTag.value,
+      password: signinUserPasswordTag.value
+    }),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  })
+  .then((res) => res.json())
+  .catch((err) => console.log(err))
+  .then((response) => {
+    console.log(response)
+    if (typeof(response.data) === 'string') {
+      alert('請確定帳號密碼輸入正確')
+    } else {
+      // 登入成功，切換到主頁
+      console.log('登入成功')
+    }
+  })
+})

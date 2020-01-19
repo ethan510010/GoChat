@@ -30,7 +30,7 @@ const insertUser = async (
 
 const checkExistingUserEmail = async (email) => {
   const searchUserSQL = `
-    SELECT general_user_info.email as email from user 
+    SELECT general_user_info.email as email FROM user 
     INNER JOIN general_user_info
     ON user.id=general_user_info.userId
     WHERE email='${email}'`; 
@@ -43,7 +43,22 @@ const checkExistingUserEmail = async (email) => {
   }
 }
 
+const searchUser = async (email, password) => {
+  const searchUserSQL = `
+    SELECT general_user_info.email as email,
+    general_user_info.password as password FROM
+    general_user_info WHERE email='${email}' and password='${password}'
+  `
+  const searchResult = await exec(searchUserSQL);
+  if (searchResult.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports = {
   insertUser,
+  searchUser,
   checkExistingUserEmail
 }

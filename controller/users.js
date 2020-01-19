@@ -1,6 +1,31 @@
-const { insertUser } = require('../model/users');
+const crypto = require('crypto');
+require('dotenv').config();
+const { insertUser, searchUser } = require('../model/users');
 const { generateAccessToken } = require('../common/common');
 
+// 登入
+const userSignin = async (req, res, next) => {
+  const { email, password } = req.body;
+  const { hashedUserPassword } = generateAccessToken(email, password);
+  try {
+    const hasUser = await searchUser(email, hashedUserPassword);
+    if (hasUser) {
+      res.status(200).json({
+        data: {
+          email: email
+        }
+      })
+    } else {
+      res.status(200).json({
+        data: '此用戶不存在'
+      })
+    }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
+
+// 註冊
 const signupUser = async (req, res, next) => {
   const { username, email, password } = req.body; 
   const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
@@ -27,5 +52,6 @@ const signupUser = async (req, res, next) => {
 }
 
 module.exports = {
+  userSignin,
   signupUser
 }
