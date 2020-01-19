@@ -18,6 +18,24 @@ const generateAccessToken = (email, password) => {
   }
 }
 
+// 其實上下兩個方法非常像，但刻意分開寫是為了之後看 code 比較方便
+const hashThirdPartyLoginToken = (originalToken) => {
+  // 加密使用者註冊的第三方原始 token 
+  const hashedKey = crypto.createHash('sha256', process.env.cryptoSecret);
+  const hasedThirdPartyToken = hashedKey.update(originalToken).digest('hex');
+  // 產生我們自己要給使用者的 token
+  const hashedAccessTokenKey = crypto.createHash('sha256', process.env.cryptoSecret);
+  const mixedInfo = originalToken + Date.now()
+  const thirdPartyLoginCustomToken = hashedAccessTokenKey.update(mixedInfo).digest('hex');
+  const tokenExpiredTime = Date.now() + 86400000;
+  return {
+    thirdPartyLoginCustomToken: thirdPartyLoginCustomToken,
+    hasedThirdPartyToken: hasedThirdPartyToken,
+    tokenExpiredTime: tokenExpiredTime
+  }
+}
+
 module.exports = {
-  generateAccessToken
+  generateAccessToken,
+  hashThirdPartyLoginToken
 }

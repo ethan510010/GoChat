@@ -63,7 +63,8 @@ signinBtn.addEventListener('click', function(event) {
     method: 'POST',
     body: JSON.stringify({
       email: signinUserEmailTag.value,
-      password: signinUserPasswordTag.value
+      password: signinUserPasswordTag.value,
+      signinway: 'native'
     }),
     headers: new Headers({
       'Content-Type': 'application/json'
@@ -81,3 +82,48 @@ signinBtn.addEventListener('click', function(event) {
     }
   })
 })
+
+// FB 登入
+// 前端 Fb 登入拿 Token
+const fbLoginBtn = document.querySelector('.facebook_login_area');
+fbLoginBtn.addEventListener('click', function (e) {
+  FB.getLoginStatus((response) => {
+    statusChangeCallback(response);
+  });
+})
+
+function statusChangeCallback(response) {
+  if (response.status === 'connected') {
+    // user登入了
+    const { accessToken } = response.authResponse;
+    fetchUSerInfo(accessToken);
+  } else {
+    FB.login((fbResponse) => {
+      // 拿到accessToken，提供給後端
+      statusChangeCallback(fbResponse);
+    }, { scope: 'public_profile,email' });
+  }
+}
+
+// 前端打我們自己的後端 api
+function fetchUSerInfo(accessToken) {
+  // 打我們自己的api
+  fetch('/users/signin', {
+    method: 'POST',
+    body: JSON.stringify({
+      signinway: 'facebook',
+      thirdPartyAuthToken: accessToken
+    }),
+    headers: new Headers({
+      'Content-Type': 'application/json',
+    }),
+  })
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
+    .then((info) => {
+      // 前端設定cookie
+      document.cookie = `access_token=${info.data.accessToken}`;
+      // 切換到主頁
+      // window.location = '/profile.html';
+    });
+}

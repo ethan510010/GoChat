@@ -41,8 +41,10 @@ function createGeneralUser(userBasicSQL, userDetailsSQL) {
               reject(insertBasicErr);
             })
           }
-          const insertUserId = result.insertId;
-          connection.query(userDetailsSQL, insertUserId, (insertDetailErr, result) => {
+          const userId = result.insertId;
+          console.log(userDetailsSQL)
+          console.log(userId)
+          connection.query(userDetailsSQL, [userId], (insertDetailErr, result) => {
             if (insertDetailErr) {
               return connection.rollback(() => {
                 connection.release();
@@ -57,7 +59,7 @@ function createGeneralUser(userBasicSQL, userDetailsSQL) {
                 })
               }
               console.log('新增用戶成功')
-              resolve(insertUserId);
+              resolve(userId);
               connection.release();
             })
           })
@@ -69,6 +71,7 @@ function createGeneralUser(userBasicSQL, userDetailsSQL) {
 
 module.exports = {
   exec, 
-  createGeneralUser
+  createGeneralUser,
+  escape: mySQL.escape
 }
 
