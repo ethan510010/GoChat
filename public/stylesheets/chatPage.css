@@ -1,3 +1,38 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Header */
 header {
-  
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+#language_area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#small_avatar img {
+  border-radius: 50%;
+}
+
+/* 聊天區塊 */
+.content {
+  width: 100%;
+  display: flex;
+}
+
+.side_pad {
+  width: 20%;
+  background-color: #469BE5;
+  height: 300px;
+}
+
+.chat_content {
+  width: 80%;
+  background-color: #000000;
+  height: 300px;
 }

@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 require('dotenv').config();
-const { insertUser, searchUser } = require('../model/users');
+const { insertUser, searchUser, getUserProfileByToken } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise'); 
 
@@ -101,7 +101,23 @@ const signupUser = async (req, res) => {
   }
 }
 
+// 使用者資料
+const getUserProfile = async (req, res) => {
+  const accessToken = req.headers.authorization.replace('Bearer ', '');
+  try {
+    const userProfile = await getUserProfileByToken(accessToken);
+    res.status(200).json({
+      data: userProfile
+    });
+  } catch (error) {
+    res.status(500).json({
+      data: error.message
+    })
+  }
+}
+
 module.exports = {
   userSignin,
-  signupUser
+  signupUser,
+  getUserProfile
 }

@@ -1,3 +1,4 @@
+// Socket.io 有關的 code
 const socket = io.connect('ws://localhost:3000');
 
 socket.on('connect', () => {
@@ -7,3 +8,6 @@ socket.on('connect', () => {
 socket.on('message', (dataFromServer) => {
   console.log(dataFromServer)
 })
+
+// restful api 拿取必要資訊
+// 1. userProfile
