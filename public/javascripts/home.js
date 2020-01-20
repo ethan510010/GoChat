@@ -46,6 +46,7 @@ signupBtn.addEventListener('click', (e) => {
         alert('The email has already been registered.')
       } else {
         // 註冊成功進到主聊天界面
+        window.location = '/chatPage.html'
       }
     })
   } else {
@@ -79,6 +80,7 @@ signinBtn.addEventListener('click', function(event) {
     } else {
       // 登入成功，切換到主頁
       console.log('登入成功')
+      window.location = '/chatPage.html'
     }
   })
 })

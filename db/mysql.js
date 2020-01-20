@@ -17,7 +17,7 @@ function exec(sql) {
 }
 
 // Create User use
-function createGeneralUser(userBasicSQL, userDetailsSQL) {
+function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
   return new Promise((resolve, reject) => {
     mySQLPool.getConnection((err, connection) => {
       if (err) {
@@ -34,7 +34,10 @@ function createGeneralUser(userBasicSQL, userDetailsSQL) {
           })
         }
         // 沒有錯誤
-        connection.query(userBasicSQL, (insertBasicErr, result) => {
+        connection.query(userBasicSQL, [userInfoObj.accessToken, 
+          userInfoObj.fbAccessToken, 
+          userInfoObj.provider, 
+          userInfoObj.expiredDate], (insertBasicErr, result) => {
           if (insertBasicErr) {
             return connection.rollback(() => {
               connection.release();
@@ -42,9 +45,17 @@ function createGeneralUser(userBasicSQL, userDetailsSQL) {
             })
           }
           const userId = result.insertId;
-          console.log(userDetailsSQL)
-          console.log(userId)
-          connection.query(userDetailsSQL, [userId], (insertDetailErr, result) => {
+          // 要帶進去的參數根據 provider 變換
+          let parameters = [];
+          switch (userInfoObj.provider) {
+            case 'native':
+              parameters = [userInfoObj.avatarUrl, userInfoObj.email, userInfoObj.password, userInfoObj.name, userId]
+              break;
+            case 'facebook':
+              parameters = [userInfoObj.avatarUrl, userInfoObj.name, userInfoObj.email, userId]
+              break;
+          }
+          connection.query(userDetailsSQL, parameters, (insertDetailErr, result) => {
             if (insertDetailErr) {
               return connection.rollback(() => {
                 connection.release();

@@ -7,7 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('easychat:server');
 var http = require('http');
-
+// 導入 socketio
+var io = require('../socket/socketAPI')
 /**
  * Get port from environment and store in Express.
  */
@@ -21,6 +22,8 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+// 啟動 Socket.io
+io.getSocketio(server)
 /**
  * Listen on provided port, on all network interfaces.
  */

@@ -9,33 +9,42 @@ const insertUser = async (
   email,
   password,
   name) => {
+    const userInfoObj = {
+      accessToken,
+      fbAccessToken,
+      provider,
+      expiredDate,
+      avatarUrl,
+      email,
+      password,
+      name
+    }
     const insertUserBasicSQL = `
       INSERT INTO user SET 
-      access_token='${accessToken}',
-      fb_access_token='${fbAccessToken}',
-      provider='${provider}',
-      expired_date=${expiredDate}`;
+      access_token=?,
+      fb_access_token=?,
+      provider=?,
+      expired_date=?`;
 
     let insertUserDetailSQL = '';
     if (provider === 'native') {
       insertUserDetailSQL = `
       INSERT INTO general_user_info SET
-      avatarUrl='${avatarUrl}',
-      email='${email}',
-      password='${password}',
-      name='${name}',
+      avatarUrl=?,
+      email=?,
+      password=?,
+      name=?,
       userId=?`;
     } else if (provider === 'facebook') {
       insertUserDetailSQL = `
       INSERT INTO fb_info SET
-      fb_avatar_url='${avatarUrl}',
-      fb_name='${name}',
-      fb_email='${email}',
+      fb_avatar_url=?,
+      fb_name=?,
+      fb_email=?,
       userId=?`;
-      console.log(insertUserDetailSQL)
     }
-  
-    const insertUserResult = await createGeneralUser(insertUserBasicSQL, insertUserDetailSQL);
+
+    const insertUserResult = await createGeneralUser(insertUserBasicSQL, insertUserDetailSQL, userInfoObj);
     return insertUserResult;
 }
 
