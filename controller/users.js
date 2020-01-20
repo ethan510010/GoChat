@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 require('dotenv').config();
-const { insertUser, searchUser, getUserProfileByToken } = require('../model/users');
+const { insertUser, searchUser, getUserProfileByToken, updateUserToken } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise'); 
 
@@ -13,18 +13,26 @@ const userSignin = async (req, res) => {
       try {
         const { userId, hasUser, name, avatarUrl } = await searchUser(email, hashedUserPassword);
         if (hasUser) {
-          res.status(200).json({
-            data: {
-              accessToken: accessToken,
-              expiredDate: tokenExpiredDate,
-              user: {
-                userId: userId,
-                email: email, 
-                name: name,
-                avatarUrl: avatarUrl
+          // 重新登入要更新 token
+          const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate);
+          if (updateResult === true) {
+            res.status(200).json({
+              data: {
+                accessToken: accessToken,
+                expiredDate: tokenExpiredDate,
+                user: {
+                  userId: userId,
+                  email: email, 
+                  name: name,
+                  avatarUrl: avatarUrl
+                }
               }
-            }
-          })
+            })
+          } else {
+            res.status(200).json({
+              data: '更新Token失敗'
+            })
+          }
         } else {
           res.status(200).json({
             data: '此用戶不存在'

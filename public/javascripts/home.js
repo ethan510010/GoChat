@@ -46,6 +46,7 @@ signupBtn.addEventListener('click', (e) => {
         alert('The email has already been registered.')
       } else {
         // 註冊成功進到主聊天界面
+        document.cookie = `access_token=${response.data.accessToken}`;
         window.location = '/chatPage.html'
       }
     })
@@ -80,6 +81,8 @@ signinBtn.addEventListener('click', function(event) {
     } else {
       // 登入成功，切換到主頁
       console.log('登入成功')
+      console.log(response.data.accessToken)
+      document.cookie = `access_token=${response.data.accessToken}`;
       window.location = '/chatPage.html'
     }
   })
@@ -98,7 +101,7 @@ function statusChangeCallback(response) {
   if (response.status === 'connected') {
     // user登入了
     const { accessToken } = response.authResponse;
-    fetchUSerInfo(accessToken);
+    fetchUserInfo(accessToken);
   } else {
     FB.login((fbResponse) => {
       // 拿到accessToken，提供給後端
@@ -108,7 +111,7 @@ function statusChangeCallback(response) {
 }
 
 // 前端打我們自己的後端 api
-function fetchUSerInfo(accessToken) {
+function fetchUserInfo(accessToken) {
   // 打我們自己的api
   fetch('/users/signin', {
     method: 'POST',
@@ -126,6 +129,6 @@ function fetchUSerInfo(accessToken) {
       // 前端設定cookie
       document.cookie = `access_token=${info.data.accessToken}`;
       // 切換到主頁
-      // window.location = '/profile.html';
+      window.location = '/chatPage.html';
     });
 }

@@ -88,6 +88,21 @@ const searchUser = async (email, password) => {
   }
 }
 
+const updateUserToken = async (id, token, expiredTime) => {
+  const updateSQL = `
+    UPDATE user SET
+    access_token='${token}',
+    expired_date=${expiredTime}
+    WHERE id=${id}
+  `
+  const updateResult = await exec(updateSQL);
+  if (updateResult) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 const getUserProfileByToken = async (token) => {
   const getProviderSQL = `
     select provider as provider, 
@@ -144,9 +159,28 @@ const getUserProfileByToken = async (token) => {
   }
 }
 
+const getTokenExpiredTime = async (token) => {
+  const tokenExpiredTime = await exec(`
+    select expired_date as expiredTime
+    from user where access_token='${token}'
+  `)
+
+  if (tokenExpiredTime[0].expiredTime) {
+    return {
+      expiredTime: tokenExpiredTime[0].expiredTime
+    }
+  } else {
+    return {
+      expiredTime: 0
+    }
+  }
+}
+
 module.exports = {
   insertUser,
   searchUser,
   checkExistingUserEmail,
-  getUserProfileByToken
+  getUserProfileByToken,
+  getTokenExpiredTime,
+  updateUserToken
 }
