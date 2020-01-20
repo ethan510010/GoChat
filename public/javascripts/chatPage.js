@@ -45,7 +45,8 @@ if (!accessToken || accessToken === '') {
       console.log('獲取用戶資料有問題');
       window.location = '/'
     } else {
-      console.log('大頭貼', validResponse.data.avatarUrl);
+      const avatarImg = document.querySelector('#small_avatar img');
+      avatarImg.src = validResponse.data.avatarUrl;
       console.log('email', validResponse.data.email);
       console.log('name', validResponse.data.name);
     }

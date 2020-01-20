@@ -2,14 +2,31 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Header */
 header {
+  position: fixed;
+  top: 0;
+  height: 60px;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  align-items: center;
 }
 
 #language_area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#small_avatar {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -21,18 +38,42 @@ header {
 
 /* 聊天區塊 */
 .content {
-  width: 100%;
   display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 60px;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
 }
 
 .side_pad {
   width: 20%;
   background-color: #469BE5;
-  height: 300px;
 }
 
 .chat_content {
   width: 80%;
-  background-color: #000000;
-  height: 300px;
+  overflow: hidden;
+}
+
+#chat_area {
+  width: 100%;
+  height: calc(95% - 3px);
+  background-color: yellow;
+  float: left;
+}
+
+#resize {
+  width: 100%;
+  height: 5px;
+  cursor: row-resize;
+  float: left;
+}
+
+#draw_area {
+  width: 100%;
+  float: right;
+  height: 5%;
+  background-color: purple;
 }
