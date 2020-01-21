@@ -1,7 +1,7 @@
 const socket_io = require('socket.io');
 
 let socketio = {};
-//获取io
+// 獲取io
 socketio.getSocketio = function(server) {
   const io = socket_io.listen(server);
   io.on('connection', function(socket) {

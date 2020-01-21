@@ -8,6 +8,11 @@ html, body {
   padding: 0;
 }
 
+/* 方便debug用，到時記得刪 */
+div {
+  border: 1px solid #000000;
+}
+
 /* Header */
 header {
   position: fixed;
@@ -47,10 +52,72 @@ header {
   width: 100%;
 }
 
+/* 左半邊側欄 */
 .side_pad {
   width: 20%;
-  background-color: #469BE5;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
 }
+
+.upper_section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.upper_section .room_header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.room_header .add_room {
+  width: 50px;
+  height: 50px;
+  background-image: url('../images/plus.png');
+}
+
+/* 彈出式視窗 (create channel) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 聊天視窗 */
 
 .chat_content {
   width: 80%;
@@ -60,8 +127,9 @@ header {
 #chat_area {
   width: 100%;
   height: calc(95% - 3px);
-  background-color: yellow;
+  background-color: #FFFFFF;
   float: left;
+  position: relative;
 }
 
 #resize {
@@ -77,3 +145,22 @@ header {
   height: 5%;
   background-color: purple;
 }
+
+/* 聊天區塊內部 */
+#message_input {
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+#message_window {
+  width: 80%;
+}
+
+#send_btn {
+  width: 20%;
+}
+
