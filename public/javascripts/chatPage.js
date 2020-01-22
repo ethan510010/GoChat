@@ -17,6 +17,8 @@ function getCookie(cname) {
   return "";
 }
 
+let currentUserId = null;
+
 const accessToken = getCookie('access_token');
 if (!accessToken || accessToken === '') {
   window.location = '/';
@@ -38,6 +40,8 @@ if (!accessToken || accessToken === '') {
       avatarImg.src = validResponse.data.avatarUrl;
       console.log('email', validResponse.data.email);
       console.log('name', validResponse.data.name);
+      console.log('當前UserId', validResponse.data.userId);
+      currentUserId = validResponse.data.userId;
     }
   })
 }
@@ -76,13 +80,11 @@ invitePeopleTag.addEventListener('focus', function(e) {
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function() {
-  console.log("全部用戶" ,allUsers)
   let selectedMembers = [];
   const channelName = document.querySelector('#addRoomModal .enter_channel_name').value;
   // 這邊邏輯之後會配合邀請成員的 UI 修改跟著變動
   const memberListStr = document.querySelector('.modal-content .enter_member_name').value;
   const memberList = memberListStr.split(',');
-  console.log('打上去的用戶', memberList)
   for (let index = 0; index < allUsers.length; index++) {
     const user = allUsers[index];
     for (let i = 0; i < memberList.length; i++) {
@@ -92,6 +94,61 @@ buildChannelBtn.addEventListener('click', function() {
       }
     }
   }
+  // 把當前用戶的 id 先放進去
+  let userIdList = [currentUserId];
+  for (let i = 0; i < selectedMembers.length; i++) {
+    const userDetail = selectedMembers[i];
+    userIdList.push(userDetail.userId);
+  }
   // 打 api 創建 Room
-  console.log(selectedMembers);
+  fetch('/rooms/createRoom', {
+    method: 'POST',
+    body: JSON.stringify({
+      channelName: channelName,
+      userIdList: userIdList
+    }),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  }).then((response) => response.json())
+  .catch((error) => console.log(error))
+  .then((validResponse) => {
+    if (typeof validResponse.data === 'string') {
+      alert('新增房間失敗，請稍後再試');
+    } else {
+      // 新增成功這邊要讓前端顯示房間
+      const modal = document.getElementById('addRoomModal');
+      modal.style.display = 'none';
+      // 新增 Room 到畫面上
+      const roomListArea = document.querySelector('.side_pad .upper_section');
+      const roomTitleTag = document.createElement('p');
+      roomTitleTag.textContent = channelName;
+      const newCreatedRoomTag = document.createElement('div');
+      newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`)
+      newCreatedRoomTag.appendChild(roomTitleTag);
+      roomListArea.appendChild(newCreatedRoomTag);
+    }
+  })
 })
+
+// 4. 獲取房間列表
+ function fetchChatRooms() {
+    fetch('/rooms/getRooms')
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
+    .then((validResponse) => {
+      const rooms = validResponse.data;
+      for (let index = 0; index < rooms.length; index++) {
+        const eachRoom = rooms[index];
+        const roomListArea = document.querySelector('.side_pad .upper_section');
+        const roomTitleTag = document.createElement('p');
+        roomTitleTag.textContent = eachRoom.name;
+        const newCreatedRoomTag = document.createElement('div');
+        newCreatedRoomTag.setAttribute('id', `channelId_${eachRoom.id}`)
+        newCreatedRoomTag.appendChild(roomTitleTag);
+        roomListArea.appendChild(newCreatedRoomTag);
+      }
+    })
+ } 
+
+ fetchChatRooms();

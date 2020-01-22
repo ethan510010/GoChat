@@ -40,7 +40,6 @@ function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
             })
           }
           const roomId = result.insertId;
-          const eachCreateRoomAndUserResult = [];
           for (let index = 0; index < userIdList.length; index++) {
             const eachUserId = userIdList[index];
             connection.query(junstionSQL, [roomId, eachUserId], (err, result) => {
@@ -50,7 +49,6 @@ function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
                   reject(err);
                 })
               }
-              eachCreateRoomAndUserResult.push(result);
             })
           }
           connection.commit((commitErr) => {
@@ -60,7 +58,9 @@ function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
                 reject(commitErr);
               })
             }
-            resolve(eachCreateRoomAndUserResult);
+            resolve({
+              channelId: roomId, 
+              allUsers: userIdList});
             connection.release();
             console.log('新增 Room 及綁定 User 成功');
           })

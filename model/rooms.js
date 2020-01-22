@@ -13,6 +13,12 @@ const insertNewRoom = async (roomName, userIdList) => {
   return createRoomResultList;
 }
 
+const getRooms = async () => {
+  const allRoomsResultList = await exec(`select * from room`);
+  return allRoomsResultList;
+}
+
 module.exports = {
-  insertNewRoom
+  insertNewRoom,
+  getRooms
 }
