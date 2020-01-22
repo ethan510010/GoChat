@@ -1,4 +1,4 @@
-const { createGeneralUser, exec, escape } = require('../db/mysql')
+const { createGeneralUser, exec, escape, updateFBUserInfo } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -48,6 +48,36 @@ const insertUser = async (
   return insertUserResult;
 }
 
+const updateUserFBInfo = async (userId, accessToken, fbAccessToken, provider, expiredDate, avatarUrl, fbEmail, fbUserName) => {
+  const userInfoObj = {
+    userId,
+    accessToken,
+    fbAccessToken,
+    provider,
+    expiredDate,
+    avatarUrl,
+    fbEmail,
+    fbUserName
+  }
+  const updateGeneralUserInfoSQL = `
+    update user set
+    access_token=?,
+    fb_access_token=?,
+    provider=?,
+    expired_date=?
+    where id=${userId}
+  `
+  const updateFBUserDetailsSQL = `
+    update fb_info set
+    fb_avatar_url=?,
+    fb_name=?,
+    fb_email=?
+    where userId=${userId}
+  `
+  const updateFBResult = await updateFBUserInfo(updateGeneralUserInfoSQL, updateFBUserDetailsSQL, userInfoObj);
+  return updateFBResult;
+}
+
 const checkExistingUserEmail = async (email) => {
   const searchUserSQL = `
     SELECT general_user_info.email as email FROM user 
@@ -84,6 +114,23 @@ const searchUser = async (email, password) => {
     return {
       userId: 0,
       hasUser: false,
+    };
+  }
+}
+
+const searchFBUser = async (fbEmail) => {
+  const searchResult = await exec(`
+    select userId from fb_info where fb_email='${fbEmail}'
+  `)
+  if (searchResult.length > 0) {
+    return {
+      userId: searchResult[0].userId,
+      hasFBUser: true
+    };
+  } else {
+    return {
+      userId: null,
+      hasFBUser: false
     };
   }
 }
@@ -176,11 +223,56 @@ const getTokenExpiredTime = async (token) => {
   }
 }
 
+const getAllUsers = async() => {
+  // 這邊之後調整減少 query
+  let users = [];
+  const listNativeUsers = await exec(`
+    select user.id as userId, provider, avatarUrl, email, name 
+    from user
+    inner join general_user_info
+    on user.id = general_user_info.userId
+  `);
+  const listfavebookUsers = await exec(`
+    select user.id as userId, provider, fb_info.fb_avatar_url as avatarUrl, fb_info.fb_email as email, fb_info.fb_name as name
+    from user
+    inner join fb_info
+    on user.id = fb_info.userId
+  `)
+  for (let index = 0; index < listNativeUsers.length; index++) {
+    const nativeUser = listNativeUsers[index];
+    const { userId, provider, avatarUrl, email, name } = nativeUser;
+    const nativeUserInfo = {
+      userId: userId,
+      provider: provider,
+      avatarUrl: avatarUrl,
+      email: email,
+      name: name
+    }
+    users.push(nativeUserInfo)
+  }  
+  for (let index = 0; index < listfavebookUsers.length; index++) {
+    const fbUser = listfavebookUsers[index];
+    const { userId, provider, avatarUrl, email, name } = fbUser;
+    const fbUserInfo = {
+      userId: userId,
+      provider: provider,
+      avatarUrl: avatarUrl,
+      email: email,
+      name: name
+    }
+    users.push(fbUserInfo)
+  }
+  return users;
+}
+
 module.exports = {
   insertUser,
   searchUser,
+  searchFBUser,
+  updateUserFBInfo,
   checkExistingUserEmail,
   getUserProfileByToken,
   getTokenExpiredTime,
-  updateUserToken
+  updateUserToken,
+  getAllUsers
 }

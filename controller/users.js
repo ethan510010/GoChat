@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 require('dotenv').config();
-const { insertUser, searchUser, getUserProfileByToken, updateUserToken } = require('../model/users');
+const { insertUser, searchFBUser, searchUser, getUserProfileByToken, updateUserToken, updateUserFBInfo, getAllUsers } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise'); 
 
@@ -56,10 +56,16 @@ const userSignin = async (req, res) => {
       const fbUserName = fbResponse.name;
       const fbPicture = fbResponse.picture.data.url;
       const fbEmail = fbResponse.email;
-      // 新增使用者 fb 資料
       const { hasedThirdPartyToken, tokenExpiredTime, thirdPartyLoginCustomToken } = hashThirdPartyLoginToken(thirdPartyAuthToken);
       try {
-        const valiudUserId = await insertUser(thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, '', fbUserName);
+        // 如果該 fb user email 不存在就新增使用者 fb 資料，否則就單純更新
+        let valiudUserId = 0;
+        const { userId, hasFBUser } = await searchFBUser(fbEmail);
+        if (hasFBUser) {
+          validUserId = await updateUserFBInfo(userId, thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, fbUserName);
+        } else {
+          valiudUserId = await insertUser(thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, '', fbUserName);
+        }
         res.status(200).json({
           data: {
             accessToken: thirdPartyLoginCustomToken,
@@ -124,8 +130,23 @@ const getUserProfile = async (req, res) => {
   }
 }
 
+// 列出全部用戶
+const listAllUsers = async (req, res) => {
+  try {
+    const allUsers = await getAllUsers();
+    res.status(200).json({
+      data: allUsers
+    })
+  } catch (error) {
+    res.status(500).json({
+      data: error.message
+    })
+  }
+}
+
 module.exports = {
   userSignin,
   signupUser,
-  getUserProfile
+  getUserProfile,
+  listAllUsers
 }
