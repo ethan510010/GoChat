@@ -17,7 +17,7 @@ function getCookie(cname) {
   return "";
 }
 
-let currentUserId = null;
+let currentUserDetail = {};
 
 const accessToken = getCookie('access_token');
 if (!accessToken || accessToken === '') {
@@ -38,10 +38,8 @@ if (!accessToken || accessToken === '') {
     } else {
       const avatarImg = document.querySelector('#small_avatar img');
       avatarImg.src = validResponse.data.avatarUrl;
-      console.log('email', validResponse.data.email);
-      console.log('name', validResponse.data.name);
-      console.log('當前UserId', validResponse.data.userId);
-      currentUserId = validResponse.data.userId;
+      currentUserDetail = validResponse.data;
+      console.log('當前用戶', currentUserDetail);
     }
   })
 }
@@ -95,7 +93,7 @@ buildChannelBtn.addEventListener('click', function() {
     }
   }
   // 把當前用戶的 id 先放進去
-  let userIdList = [currentUserId];
+  let userIdList = [currentUserDetail.userId];
   for (let i = 0; i < selectedMembers.length; i++) {
     const userDetail = selectedMembers[i];
     userIdList.push(userDetail.userId);
@@ -121,11 +119,9 @@ buildChannelBtn.addEventListener('click', function() {
       modal.style.display = 'none';
       // 新增 Room 到畫面上
       const roomListArea = document.querySelector('.side_pad .upper_section');
-      const roomTitleTag = document.createElement('p');
-      roomTitleTag.textContent = channelName;
       const newCreatedRoomTag = document.createElement('div');
+      newCreatedRoomTag.textContent = channelName;
       newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`)
-      newCreatedRoomTag.appendChild(roomTitleTag);
       roomListArea.appendChild(newCreatedRoomTag);
     }
   })
@@ -141,14 +137,85 @@ buildChannelBtn.addEventListener('click', function() {
       for (let index = 0; index < rooms.length; index++) {
         const eachRoom = rooms[index];
         const roomListArea = document.querySelector('.side_pad .upper_section');
-        const roomTitleTag = document.createElement('p');
-        roomTitleTag.textContent = eachRoom.name;
-        const newCreatedRoomTag = document.createElement('div');
-        newCreatedRoomTag.setAttribute('id', `channelId_${eachRoom.id}`)
-        newCreatedRoomTag.appendChild(roomTitleTag);
-        roomListArea.appendChild(newCreatedRoomTag);
+        const eachRoomTag = document.createElement('div');
+        eachRoomTag.setAttribute('id', `channelId_${eachRoom.id}`)
+        eachRoomTag.textContent = eachRoom.name;
+        roomListArea.appendChild(eachRoomTag);
       }
     })
  } 
 
  fetchChatRooms();
+
+// Socket.io 有關的 code
+const socket = io.connect('ws://localhost:3000');
+
+// 切換到的 Room
+let roomDetail = {};
+// 紀錄上一次切換的 Room (給一個永不成立的 room)
+let lastChooseRoom = {
+  roomId: -1,
+  roomTitle: ''
+};
+
+const sidePadChannelSection = document.querySelector('.side_pad .upper_section');
+sidePadChannelSection.addEventListener('click', function(event) {
+  if (event.target && event.target.nodeName.toUpperCase() === 'DIV') {
+    roomDetail = {
+      roomId: event.target.getAttribute('id'),
+      roomTitle: event.target.textContent 
+    }
+
+    const roomTitleTag = document.querySelector('#room_title h1');
+    roomTitleTag.textContent = roomDetail.roomTitle;
+
+    // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
+    console.log('roomDetail', roomDetail)
+    console.log('lastChooseRoom', lastChooseRoom)
+    if (roomDetail.roomId !== lastChooseRoom.roomId) {
+      socket.emit('join', {
+        roomInfo: roomDetail,
+        userInfo: currentUserDetail
+      }, (error) => {
+        if (error) {
+          alert(error)
+          window.location ='/'
+        }
+      })
+
+      socket.emit('leave', {
+        lastChooseRoom: lastChooseRoom,
+        userInfo: currentUserDetail
+      }, (error) => {
+        if (error) {
+          alert(error)
+          window.location ='/'
+        }
+      });
+      lastChooseRoom.roomId = roomDetail.roomId;
+      lastChooseRoom.roomTitle = roomDetail.roomTitle;
+    }
+  }
+})
+
+// 發送簡單訊息
+const enterMessageInput = document.querySelector('#message_window');
+const sendMessageBtn = document.querySelector('#send_btn');
+
+sendMessageBtn.addEventListener('click', function() {
+  socket.emit('clientMessage', { 
+    roomDetail: roomDetail,
+    userInfo: currentUserDetail,
+    messageContent: enterMessageInput.value
+   });
+})
+
+// 接收 Server 端發過來的 message 事件
+socket.on('message', (dataFromServer) => {
+  console.log(dataFromServer)
+  const chatFlowContent = document.getElementById('message_flow_area');
+  const eachMessageDiv = document.createElement('div');
+  eachMessageDiv.classList.add('message_block');
+  eachMessageDiv.textContent = dataFromServer  
+  chatFlowContent.appendChild(eachMessageDiv);
+})
