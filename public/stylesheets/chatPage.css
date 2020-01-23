@@ -163,6 +163,22 @@ header {
   flex-direction: row;
 }
 
+#message_flow_area .message_block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#message_flow_area img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+#message_flow_area .nameAndMessage {
+  margin-left: 20px;
+}
+
 #message_window {
   width: 80%;
 }

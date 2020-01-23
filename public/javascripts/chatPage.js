@@ -212,10 +212,26 @@ sendMessageBtn.addEventListener('click', function() {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
-  console.log(dataFromServer)
+  const { avatarUrl, name } = dataFromServer.userInfo;
   const chatFlowContent = document.getElementById('message_flow_area');
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
-  eachMessageDiv.textContent = dataFromServer  
+    
+  // 頭像
+  const avatarImg = document.createElement('img');
+  avatarImg.src = avatarUrl;
+  eachMessageDiv.appendChild(avatarImg);
+  // 名稱
+  const userNameTag = document.createElement('p');
+  userNameTag.textContent = name;
+  // 訊息
+  const messageMainContent = document.createElement('p');
+  messageMainContent.textContent = dataFromServer.messageContent;
+  // 訊息跟名字包一起
+  const nameAndMessageDiv = document.createElement('div');
+  nameAndMessageDiv.classList.add('nameAndMessage');
+  nameAndMessageDiv.appendChild(userNameTag);
+  nameAndMessageDiv.appendChild(messageMainContent);
+  eachMessageDiv.appendChild(nameAndMessageDiv);
   chatFlowContent.appendChild(eachMessageDiv);
 })

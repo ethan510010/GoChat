@@ -21,9 +21,7 @@ socketio.getSocketio = function(server) {
     })
 
     socket.on('leave', (leaveInfo) => {
-      if (leaveInfo.lastChooseRoom.roomId === -1) {
-        console.log('不需要處理'); 
-      } else {
+      if (leaveInfo.lastChooseRoom.roomId !== -1) {
         const { lastChooseRoom, userInfo } = leaveInfo;
         const { roomId, roomTitle }  = lastChooseRoom; 
         // 因為 javascript 無法直接用 indexOf 比較 object，所以這邊利用 userId 來找
@@ -40,9 +38,8 @@ socketio.getSocketio = function(server) {
 
     socket.on('clientMessage', (dataFromClient) => {
       console.log("接受 client 端送過來的", dataFromClient.roomDetail)
-      io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient.messageContent);
+      io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
     })
-
 
   })
 };
