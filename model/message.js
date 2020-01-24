@@ -10,7 +10,8 @@ const listSpecifiedRoomMessages = async (roomId) => {
     left join fb_info
     on tempTable.userId=fb_info.userId) as wholeUserTable
     on message.userId=wholeUserTable.userId
-    where roomId=${roomId}
+    where roomId=${roomId} 
+    order by createdTime desc
   `);
   return messages;
 }

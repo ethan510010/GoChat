@@ -149,7 +149,8 @@ buildChannelBtn.addEventListener('click', function() {
 
 // Socket.io 有關的 code
 const socket = io.connect('ws://localhost:3000');
-
+// 聊天室主區塊 Div
+const chatFlowContent = document.getElementById('message_flow_area');
 // 切換到的 Room
 let currentSelectedRoom = {};
 // 紀錄上一次切換的 Room (給一個永不成立的 room)
@@ -171,7 +172,21 @@ sidePadChannelSection.addEventListener('click', function(event) {
     roomTitleTag.textContent = currentSelectedRoom.roomTitle;
 
     // 打 restful Api 獲取聊天室內容
+      // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
+    const chatContentArea = document.querySelector('#message_flow_area');
+    chatContentArea.innerHTML = '';
 
+    fetch(`/messages/getMessages?roomId=${validRoomId}`)    
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
+    .then((validResponse) => {
+      const chatMessageList = validResponse.data;
+      for (let index = 0; index < chatMessageList.length; index++) {
+        const eachMessage = chatMessageList[index];
+        const { avatarUrl, name, messageContent } = eachMessage;
+        showChatContent(avatarUrl, name, messageContent);
+      }
+    })
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
     console.log('roomDetail', currentSelectedRoom)
@@ -220,7 +235,11 @@ socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
   const { avatarUrl, name } = dataFromServer.userInfo;
-  const chatFlowContent = document.getElementById('message_flow_area');
+  showChatContent(avatarUrl, name, dataFromServer.messageContent);
+})
+
+//  顯示聊天室內容 UI
+function showChatContent(avatarUrl, name, messageContent) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
     
@@ -233,7 +252,7 @@ socket.on('message', (dataFromServer) => {
   userNameTag.textContent = name;
   // 訊息
   const messageMainContent = document.createElement('p');
-  messageMainContent.textContent = dataFromServer.messageContent;
+  messageMainContent.textContent = messageContent;
   // 訊息跟名字包一起
   const nameAndMessageDiv = document.createElement('div');
   nameAndMessageDiv.classList.add('nameAndMessage');
@@ -241,4 +260,4 @@ socket.on('message', (dataFromServer) => {
   nameAndMessageDiv.appendChild(messageMainContent);
   eachMessageDiv.appendChild(nameAndMessageDiv);
   chatFlowContent.appendChild(eachMessageDiv);
-})
+}

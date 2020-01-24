@@ -136,7 +136,13 @@ header {
   height: calc(95% - 3px);
   background-color: #FFFFFF;
   float: left;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#message_flow_area {
+  overflow-y: scroll;
 }
 
 #resize {
@@ -156,9 +162,6 @@ header {
 /* 聊天區塊內部 */
 #message_input {
   width: 100%;
-  position: absolute;
-  left: 0;
-  bottom: 0;
   display: flex;
   flex-direction: row;
 }
