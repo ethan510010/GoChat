@@ -151,7 +151,7 @@ buildChannelBtn.addEventListener('click', function() {
 const socket = io.connect('ws://localhost:3000');
 
 // 切換到的 Room
-let roomDetail = {};
+let currentSelectedRoom = {};
 // 紀錄上一次切換的 Room (給一個永不成立的 room)
 let lastChooseRoom = {
   roomId: -1,
@@ -162,20 +162,23 @@ const sidePadChannelSection = document.querySelector('.side_pad .upper_section')
 sidePadChannelSection.addEventListener('click', function(event) {
   if (event.target && event.target.nodeName.toUpperCase() === 'DIV') {
     const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
-    roomDetail = {
+    currentSelectedRoom = {
       roomId: validRoomId,
       roomTitle: event.target.textContent 
     }
-
+    // 改變上方 header UI
     const roomTitleTag = document.querySelector('#room_title h1');
-    roomTitleTag.textContent = roomDetail.roomTitle;
+    roomTitleTag.textContent = currentSelectedRoom.roomTitle;
+
+    // 打 restful Api 獲取聊天室內容
+
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
-    console.log('roomDetail', roomDetail)
+    console.log('roomDetail', currentSelectedRoom)
     console.log('lastChooseRoom', lastChooseRoom)
-    if (roomDetail.roomId !== lastChooseRoom.roomId) {
+    if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
       socket.emit('join', {
-        roomInfo: roomDetail,
+        roomInfo: currentSelectedRoom,
         userInfo: currentUserDetail
       }, (error) => {
         if (error) {
@@ -193,8 +196,8 @@ sidePadChannelSection.addEventListener('click', function(event) {
           window.location ='/'
         }
       });
-      lastChooseRoom.roomId = roomDetail.roomId;
-      lastChooseRoom.roomTitle = roomDetail.roomTitle;
+      lastChooseRoom.roomId = currentSelectedRoom.roomId;
+      lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
     }
   }
 })
@@ -205,7 +208,7 @@ const sendMessageBtn = document.querySelector('#send_btn');
 
 sendMessageBtn.addEventListener('click', function() {
   socket.emit('clientMessage', { 
-    roomDetail: roomDetail,
+    roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
     messageContent: enterMessageInput.value,
     messageTime: Date.now()
@@ -214,6 +217,8 @@ sendMessageBtn.addEventListener('click', function() {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
+  const { roomId, roomTitle } = dataFromServer.roomDetail;
+  console.log('房間資訊', roomId, roomTitle)
   const { avatarUrl, name } = dataFromServer.userInfo;
   const chatFlowContent = document.getElementById('message_flow_area');
   const eachMessageDiv = document.createElement('div');

@@ -48,6 +48,7 @@ socketio.getSocketio = function(server) {
       try {
         const createMessageResult = await insertChatMessage(messageObj);
         if (createMessageResult) {
+          // 儲存成功發送出去
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);    
         }
       } catch (error) {

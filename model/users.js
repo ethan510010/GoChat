@@ -224,44 +224,18 @@ const getTokenExpiredTime = async (token) => {
 }
 
 const getAllUsers = async() => {
-  // 這邊之後調整減少 query
-  let users = [];
-  const listNativeUsers = await exec(`
-    select user.id as userId, provider, avatarUrl, email, name 
-    from user
-    inner join general_user_info
-    on user.id = general_user_info.userId
-  `);
-  const listfavebookUsers = await exec(`
-    select user.id as userId, provider, fb_info.fb_avatar_url as avatarUrl, fb_info.fb_email as email, fb_info.fb_name as name
-    from user
-    inner join fb_info
-    on user.id = fb_info.userId
+  const users = await exec(`
+    select 
+    tempTable.userId, 
+    tempTable.provider, 
+    IFNULL(tempTable.name, fb_info.fb_name) as name, 
+    IFNULL(tempTable.email, fb_info.fb_email) as email, 
+    IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from (select user.id as userId, provider, name, avatarUrl, email from user 
+    left join general_user_info 
+    on user.id=general_user_info.userId) as tempTable
+    left join fb_info
+    on tempTable.userId=fb_info.userId
   `)
-  for (let index = 0; index < listNativeUsers.length; index++) {
-    const nativeUser = listNativeUsers[index];
-    const { userId, provider, avatarUrl, email, name } = nativeUser;
-    const nativeUserInfo = {
-      userId: userId,
-      provider: provider,
-      avatarUrl: avatarUrl,
-      email: email,
-      name: name
-    }
-    users.push(nativeUserInfo)
-  }  
-  for (let index = 0; index < listfavebookUsers.length; index++) {
-    const fbUser = listfavebookUsers[index];
-    const { userId, provider, avatarUrl, email, name } = fbUser;
-    const fbUserInfo = {
-      userId: userId,
-      provider: provider,
-      avatarUrl: avatarUrl,
-      email: email,
-      name: name
-    }
-    users.push(fbUserInfo)
-  }
   return users;
 }
 
