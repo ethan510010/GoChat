@@ -187,11 +187,27 @@ function updateFBUserInfo(generalUserSQL, fbUserSQL, userDetailObj) {
   })
 }
 
+// 儲存聊天訊息
+function createMessageRecord(insertMsgSQL, messageObj) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.query(insertMsgSQL, 
+      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId], 
+      (err, result) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(result);
+    })
+  })
+}
+
 module.exports = {
   exec, 
   createGeneralUser,
   updateFBUserInfo,
   escape: mySQL.escape,
-  createRoomTransaction
+  createRoomTransaction,
+  createMessageRecord
 }
 

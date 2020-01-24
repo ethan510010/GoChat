@@ -161,8 +161,9 @@ let lastChooseRoom = {
 const sidePadChannelSection = document.querySelector('.side_pad .upper_section');
 sidePadChannelSection.addEventListener('click', function(event) {
   if (event.target && event.target.nodeName.toUpperCase() === 'DIV') {
+    const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
     roomDetail = {
-      roomId: event.target.getAttribute('id'),
+      roomId: validRoomId,
       roomTitle: event.target.textContent 
     }
 
@@ -206,7 +207,8 @@ sendMessageBtn.addEventListener('click', function() {
   socket.emit('clientMessage', { 
     roomDetail: roomDetail,
     userInfo: currentUserDetail,
-    messageContent: enterMessageInput.value
+    messageContent: enterMessageInput.value,
+    messageTime: Date.now()
    });
 })
 

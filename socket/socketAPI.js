@@ -1,4 +1,5 @@
 const socket_io = require('socket.io');
+const { insertChatMessage } = require('../model/chatContent');
 
 let roomUsersPair = {};
 let socketio = {};
@@ -31,16 +32,28 @@ socketio.getSocketio = function(server) {
         const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
         if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
           roomUsersPair[roomId].splice(leaveUserIndex, 1);
-          socket.leave(roomId)
+          socket.leave(roomId);
         }
       }
     })
 
-    socket.on('clientMessage', (dataFromClient) => {
-      console.log("接受 client 端送過來的", dataFromClient.roomDetail)
-      io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+    socket.on('clientMessage', async (dataFromClient) => {
+      // 儲存訊息到 mySQL
+      const messageObj = {
+        createdTime: dataFromClient.messageTime,
+        messageContent: dataFromClient.messageContent,
+        userId: dataFromClient.userInfo.userId,
+        roomId: dataFromClient.roomDetail.roomId
+      }
+      try {
+        const createMessageResult = await insertChatMessage(messageObj);
+        if (createMessageResult) {
+          io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);    
+        }
+      } catch (error) {
+        throw error;
+      }
     })
-
   })
 };
 
