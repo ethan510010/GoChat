@@ -178,6 +178,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.email = userDetail[0].email;
             userProfile.name = userDetail[0].name;
             userProfile.expiredTime = expiredTime;
+            userProfile.provider = provider;
           }
           break;
         case 'facebook':
@@ -196,6 +197,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.email = fbUserDetail[0].email;
             userProfile.name = fbUserDetail[0].name;
             userProfile.expiredTime = expiredTime;
+            userProfile.provider = provider;
           } 
           break;
       }

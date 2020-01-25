@@ -1,5 +1,6 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
+const { saveCacheMessage } = require('../db/redis');
 
 let roomUsersPair = {};
 let socketio = {};
@@ -45,10 +46,13 @@ socketio.getSocketio = function(server) {
         userId: dataFromClient.userInfo.userId,
         roomId: dataFromClient.roomDetail.roomId
       }
+      console.log('傳過來的 dataFromClient', dataFromClient)
       try {
         const createMessageResult = await insertChatMessage(messageObj);
         if (createMessageResult) {
-          // 儲存成功發送出去
+          dataFromClient.messageId = createMessageResult.insertId;
+          // 儲存成功發送出去，並存到 redis
+          saveCacheMessage(dataFromClient);
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);    
         }
       } catch (error) {

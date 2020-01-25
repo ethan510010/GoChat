@@ -60,17 +60,6 @@ invitePeopleTag.addEventListener('focus', function(e) {
       // const inviteMembersTag = document.querySelector('.modal-content');
       const users = validResponse.data;
       allUsers = users;
-      // const dataListTag = document.createElement('dataList');
-      // dataListTag.setAttribute('id', 'members');
-      // for (let index = 0; index < users.length; index++) {
-      //   const userInfo = users[index];
-      //   const optionTag = document.createElement('option');
-      //   optionTag.value = userInfo.name;
-      //   optionTag.classList.add(`userId${userInfo.id}`)
-      //   dataListTag.appendChild(optionTag);
-      // }
-      // inviteMembersTag.appendChild(dataListTag);
-      
     }
   })
 })
