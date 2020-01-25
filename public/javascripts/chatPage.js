@@ -180,7 +180,8 @@ sidePadChannelSection.addEventListener('click', function(event) {
     .then((response) => response.json())
     .catch((error) => console.log(error))
     .then((validResponse) => {
-      const chatMessageList = validResponse.data;
+      // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
+      const chatMessageList = validResponse.data.reverse();
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
         const { avatarUrl, name, messageContent } = eachMessage;
