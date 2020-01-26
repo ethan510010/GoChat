@@ -154,13 +154,18 @@ const getUserProfileByToken = async (token) => {
   const getProviderSQL = `
     select provider as provider, 
     expired_date as expiredTime,
-    selected_language as selectedLanguage
-    from user where access_token='${token}' 
+    selected_language as selectedLanguage,
+    last_selected_room_id as lastSelectedRoomId,
+    room.name as roomTitle
+    from user 
+    inner join room
+    on user.last_selected_room_id = room.id
+    where access_token='${token}' 
   `
   try {
     const userRoughInfo = await exec(getProviderSQL);
     if (userRoughInfo[0]) {
-      const { provider, expiredTime, selectedLanguage } = userRoughInfo[0];
+      const { provider, expiredTime, selectedLanguage, lastSelectedRoomId, roomTitle } = userRoughInfo[0];
       let userProfile = {};
       switch (provider) {
         case 'native':
@@ -181,6 +186,8 @@ const getUserProfileByToken = async (token) => {
             userProfile.expiredTime = expiredTime;
             userProfile.provider = provider;
             userProfile.selectedLanguage = selectedLanguage;
+            userProfile.lastSelectedRoomId = lastSelectedRoomId;
+            userProfile.lastSelectedRoomTitle = roomTitle;
           }
           break;
         case 'facebook':
@@ -201,6 +208,8 @@ const getUserProfileByToken = async (token) => {
             userProfile.expiredTime = expiredTime;
             userProfile.provider = provider;
             userProfile.selectedLanguage = selectedLanguage;
+            userProfile.lastSelectedRoomId = lastSelectedRoomId;
+            userProfile.lastSelectedRoomTitle = roomTitle;
           } 
           break;
       }
