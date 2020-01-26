@@ -153,13 +153,14 @@ const updateUserToken = async (id, token, expiredTime) => {
 const getUserProfileByToken = async (token) => {
   const getProviderSQL = `
     select provider as provider, 
-    expired_date as expiredTime 
+    expired_date as expiredTime,
+    selected_language as selectedLanguage
     from user where access_token='${token}' 
   `
   try {
     const userRoughInfo = await exec(getProviderSQL);
     if (userRoughInfo[0]) {
-      const { provider, expiredTime } = userRoughInfo[0];
+      const { provider, expiredTime, selectedLanguage } = userRoughInfo[0];
       let userProfile = {};
       switch (provider) {
         case 'native':
@@ -179,6 +180,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.name = userDetail[0].name;
             userProfile.expiredTime = expiredTime;
             userProfile.provider = provider;
+            userProfile.selectedLanguage = selectedLanguage;
           }
           break;
         case 'facebook':
@@ -198,6 +200,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.name = fbUserDetail[0].name;
             userProfile.expiredTime = expiredTime;
             userProfile.provider = provider;
+            userProfile.selectedLanguage = selectedLanguage;
           } 
           break;
       }

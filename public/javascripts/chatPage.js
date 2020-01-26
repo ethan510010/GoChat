@@ -5,7 +5,7 @@ function getCookie(cname) {
   var name = cname + "=";
   var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
+  for (var i = 0; i < ca.length; i++) {
     var c = ca[i];
     while (c.charAt(0) == ' ') {
       c = c.substring(1);
@@ -29,44 +29,44 @@ if (!accessToken || accessToken === '') {
       Authorization: `Bearer ${accessToken}`
     }
   })
-  .then((response) => response.json())
-  .catch((err) => console.log(err))
-  .then((validResponse) => {
-    if (typeof validResponse.data === 'string') {
-      console.log('獲取用戶資料有問題');
-      window.location = '/'
-    } else {
-      const avatarImg = document.querySelector('#small_avatar img');
-      avatarImg.src = validResponse.data.avatarUrl;
-      currentUserDetail = validResponse.data;
-      console.log('當前用戶', currentUserDetail);
-    }
-  })
+    .then((response) => response.json())
+    .catch((err) => console.log(err))
+    .then((validResponse) => {
+      if (typeof validResponse.data === 'string') {
+        console.log('獲取用戶資料有問題');
+        window.location = '/'
+      } else {
+        const avatarImg = document.querySelector('#small_avatar img');
+        avatarImg.src = validResponse.data.avatarUrl;
+        currentUserDetail = validResponse.data;
+        console.log('當前用戶', currentUserDetail);
+      }
+    })
 }
 
 // 2.  邀請用戶進到 channel 時獲取全部用戶資訊
 let allUsers = [];
 
 const invitePeopleTag = document.querySelector('#addRoomModal .enter_member_name');
-invitePeopleTag.addEventListener('focus', function(e) {
+invitePeopleTag.addEventListener('focus', function (e) {
   // 打 api 獲取用戶列表
   fetch('/users/listUsers', {})
-  .then((response) => response.json())
-  .catch((err) => console.log(err))
-  .then((validResponse) => {
-    if (typeof validResponse.data === 'string') {
-      console.log('獲取全部用戶資料有問題')
-    } else {
-      // const inviteMembersTag = document.querySelector('.modal-content');
-      const users = validResponse.data;
-      allUsers = users;
-    }
-  })
+    .then((response) => response.json())
+    .catch((err) => console.log(err))
+    .then((validResponse) => {
+      if (typeof validResponse.data === 'string') {
+        console.log('獲取全部用戶資料有問題')
+      } else {
+        // const inviteMembersTag = document.querySelector('.modal-content');
+        const users = validResponse.data;
+        allUsers = users;
+      }
+    })
 })
 
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
-buildChannelBtn.addEventListener('click', function() {
+buildChannelBtn.addEventListener('click', function () {
   let selectedMembers = [];
   const channelName = document.querySelector('#addRoomModal .enter_channel_name').value;
   // 這邊邏輯之後會配合邀請成員的 UI 修改跟著變動
@@ -98,27 +98,27 @@ buildChannelBtn.addEventListener('click', function() {
       'Content-Type': 'application/json'
     })
   }).then((response) => response.json())
-  .catch((error) => console.log(error))
-  .then((validResponse) => {
-    if (typeof validResponse.data === 'string') {
-      alert('新增房間失敗，請稍後再試');
-    } else {
-      // 新增成功這邊要讓前端顯示房間
-      const modal = document.getElementById('addRoomModal');
-      modal.style.display = 'none';
-      // 新增 Room 到畫面上
-      const roomListArea = document.querySelector('.side_pad .upper_section');
-      const newCreatedRoomTag = document.createElement('div');
-      newCreatedRoomTag.textContent = channelName;
-      newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`)
-      roomListArea.appendChild(newCreatedRoomTag);
-    }
-  })
+    .catch((error) => console.log(error))
+    .then((validResponse) => {
+      if (typeof validResponse.data === 'string') {
+        alert('新增房間失敗，請稍後再試');
+      } else {
+        // 新增成功這邊要讓前端顯示房間
+        const modal = document.getElementById('addRoomModal');
+        modal.style.display = 'none';
+        // 新增 Room 到畫面上
+        const roomListArea = document.querySelector('.side_pad .upper_section');
+        const newCreatedRoomTag = document.createElement('div');
+        newCreatedRoomTag.textContent = channelName;
+        newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`)
+        roomListArea.appendChild(newCreatedRoomTag);
+      }
+    })
 })
 
 // 4. 獲取房間列表
- function fetchChatRooms() {
-    fetch('/rooms/getRooms')
+function fetchChatRooms() {
+  fetch('/rooms/getRooms')
     .then((response) => response.json())
     .catch((error) => console.log(error))
     .then((validResponse) => {
@@ -132,9 +132,9 @@ buildChannelBtn.addEventListener('click', function() {
         roomListArea.appendChild(eachRoomTag);
       }
     })
- } 
+}
 
- fetchChatRooms();
+fetchChatRooms();
 
 // Socket.io 有關的 code
 const socket = io.connect('ws://localhost:3000');
@@ -142,41 +142,43 @@ const socket = io.connect('ws://localhost:3000');
 const chatFlowContent = document.getElementById('message_flow_area');
 // 切換到的 Room
 let currentSelectedRoom = {};
-// 紀錄上一次切換的 Room (給一個永不成立的 room)
+// 紀錄上一次切換的 Room (預設就是 general 這個 room)
 let lastChooseRoom = {
   roomId: -1,
   roomTitle: ''
 };
 
 const sidePadChannelSection = document.querySelector('.side_pad .upper_section');
-sidePadChannelSection.addEventListener('click', function(event) {
+sidePadChannelSection.addEventListener('click', function (event) {
   if (event.target && event.target.nodeName.toUpperCase() === 'DIV') {
     const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
     currentSelectedRoom = {
       roomId: validRoomId,
-      roomTitle: event.target.textContent 
+      roomTitle: event.target.textContent
     }
     // 改變上方 header UI
     const roomTitleTag = document.querySelector('#room_title h1');
     roomTitleTag.textContent = currentSelectedRoom.roomTitle;
 
+    // 記錄使用者選到的房間
+
     // 打 restful Api 獲取聊天室內容
-      // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
+    // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
     const chatContentArea = document.querySelector('#message_flow_area');
     chatContentArea.innerHTML = '';
 
-    fetch(`/messages/getMessages?roomId=${validRoomId}`)    
-    .then((response) => response.json())
-    .catch((error) => console.log(error))
-    .then((validResponse) => {
-      // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
-      const chatMessageList = validResponse.data.reverse();
-      for (let index = 0; index < chatMessageList.length; index++) {
-        const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, messageContent } = eachMessage;
-        showChatContent(avatarUrl, name, messageContent);
-      }
-    })
+    fetch(`/messages/getMessages?roomId=${validRoomId}`)
+      .then((response) => response.json())
+      .catch((error) => console.log(error))
+      .then((validResponse) => {
+        // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
+        const chatMessageList = validResponse.data.reverse();
+        for (let index = 0; index < chatMessageList.length; index++) {
+          const eachMessage = chatMessageList[index];
+          const { avatarUrl, name, messageContent } = eachMessage;
+          showChatContent(avatarUrl, name, messageContent);
+        }
+      })
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
     console.log('roomDetail', currentSelectedRoom)
@@ -188,7 +190,7 @@ sidePadChannelSection.addEventListener('click', function(event) {
       }, (error) => {
         if (error) {
           alert(error)
-          window.location ='/'
+          window.location = '/'
         }
       })
 
@@ -198,7 +200,7 @@ sidePadChannelSection.addEventListener('click', function(event) {
       }, (error) => {
         if (error) {
           alert(error)
-          window.location ='/'
+          window.location = '/'
         }
       });
       lastChooseRoom.roomId = currentSelectedRoom.roomId;
@@ -211,13 +213,13 @@ sidePadChannelSection.addEventListener('click', function(event) {
 const enterMessageInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
 
-sendMessageBtn.addEventListener('click', function() {
-  socket.emit('clientMessage', { 
+sendMessageBtn.addEventListener('click', function () {
+  socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
     messageContent: enterMessageInput.value,
     messageTime: Date.now()
-   });
+  });
 })
 
 // 接收 Server 端發過來的 message 事件
@@ -232,7 +234,7 @@ socket.on('message', (dataFromServer) => {
 function showChatContent(avatarUrl, name, messageContent) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
-    
+
   // 頭像
   const avatarImg = document.createElement('img');
   avatarImg.src = avatarUrl;
@@ -251,3 +253,29 @@ function showChatContent(avatarUrl, name, messageContent) {
   eachMessageDiv.appendChild(nameAndMessageDiv);
   chatFlowContent.appendChild(eachMessageDiv);
 }
+
+// 5. 切換語言
+const selectLanguageTag = document.querySelector('#language_area select');
+selectLanguageTag.addEventListener('change', function () {
+  console.log(selectLanguageTag.value);
+  if (currentUserDetail.userId) {
+    fetch('/language/userPreferedLanguage', {
+      body: JSON.stringify({
+        userId: currentUserDetail.userId,
+        selectedLanguage: selectLanguageTag.value
+      }),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      method: 'PUT',
+    })
+    .then(response => response.json())
+    .catch(error => console.log(error))
+    .then((validResponse) => {
+      if (validResponse.data === 'success') {
+        currentUserDetail.selectedLanguage = selectLanguageTag.value;
+        console.log('用戶現在更新的語言', currentUserDetail)
+      }
+    })
+  }
+})
