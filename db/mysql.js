@@ -59,8 +59,9 @@ function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
               })
             }
             resolve({
-              channelId: roomId, 
-              allUsers: userIdList});
+              channelId: roomId,
+              allUsers: userIdList
+            });
             connection.release();
             console.log('新增 Room 及綁定 User 成功');
           })
@@ -88,10 +89,10 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
           })
         }
         // 沒有錯誤
-        connection.query(userBasicSQL, [userInfoObj.accessToken, 
-          userInfoObj.fbAccessToken, 
-          userInfoObj.provider, 
-          userInfoObj.expiredDate], (insertBasicErr, result) => {
+        connection.query(userBasicSQL, [userInfoObj.accessToken,
+        userInfoObj.fbAccessToken,
+        userInfoObj.provider,
+        userInfoObj.expiredDate], (insertBasicErr, result) => {
           if (insertBasicErr) {
             return connection.rollback(() => {
               connection.release();
@@ -116,16 +117,29 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
                 reject(insertDetailErr);
               })
             }
-            connection.commit((commitErr) => {
-              if (commitErr) {
+            // 每個新創建的用戶都會被綁定到 general 這個 room，這個 room 的 id 都是 1
+            connection.query(`
+              insert into user_room_junction 
+              set roomId=1,
+              userId=${userId}
+            `, (insertRoomErr, result) => {
+              if (insertRoomErr) {
                 return connection.rollback(() => {
                   connection.release();
-                  reject(commitErr);
+                  reject(insertRoomErr);
                 })
               }
-              console.log('新增用戶成功')
-              resolve(userId);
-              connection.release();
+              connection.commit((commitErr) => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(commitErr);
+                  })
+                }
+                console.log('新增用戶成功')
+                resolve(userId);
+                connection.release();
+              })
             })
           })
         })
@@ -152,10 +166,10 @@ function updateFBUserInfo(generalUserSQL, fbUserSQL, userDetailObj) {
           })
         }
         // 沒有錯誤
-        connection.query(generalUserSQL, [userDetailObj.accessToken, 
-          userDetailObj.fbAccessToken, 
-          userDetailObj.provider, 
-          userDetailObj.expiredDate], (insertBasicErr, result) => {
+        connection.query(generalUserSQL, [userDetailObj.accessToken,
+        userDetailObj.fbAccessToken,
+        userDetailObj.provider,
+        userDetailObj.expiredDate], (insertBasicErr, result) => {
           if (insertBasicErr) {
             return connection.rollback(() => {
               connection.release();
@@ -190,20 +204,20 @@ function updateFBUserInfo(generalUserSQL, fbUserSQL, userDetailObj) {
 // 儲存聊天訊息
 function createMessageRecord(insertMsgSQL, messageObj) {
   return new Promise((resolve, reject) => {
-    mySQLPool.query(insertMsgSQL, 
-      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId], 
+    mySQLPool.query(insertMsgSQL,
+      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId],
       (err, result) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(result);
-    })
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(result);
+      })
   })
 }
 
 module.exports = {
-  exec, 
+  exec,
   createGeneralUser,
   updateFBUserInfo,
   escape: mySQL.escape,

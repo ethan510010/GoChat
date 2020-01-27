@@ -52,19 +52,7 @@ if (!accessToken || accessToken === '') {
         // 顯示訊息
         const chatContentArea = document.querySelector('#message_flow_area');
         chatContentArea.innerHTML = '';
-
-        fetch(`/messages/getMessages?roomId=${currentSelectedRoom.roomId}`)
-          .then((response) => response.json())
-          .catch((error) => console.log(error))
-          .then((validResponse) => {
-            // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
-            const chatMessageList = validResponse.data.reverse();
-            for (let index = 0; index < chatMessageList.length; index++) {
-              const eachMessage = chatMessageList[index];
-              const { avatarUrl, name, messageContent } = eachMessage;
-              showChatContent(avatarUrl, name, messageContent);
-            }
-          })
+        getChatHistory(currentSelectedRoom.roomId);
         // 加入房間
         socket.emit('join', {
           roomInfo: currentSelectedRoom,
@@ -195,19 +183,7 @@ sidePadChannelSection.addEventListener('click', function (event) {
     // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
     const chatContentArea = document.querySelector('#message_flow_area');
     chatContentArea.innerHTML = '';
-
-    fetch(`/messages/getMessages?roomId=${validRoomId}`)
-      .then((response) => response.json())
-      .catch((error) => console.log(error))
-      .then((validResponse) => {
-        // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
-        const chatMessageList = validResponse.data.reverse();
-        for (let index = 0; index < chatMessageList.length; index++) {
-          const eachMessage = chatMessageList[index];
-          const { avatarUrl, name, messageContent } = eachMessage;
-          showChatContent(avatarUrl, name, messageContent);
-        }
-      })
+    getChatHistory(validRoomId);
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
     console.log('roomDetail', currentSelectedRoom)
@@ -281,6 +257,22 @@ function showChatContent(avatarUrl, name, messageContent) {
   nameAndMessageDiv.appendChild(messageMainContent);
   eachMessageDiv.appendChild(nameAndMessageDiv);
   chatFlowContent.appendChild(eachMessageDiv);
+}
+
+// 獲取聊天室歷史內容
+function getChatHistory(selectedRoomId) {
+  fetch(`/messages/getMessages?roomId=${selectedRoomId}`)
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
+    .then((validResponse) => {
+      // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
+      const chatMessageList = validResponse.data.reverse();
+      for (let index = 0; index < chatMessageList.length; index++) {
+        const eachMessage = chatMessageList[index];
+        const { avatarUrl, name, messageContent } = eachMessage;
+        showChatContent(avatarUrl, name, messageContent);
+      }
+    })
 }
 
 // 5. 切換語言
