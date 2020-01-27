@@ -18,6 +18,7 @@ socketio.getSocketio = function(server) {
       if (!roomUsersPair[roomId]) {
         roomUsersPair[roomId] = [];
       }
+      console.log(`加入房間${roomId}的人`, joinInfo.userInfo)
       roomUsersPair[roomId].push(joinInfo.userInfo);
       socket.join(roomId);
     })
