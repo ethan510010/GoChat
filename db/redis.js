@@ -2,6 +2,14 @@ const { redisConfig } = require('../config/redis');
 const redis = require('redis');
 const redisClient = redis.createClient(redisConfig);
 
+redisClient.on('connect', () => {
+  console.log('redis connection 成功');
+})
+
+redisClient.on('error', (err) => {
+  console.log('redis connection 錯誤', err);
+})
+
 const saveCacheMessage = (fullMessage) => {
   // 也把訊息存到 redis
   const saveMessageFormat = {

@@ -17,7 +17,8 @@ const createNewRoom = async (req, res) => {
 
 const listRooms = async (req, res) => {
   try {
-    const roomList = await getRooms();
+    const { userId } = req.query;
+    const roomList = await getRooms(userId);
     res.status(200).json({
       data: roomList
     })

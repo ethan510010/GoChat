@@ -53,6 +53,8 @@ if (!accessToken || accessToken === '') {
         const chatContentArea = document.querySelector('#message_flow_area');
         chatContentArea.innerHTML = '';
         getChatHistory(currentSelectedRoom.roomId);
+        // 顯示房間列表
+        fetchChatRooms(currentUserDetail.userId);
         // 加入房間
         socket.emit('join', {
           roomInfo: currentSelectedRoom,
@@ -140,8 +142,8 @@ buildChannelBtn.addEventListener('click', function () {
 })
 
 // 4. 獲取房間列表
-function fetchChatRooms() {
-  fetch('/rooms/getRooms')
+function fetchChatRooms(userId) {
+  fetch(`/rooms/getRooms?userId=${userId}`)
     .then((response) => response.json())
     .catch((error) => console.log(error))
     .then((validResponse) => {
@@ -156,8 +158,6 @@ function fetchChatRooms() {
       }
     })
 }
-
-fetchChatRooms();
 
 // 切換房間相關邏輯
 // 聊天室主區塊 Div
