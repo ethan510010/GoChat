@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+#blur_background {
+  background-image: url('../images/sky.jpg');
+  height: 100%;
+  /* Add the blur effect */
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#user_basic {
+  position: absolute;
+  left: 50%;
+  top: 60px;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  text-align: center;
+  z-index: 2;
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+}

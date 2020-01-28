@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var roomsRouter = require('./routes/rooms');
 var messageRouter = require('./routes/message');
 var languageRouter = require('./routes/language');
+var userLanguageRouter = require('./routes/userLanguage');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use('/users', usersRouter);
 app.use('/rooms', roomsRouter);
 app.use('/messages', messageRouter);
 app.use('/language', languageRouter);
+app.use('/userLanguage', userLanguageRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

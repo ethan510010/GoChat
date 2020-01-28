@@ -21,7 +21,8 @@ const userSignin = async (req, res) => {
                 accessToken: accessToken,
                 expiredDate: tokenExpiredDate,
                 user: {
-                  userId: userId,
+                  id: userId,
+                  provider: 'native',
                   email: email, 
                   name: name,
                   avatarUrl: avatarUrl
@@ -59,19 +60,19 @@ const userSignin = async (req, res) => {
       const { hasedThirdPartyToken, tokenExpiredTime, thirdPartyLoginCustomToken } = hashThirdPartyLoginToken(thirdPartyAuthToken);
       try {
         // 如果該 fb user email 不存在就新增使用者 fb 資料，否則就單純更新
-        let valiudUserId = 0;
+        let validUserId = 0;
         const { userId, hasFBUser } = await searchFBUser(fbEmail);
         if (hasFBUser) {
           validUserId = await updateUserFBInfo(userId, thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, fbUserName);
         } else {
-          valiudUserId = await insertUser(thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, '', fbUserName);
+          validUserId = await insertUser(thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, '', fbUserName);
         }
         res.status(200).json({
           data: {
             accessToken: thirdPartyLoginCustomToken,
             expiredDate: tokenExpiredTime,
             user: {
-              id: valiudUserId,
+              id: validUserId,
               provider: 'facebook',
               name: fbUserName,
               email: fbEmail,

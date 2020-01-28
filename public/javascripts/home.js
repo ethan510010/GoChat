@@ -47,7 +47,8 @@ signupBtn.addEventListener('click', (e) => {
       } else {
         // 註冊成功進到主聊天界面
         document.cookie = `access_token=${response.data.accessToken}`;
-        window.location = '/chatPage.html'
+        // window.location = '/chatPage.html'
+        window.location = `/userLanguage?userId=${response.data.user.id}`
       }
     })
   } else {
@@ -80,10 +81,11 @@ signinBtn.addEventListener('click', function(event) {
       alert('請確定帳號密碼輸入正確')
     } else {
       // 登入成功，切換到主頁
-      console.log('登入成功')
+      console.log('登入成功', response.data);
       console.log(response.data.accessToken)
       document.cookie = `access_token=${response.data.accessToken}`;
-      window.location = '/chatPage.html'
+      // window.location = '/chatPage.html'
+      window.location = `/userLanguage?userId=${response.data.user.id}`
     }
   })
 })
@@ -129,6 +131,7 @@ function fetchUserInfo(accessToken) {
       // 前端設定cookie
       document.cookie = `access_token=${info.data.accessToken}`;
       // 切換到主頁
-      window.location = '/chatPage.html';
+      // window.location = '/chatPage.html';
+      window.location = `/userLanguage?userId=${info.data.user.id}`;
     });
 }
