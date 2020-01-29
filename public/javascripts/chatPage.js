@@ -272,7 +272,7 @@ function getChatHistory(selectedRoomId) {
   fetch(`/messages/getMessages?roomId=${selectedRoomId}`)
     .then((response) => response.json())
     .catch((error) => console.log(error))
-    .then((validResponse) => {
+    .then(async (validResponse) => {
       // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
       const chatMessageList = validResponse.data.reverse();
       console.log('歷史訊息', chatMessageList);
@@ -282,7 +282,8 @@ function getChatHistory(selectedRoomId) {
         // 這邊要再做一支翻譯 api
         console.log('language version', languageVersion);
         const languageList = languageVersion.split(',');
-        fetch('/messages/translateMessage', {
+        // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
+        const eachTranslateResult = await fetch('/messages/translateMessage', {
           method: 'POST',
           body: JSON.stringify({
             messageContent: messageContent,
@@ -291,12 +292,9 @@ function getChatHistory(selectedRoomId) {
           headers: new Headers({
             'Content-Type': 'application/json'
           })
-        })
-        .then((response) => response.json())
-        .catch((error) => console.log(error))
-        .then((validResponse) => {
-          showChatContent(avatarUrl, name, validResponse.data.translationResults);
-        })
+        });
+        const validResponse = await eachTranslateResult.json();
+        showChatContent(avatarUrl, name, validResponse.data.translationResults);
       }
     })
 }

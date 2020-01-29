@@ -7,10 +7,10 @@ const checkMessagesCache = async (req, res, next) => {
     // 目前這樣的判斷僅僅在沒有 paging 的情況會對，有 paging 這樣邏輯會錯
     if (messagesCache.length > 0) {
       // 從 redis 取出來是 string
-      console.log('從 redis 取值')
       const responseMessages = messagesCache.map((messageStr) => {
         return JSON.parse(messageStr)
       })
+      console.log('從 redis 取值')
       res.status(200).json({
         data: responseMessages
       })
