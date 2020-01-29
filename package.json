@@ -6,11 +6,13 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "@google-cloud/translate": "^5.1.4",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
+    "google-translate": "^3.0.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "mysql": "^2.17.1",

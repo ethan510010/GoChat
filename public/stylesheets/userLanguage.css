@@ -30,4 +30,30 @@ body, html {
   width: 40%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding-bottom: 20px;
+  border-radius: 10px;
+}
+
+#user_basic img {
+  width: 100px;
+  height: 100px;
+}
+
+#user_basic p {
+  margin-bottom: 0px;
+}
+
+#user_basic select {
+  margin: 16px 0;
+  outline: none;
+}
+
+#user_basic .enter_button {
+  border-radius: 5px;
+  border: 1px solid #03E3FC;
+  background-color: #03E3FC;
+  padding: 10px;
+  color: #fff;
+  font-weight: bold;
 }

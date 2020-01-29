@@ -186,7 +186,7 @@ sidePadChannelSection.addEventListener('click', function (event) {
     getChatHistory(validRoomId);
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
-    console.log('roomDetail', currentSelectedRoom)
+    console.log('currentRoomDetail', currentSelectedRoom)
     console.log('lastChooseRoom', lastChooseRoom)
     if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
       socket.emit('join', {
@@ -274,29 +274,3 @@ function getChatHistory(selectedRoomId) {
       }
     })
 }
-
-// 5. 切換語言
-// const selectLanguageTag = document.querySelector('#language_area select');
-// selectLanguageTag.addEventListener('change', function () {
-//   console.log(selectLanguageTag.value);
-//   if (currentUserDetail.userId) {
-//     fetch('/language/userPreferedLanguage', {
-//       body: JSON.stringify({
-//         userId: currentUserDetail.userId,
-//         selectedLanguage: selectLanguageTag.value
-//       }),
-//       headers: new Headers({
-//         'Content-Type': 'application/json'
-//       }),
-//       method: 'PUT',
-//     })
-//     .then(response => response.json())
-//     .catch(error => console.log(error))
-//     .then((validResponse) => {
-//       if (validResponse.data === 'success') {
-//         currentUserDetail.selectedLanguage = selectLanguageTag.value;
-//         console.log('用戶現在更新的語言', currentUserDetail)
-//       }
-//     })
-//   }
-// })
