@@ -11,6 +11,12 @@ redisClient.on('error', (err) => {
 })
 
 const saveCacheMessage = (fullMessage) => {
+  let languageStr = '';
+  for (let i = 0; i < fullMessage.roomLanguages.length; i++) {
+    const eachLanguage = fullMessage.roomLanguages[i];
+    languageStr += `${eachLanguage},`;
+  }
+  const messageLanguages = languageStr.slice(0, -1);
   // 也把訊息存到 redis
   const saveMessageFormat = {
     id: fullMessage.messageId,
@@ -18,6 +24,7 @@ const saveCacheMessage = (fullMessage) => {
     createdTime: fullMessage.messageTime,
     userId: fullMessage.userInfo.userId,
     roomId: fullMessage.roomDetail.roomId,
+    languageVersion: messageLanguages,
     provider: fullMessage.userInfo.provider,
     name: fullMessage.userInfo.name,
     email: fullMessage.userInfo.email,

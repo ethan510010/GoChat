@@ -1,8 +1,7 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveCacheMessage } = require('../db/redis');
-const apiKey = 'AIzaSyBd8oxehRNecDkpdGWmPSYAesC55Vtv7QA';
-const googleTranslate = require('google-translate')(apiKey);
+const { translationPromise } = require('../common/common');
 
 let roomUsersPair = {};
 let socketio = {};
@@ -29,13 +28,17 @@ socketio.getSocketio = function (server) {
         const { lastChooseRoom, userInfo } = leaveInfo;
         const { roomId } = lastChooseRoom;
         // 因為 javascript 無法直接用 indexOf 比較 object，所以這邊利用 userId 來找
-        const roomUserIdPairList = roomUsersPair[roomId].map(function (user) {
-          return user.userId;
-        })
-        const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
-        if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
-          roomUsersPair[roomId].splice(leaveUserIndex, 1);
-          socket.leave(roomId);
+        if (roomUsersPair[roomId]) {
+          const roomUserIdPairList = roomUsersPair[roomId].map(function(user) {
+            return user.userId;
+          });
+          const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
+          console.log('leaveUserIndex', leaveUserIndex);
+          if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
+            roomUsersPair[roomId].splice(leaveUserIndex, 1);
+            console.log('欲移除的對象', roomUsersPair)
+            socket.leave(roomId);
+          }  
         }
       }
     })
@@ -50,17 +53,27 @@ socketio.getSocketio = function (server) {
       }
       console.log('傳過來的 dataFromClient', dataFromClient);
       // 每個房間現在有哪些語系
-      const languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function (user) {
+      console.log(roomUsersPair)
+      const languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function(user) {
         return user.selectedLanguage;
       });
-      console.log(`現在房間${dataFromClient.roomDetail.roomId}有${languageListForEachRoom}語言`, typeof languageListForEachRoom);
       try {
-        const createMessageResult = await insertChatMessage(messageObj);
+        const createMessageResult = await insertChatMessage(messageObj, languageListForEachRoom);
         if (createMessageResult) {
           dataFromClient.messageId = createMessageResult.insertId;
+          dataFromClient.roomLanguages = languageListForEachRoom;
           // 儲存成功發送出去，並存到 redis
           saveCacheMessage(dataFromClient);
           // 這邊要做翻譯，根據拿到房間裡面有哪些語系，需要做翻譯
+          let languageVersionMessageList = [];
+          for (let index = 0; index < languageListForEachRoom.length; index++) {
+            const eachLanguage = languageListForEachRoom[index];
+            const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
+            languageVersionMessageList.push(translateResult.originalText);
+            languageVersionMessageList.push(translateResult.translatedText);
+          }
+          // 把重複的語言濾掉
+          dataFromClient.translateResults = Array.from(new Set(languageVersionMessageList));
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         }
       } catch (error) {
@@ -69,25 +82,5 @@ socketio.getSocketio = function (server) {
     })
   })
 };
-
-const translationPomise = (inputText, targetLanguageList) => {
-  return new Promise((resolve, reject) => {
-    const text = 'hello world';
-    googleTranslate.detectLanguage('你好', function (err, detection) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      console.log('detection', detection);
-    });
-    googleTranslate.translate(text, 'zh-TW', function (err, translation) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      console.log(translation.translatedText);
-    });
-  })
-}
 
 module.exports = socketio;

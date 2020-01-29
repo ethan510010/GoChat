@@ -232,11 +232,12 @@ socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
   const { avatarUrl, name } = dataFromServer.userInfo;
-  showChatContent(avatarUrl, name, dataFromServer.messageContent);
+  console.log('翻譯集合', dataFromServer.translateResults);
+  showChatContent(avatarUrl, name, dataFromServer.translateResults);
 })
 
 //  顯示聊天室內容 UI
-function showChatContent(avatarUrl, name, messageContent) {
+function showChatContent(avatarUrl, name, translateResults) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
 
@@ -248,13 +249,20 @@ function showChatContent(avatarUrl, name, messageContent) {
   const userNameTag = document.createElement('p');
   userNameTag.textContent = name;
   // 訊息
-  const messageMainContent = document.createElement('p');
-  messageMainContent.textContent = messageContent;
+  // const messageMainContent = document.createElement('p');
+  // messageMainContent.textContent = messageContent;
   // 訊息跟名字包一起
   const nameAndMessageDiv = document.createElement('div');
   nameAndMessageDiv.classList.add('nameAndMessage');
   nameAndMessageDiv.appendChild(userNameTag);
-  nameAndMessageDiv.appendChild(messageMainContent);
+  // nameAndMessageDiv.appendChild(messageMainContent);
+  // 翻譯訊息
+  for (let i = 0; i < translateResults.length; i++) {
+    const eachTranslateMessage = translateResults[i];
+    const eachTranslateTag = document.createElement('p');
+    eachTranslateTag.textContent = eachTranslateMessage;
+    nameAndMessageDiv.appendChild(eachTranslateTag);
+  }
   eachMessageDiv.appendChild(nameAndMessageDiv);
   chatFlowContent.appendChild(eachMessageDiv);
 }
@@ -267,10 +275,28 @@ function getChatHistory(selectedRoomId) {
     .then((validResponse) => {
       // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
       const chatMessageList = validResponse.data.reverse();
+      console.log('歷史訊息', chatMessageList);
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, messageContent } = eachMessage;
-        showChatContent(avatarUrl, name, messageContent);
+        const { avatarUrl, name, messageContent, languageVersion } = eachMessage;
+        // 這邊要再做一支翻譯 api
+        console.log('language version', languageVersion);
+        const languageList = languageVersion.split(',');
+        fetch('/messages/translateMessage', {
+          method: 'POST',
+          body: JSON.stringify({
+            messageContent: messageContent,
+            languageList: languageList
+          }),
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          })
+        })
+        .then((response) => response.json())
+        .catch((error) => console.log(error))
+        .then((validResponse) => {
+          showChatContent(avatarUrl, name, validResponse.data.translationResults);
+        })
       }
     })
 }

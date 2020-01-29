@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 require('dotenv').config();
+const googleTranslate = require('google-translate')(process.env.googleTranslateAPIKey);
 
 const generateAccessToken = (email, password) => {
   // 加密使用者註冊的密碼
@@ -35,7 +36,27 @@ const hashThirdPartyLoginToken = (originalToken) => {
   }
 }
 
+const translationPromise = (inputText, targetLanguage) => {
+  return new Promise((resolve, reject) => {
+    // googleTranslate.detectLanguage(inputText, function (err, detection) {
+    //   if (err) {
+    //     reject(err);
+    //     return;
+    //   }
+    //   console.log('detection', detection);
+    // });
+    googleTranslate.translate(inputText, targetLanguage, function (err, translation) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(translation);
+    });
+  })
+}
+
 module.exports = {
   generateAccessToken,
-  hashThirdPartyLoginToken
+  hashThirdPartyLoginToken,
+  translationPromise
 }
