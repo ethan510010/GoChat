@@ -14,7 +14,7 @@ const getMessagesForEachRoom = async (req, res) => {
 }
 
 const messageTranslation = async (req, res) => {
-  const { messageContent, languageList }  = req.body;
+  const { messageContent, languageList, name, avatarUrl }  = req.body;
   let translatePromiseList = [];
   for (let index = 0; index < languageList.length; index++) {
     const eachLanguage = languageList[index];
@@ -28,6 +28,8 @@ const messageTranslation = async (req, res) => {
     }
     res.status(200).json({
       data: {
+        messageUserName: name,
+        messageUserAvatar: avatarUrl,
         translationResults: translatedList
       }
     })

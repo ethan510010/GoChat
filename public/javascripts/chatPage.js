@@ -276,6 +276,7 @@ function getChatHistory(selectedRoomId) {
       // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
       const chatMessageList = validResponse.data.reverse();
       console.log('歷史訊息', chatMessageList);
+      let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
         const { avatarUrl, name, messageContent, languageVersion } = eachMessage;
@@ -283,18 +284,32 @@ function getChatHistory(selectedRoomId) {
         console.log('language version', languageVersion);
         const languageList = languageVersion.split(',');
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
-        const eachTranslateResult = await fetch('/messages/translateMessage', {
+        translateMessagePromiseList.push(fetch('/messages/translateMessage', {
           method: 'POST',
           body: JSON.stringify({
+            avatarUrl: avatarUrl,
+            name: name,
             messageContent: messageContent,
             languageList: languageList
           }),
           headers: new Headers({
             'Content-Type': 'application/json'
           })
-        });
-        const validResponse = await eachTranslateResult.json();
-        showChatContent(avatarUrl, name, validResponse.data.translationResults);
+        }))
       }
+      Promise.all(translateMessagePromiseList)
+        .then((responseResults) => {
+          let jsonConvertList = [];
+          for (let i = 0; i < responseResults.length; i++) {
+            jsonConvertList.push(responseResults[i].json());
+          }
+          Promise.all(jsonConvertList)
+          .then((convertResults) => {
+            for (let i = 0; i < convertResults.length; i++) {
+              const eachConverMessage = convertResults[i];
+              showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults)
+            }
+          })
+        })
     })
 }
