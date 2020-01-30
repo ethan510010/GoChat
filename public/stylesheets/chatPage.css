@@ -6,11 +6,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-}
-
-/* 方便debug用，到時記得刪 */
-div {
-  border: 1px solid #000000;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 /* Header */
@@ -21,23 +17,32 @@ header {
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
   align-items: center;
+  background-color: #03A5FC;
+  border-bottom: 0.5px solid #fff;
+  color: #fff;
 }
 
-#language_area {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+#room_title {
+  width: 95%;
+  text-align: center;
+}
+
+#room_title h1 {
+  margin: 0;
+  font-weight: 500;
 }
 
 #small_avatar {
+  width: 5%;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 #small_avatar img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
@@ -54,16 +59,23 @@ header {
 
 /* 左半邊側欄 */
 .side_pad {
-  width: 20%;
+  width: 30%;
   background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
+  background-color: #E6E6E6;
+  padding: 10px;
+  border-right: 1px solid #fff;
 }
 
 .upper_section {
+  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .upper_section .room_header {
@@ -72,12 +84,28 @@ header {
   justify-content: space-between;
 }
 
+.room_header {
+  border-bottom: 0.5px solid #E6E6E6;
+}
+
+.room_header p {
+  padding-left: 5px;
+  color: #276BE8;
+  font-weight: 900;
+  font-size: 18px;
+}
+
 .room_header .add_room {
   width: 50px;
   height: 50px;
   background-image: url('../images/plus.png');
 }
 
+.upper_section .room_title {
+  padding-left: 7px;
+  margin-top: 10px;
+  font-weight: 600;
+}
 /* 彈出式視窗 (create channel) */
 .modal {
   display: none; /* Hidden by default */
@@ -127,27 +155,29 @@ header {
 /* 聊天視窗 */
 
 .chat_content {
-  width: 80%;
+  width: 70%;
   overflow: hidden;
 }
 
 #chat_area {
   width: 100%;
   height: calc(95% - 3px);
-  background-color: #FFFFFF;
+  background-color: #E6E6E6;
   float: left;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: #fff;
 }
 
 #message_flow_area {
-  overflow-y: scroll;
+  overflow-y: auto;
+  background-color: #E6E6E6;
 }
 
 #resize {
   width: 100%;
-  height: 5px;
+  height: 2px;
   cursor: row-resize;
   float: left;
 }
@@ -161,15 +191,29 @@ header {
 
 /* 聊天區塊內部 */
 #message_input {
-  width: 100%;
+  width: 98%;
+  margin: 0 auto;
   display: flex;
   flex-direction: row;
+  margin-bottom: 5px;
+  padding: 5px;
+  background-color: #fff;
+  color: #fff;
+  border: 1px solid #E6E6E6;
+  border-radius: 7px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #message_flow_area .message_block {
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin: 5px 10px;
+}
+
+#message_flow_area .message_block p {
+  margin: 5px 0
 }
 
 #message_flow_area img {
@@ -184,10 +228,14 @@ header {
 }
 
 #message_window {
-  width: 80%;
+  width: 90%;
+  border: 0px;
+  outline: none;
+  padding-left: 15px;
 }
 
 #send_btn {
-  width: 20%;
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
 }
-

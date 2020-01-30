@@ -1,27 +1,3 @@
-const socket = io.connect('ws://localhost:3000');
-// restful api 拿取必要資訊
-// 1. userProfile
-// 取得 cookie 裡面的 token
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return '';
-}
-
-let currentUserDetail = {};
-// 用戶當前所在房間 Room
-let currentSelectedRoom = {};
-
 const accessToken = getCookie('access_token');
 if (!accessToken || accessToken === '') {
   window.location = '/';
@@ -39,7 +15,11 @@ if (!accessToken || accessToken === '') {
         window.location = '/'
       } else {
         const avatarImg = document.querySelector('#small_avatar img');
-        avatarImg.src = validResponse.data.avatarUrl;
+        // 如果用戶現在沒有自己上傳大頭貼因為 DB 是空的，所以我們就先給他預設的
+        const uiAvatar = validResponse.data.avatarUrl === '' ? '/images/defaultAvatar.png' : validResponse.data.avatarUrl; 
+        avatarImg.src = uiAvatar;
+        validResponse.data.avatarUrl = uiAvatar;
+        // 設定當前用戶
         currentUserDetail = validResponse.data;
         console.log('當前用戶', currentUserDetail);
         // 用戶當前選到的房間也是由使用者的 profile 拿到
@@ -152,6 +132,7 @@ function fetchChatRooms(userId) {
         const roomListArea = document.querySelector('.side_pad .upper_section');
         const eachRoomTag = document.createElement('div');
         eachRoomTag.setAttribute('id', `channelId_${eachRoom.id}`)
+        eachRoomTag.classList.add('room_title');
         eachRoomTag.textContent = eachRoom.name;
         roomListArea.appendChild(eachRoomTag);
       }

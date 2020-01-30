@@ -14,7 +14,6 @@ const userProfile = async (req, res, next) => {
     } else {
       res.status(200).send('沒有找到對應的 user');
     }
-    
   } catch (error) {
     res.send(error.message);
   }
