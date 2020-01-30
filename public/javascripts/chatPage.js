@@ -211,6 +211,9 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId) {
   } else {
     eachMessageDiv.classList.add('messageReceiver');
   }
+  // 把頭像跟姓名包一起
+  const messageUserInfoDiv = document.createElement('div');
+  messageUserInfoDiv.classList.add('messageUserInfo');
   // 頭像
   const avatarImg = document.createElement('img');
   avatarImg.src = avatarUrl;
@@ -219,19 +222,21 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId) {
   const userNameTag = document.createElement('p');
   userNameTag.classList.add('userName');
   userNameTag.textContent = name;
+  
+  messageUserInfoDiv.appendChild(avatarImg);
+  messageUserInfoDiv.appendChild(userNameTag);
   // 訊息跟名字包一起
-  const nameAndMessageDiv = document.createElement('div');
-  nameAndMessageDiv.classList.add('nameAndMessage');
-  nameAndMessageDiv.appendChild(userNameTag);
-  // nameAndMessageDiv.appendChild(messageMainContent);
+  const messagesDiv = document.createElement('div');
+  messagesDiv.classList.add('messageDetail');
   // 翻譯訊息
   for (let i = 0; i < translateResults.length; i++) {
     const eachTranslateMessage = translateResults[i];
     const eachTranslateTag = document.createElement('p');
     eachTranslateTag.textContent = eachTranslateMessage;
-    nameAndMessageDiv.appendChild(eachTranslateTag);
+    messagesDiv.appendChild(eachTranslateTag);
   }
-  eachMessageDiv.appendChild(nameAndMessageDiv);
+  eachMessageDiv.appendChild(messageUserInfoDiv);
+  eachMessageDiv.appendChild(messagesDiv);
   chatFlowContent.appendChild(eachMessageDiv);
 }
 
