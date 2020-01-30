@@ -1,3 +1,6 @@
+// 聊天室主區塊 Div
+const chatFlowContent = document.getElementById('message_flow_area');
+// Token
 const accessToken = getCookie('access_token');
 if (!accessToken || accessToken === '') {
   window.location = '/';
@@ -29,8 +32,7 @@ if (!accessToken || accessToken === '') {
         const roomTitleTag = document.querySelector('#room_title h1');
         roomTitleTag.textContent = currentSelectedRoom.roomTitle;
         // 顯示訊息
-        const chatContentArea = document.querySelector('#message_flow_area');
-        chatContentArea.innerHTML = '';
+        chatFlowContent.innerHTML = '';
         getChatHistory(currentSelectedRoom.roomId);
         // 顯示房間列表
         fetchChatRooms(currentUserDetail.userId);
@@ -140,8 +142,6 @@ function fetchChatRooms(userId) {
 }
 
 // 切換房間相關邏輯
-// 聊天室主區塊 Div
-const chatFlowContent = document.getElementById('message_flow_area');
 // 紀錄上一次切換的 Room (預設就是 general 這個 room)
 let lastChooseRoom = currentSelectedRoom;
 
@@ -159,8 +159,7 @@ sidePadChannelSection.addEventListener('click', function (event) {
 
     // 打 restful Api 獲取聊天室內容
     // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
-    const chatContentArea = document.querySelector('#message_flow_area');
-    chatContentArea.innerHTML = '';
+    chatFlowContent.innerHTML = '';
     getChatHistory(validRoomId);
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
@@ -169,14 +168,12 @@ sidePadChannelSection.addEventListener('click', function (event) {
     console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
     if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
 
-      // 更換房間事件 (未完成)
-      console.log('進到切換房間事件')
+      // 更換房間事件
       socket.emit('changeRoom', {
         joinRoomInfo: currentSelectedRoom,
         userInfo: currentUserDetail,
         lastChooseRoom: lastChooseRoom
       }, function(finishedInfo) {
-        console.log('完成切換', finishedInfo)
         lastChooseRoom.roomId = currentSelectedRoom.roomId;
         lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
       })
@@ -201,20 +198,26 @@ sendMessageBtn.addEventListener('click', function () {
 socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
-  const { avatarUrl, name } = dataFromServer.userInfo;
-  showChatContent(avatarUrl, name, dataFromServer.translateResults);
+  const { avatarUrl, name, userId } = dataFromServer.userInfo;
+  showChatContent(avatarUrl, name, dataFromServer.translateResults, userId);
 })
 
 //  顯示聊天室內容 UI
-function showChatContent(avatarUrl, name, translateResults) {
+function showChatContent(avatarUrl, name, translateResults, fromUserId) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
+  if (currentUserDetail.userId === fromUserId) {
+    eachMessageDiv.classList.add('messageHost');
+  } else {
+    eachMessageDiv.classList.add('messageReceiver');
+  }
   // 頭像
   const avatarImg = document.createElement('img');
   avatarImg.src = avatarUrl;
   eachMessageDiv.appendChild(avatarImg);
   // 名稱
   const userNameTag = document.createElement('p');
+  userNameTag.classList.add('userName');
   userNameTag.textContent = name;
   // 訊息跟名字包一起
   const nameAndMessageDiv = document.createElement('div');
@@ -243,10 +246,9 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, messageContent, languageVersion } = eachMessage;
+        const { avatarUrl, name, userId, messageContent, languageVersion } = eachMessage;
         // 這邊要再做一支翻譯 api
         const languageList = Array.from(new Set(languageVersion.split(',')));
-        console.log('歷史訊息語系', languageList);
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
         translateMessagePromiseList.push(fetch('/messages/translateMessage', {
           method: 'POST',
@@ -254,7 +256,8 @@ function getChatHistory(selectedRoomId) {
             avatarUrl: avatarUrl,
             name: name,
             messageContent: messageContent,
-            languageList: languageList
+            languageList: languageList,
+            fromUserId: userId
           }),
           headers: new Headers({
             'Content-Type': 'application/json'
@@ -271,7 +274,7 @@ function getChatHistory(selectedRoomId) {
             .then((convertResults) => {
               for (let i = 0; i < convertResults.length; i++) {
                 const eachConverMessage = convertResults[i];
-                showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults)
+                showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults, eachConverMessage.data.messageFromUser)
               }
             })
         })

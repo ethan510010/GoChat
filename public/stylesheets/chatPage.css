@@ -18,7 +18,7 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #03A5FC;
+  background-color: #469BE5;
   border-bottom: 0.5px solid #fff;
   color: #fff;
 }
@@ -65,7 +65,6 @@ header {
   flex-direction: column;
   background-color: #E6E6E6;
   padding: 10px;
-  border-right: 1px solid #fff;
 }
 
 .upper_section {
@@ -153,7 +152,6 @@ header {
 }
 
 /* 聊天視窗 */
-
 .chat_content {
   width: 70%;
   overflow: hidden;
@@ -177,16 +175,17 @@ header {
 
 #resize {
   width: 100%;
-  height: 2px;
+  height: 3px;
   cursor: row-resize;
   float: left;
+  background-color: #E6E6E6;
 }
 
 #draw_area {
   width: 100%;
   float: right;
   height: 5%;
-  background-color: purple;
+  background-color: #FFFFFF;
 }
 
 /* 聊天區塊內部 */
@@ -207,24 +206,49 @@ header {
 
 #message_flow_area .message_block {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  margin: 5px 10px;
+  margin: 5px 0;
+}
+
+#message_flow_area .messageHost {
+  flex-direction: row-reverse;
+}
+
+#message_flow_area .messageReceiver {
+  flex-direction: row;
 }
 
 #message_flow_area .message_block p {
-  margin: 5px 0
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* 對話框共有 */
+#message_flow_area .nameAndMessage {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#message_flow_area .messageReceiver .nameAndMessage {
+  background-color: #FFF;
+  color: black;
+  
+}
+
+#message_flow_area .messageHost .nameAndMessage {
+  background-color: #469BE5;
+  color: #FFF;
+}
+
+#message_flow_area .message_block .userName {
+  font-weight: 600;
 }
 
 #message_flow_area img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  margin-left: 15px;
-}
-
-#message_flow_area .nameAndMessage {
-  margin-left: 20px;
+  margin: 0 15px;
 }
 
 #message_window {
