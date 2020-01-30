@@ -36,7 +36,6 @@ if (!accessToken || accessToken === '') {
     .catch((err) => console.log(err))
     .then((validResponse) => {
       if (typeof validResponse.data === 'string') {
-        console.log('獲取用戶資料有問題');
         window.location = '/'
       } else {
         const avatarImg = document.querySelector('#small_avatar img');
@@ -199,39 +198,7 @@ sidePadChannelSection.addEventListener('click', function (event) {
         console.log('完成切換', finishedInfo)
         lastChooseRoom.roomId = currentSelectedRoom.roomId;
         lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-        // (finished) => {
-        //   if (finished) {
-        //     console.log('callback 完成')
-        //     lastChooseRoom.roomId = currentSelectedRoom.roomId;
-        //     lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-        //   } else {
-        //     alert(error);
-        //     window.location = '/';
-        //   }
-        // }
       })
-
-      // socket.emit('join', {
-      //   roomInfo: currentSelectedRoom,
-      //   userInfo: currentUserDetail
-      // }, (error) => {
-      //   if (error) {
-      //     alert(error)
-      //     window.location = '/'
-      //   }
-      // })
-
-      // socket.emit('leave', {
-      //   lastChooseRoom: lastChooseRoom,
-      //   userInfo: currentUserDetail
-      // }, (error) => {
-      //   if (error) {
-      //     alert(error)
-      //     window.location = '/'
-      //   }
-      // });
-      // lastChooseRoom.roomId = currentSelectedRoom.roomId;
-      // lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
     }
   }
 })
@@ -254,7 +221,6 @@ socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
   const { avatarUrl, name } = dataFromServer.userInfo;
-  console.log('翻譯集合', dataFromServer.translateResults);
   showChatContent(avatarUrl, name, dataFromServer.translateResults);
 })
 
@@ -262,7 +228,6 @@ socket.on('message', (dataFromServer) => {
 function showChatContent(avatarUrl, name, translateResults) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
-
   // 頭像
   const avatarImg = document.createElement('img');
   avatarImg.src = avatarUrl;
@@ -270,9 +235,6 @@ function showChatContent(avatarUrl, name, translateResults) {
   // 名稱
   const userNameTag = document.createElement('p');
   userNameTag.textContent = name;
-  // 訊息
-  // const messageMainContent = document.createElement('p');
-  // messageMainContent.textContent = messageContent;
   // 訊息跟名字包一起
   const nameAndMessageDiv = document.createElement('div');
   nameAndMessageDiv.classList.add('nameAndMessage');
@@ -297,14 +259,13 @@ function getChatHistory(selectedRoomId) {
     .then(async (validResponse) => {
       // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
       const chatMessageList = validResponse.data.reverse();
-      console.log('歷史訊息', chatMessageList);
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
         const { avatarUrl, name, messageContent, languageVersion } = eachMessage;
         // 這邊要再做一支翻譯 api
-        console.log('language version', languageVersion);
-        const languageList = languageVersion.split(',');
+        const languageList = Array.from(new Set(languageVersion.split(',')));
+        console.log('歷史訊息語系', languageList);
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
         translateMessagePromiseList.push(fetch('/messages/translateMessage', {
           method: 'POST',
@@ -329,7 +290,6 @@ function getChatHistory(selectedRoomId) {
             .then((convertResults) => {
               for (let i = 0; i < convertResults.length; i++) {
                 const eachConverMessage = convertResults[i];
-                console.log('----', eachConverMessage);
                 showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults)
               }
             })

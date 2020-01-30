@@ -5,13 +5,12 @@ const { translationPromise } = require('../common/common');
 
 let roomUsersPair = {};
 let socketio = {};
-// 用來記錄當前選到的 roomId，作為斷線時移除使用
-let currentSelectedRoomId;
+// 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
+let currentSelectedRoomId = 0;
 // 獲取io
 socketio.getSocketio = function (server) {
   const io = socket_io.listen(server);
   io.on('connection', function (socket) {
-    console.log('a user connected')
     // 有人連線進該房間
     socket.on('changeRoom', function (roomDetailInfo, callback) {
       const { roomId } = roomDetailInfo.joinRoomInfo;
@@ -53,29 +52,9 @@ socketio.getSocketio = function (server) {
       }
       console.log(`加入房間${roomId}的人`, joinInfo.userInfo);
       roomUsersPair[roomId].push(joinInfo.userInfo);
+
       socket.join(roomId);
     })
-
-    // socket.on('leave', (leaveInfo) => {
-    //   console.log('觸發server端 leave')
-    //   if (leaveInfo.lastChooseRoom.roomId !== -1) {
-    //     const { lastChooseRoom, userInfo } = leaveInfo;
-    //     const { roomId } = lastChooseRoom;
-    //     // 因為 javascript 無法直接用 indexOf 比較 object，所以這邊利用 userId 來找
-    //     if (roomUsersPair[roomId]) {
-    //       const roomUserIdPairList = roomUsersPair[roomId].map(function(user) {
-    //         return user.userId;
-    //       });
-    //       const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
-    //       console.log('leaveUserIndex', leaveUserIndex);
-    //       if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
-    //         roomUsersPair[roomId].splice(leaveUserIndex, 1);
-    //         console.log('現在房間跟用戶的狀況', roomUsersPair);
-    //         socket.leave(roomId);
-    //       }  
-    //     }
-    //   }
-    // })
 
     socket.on('clientMessage', async (dataFromClient) => {
       // 儲存訊息到 mySQL
@@ -87,8 +66,8 @@ socketio.getSocketio = function (server) {
       }
       console.log('傳過來的 dataFromClient', dataFromClient);
       // 每個房間現在有哪些語系
-      console.log(roomUsersPair)
-      const languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function (user) {
+      console.log('roomUserPair', roomUsersPair)
+      let languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function (user) {
         return user.selectedLanguage;
       });
       console.log(`房間${dataFromClient.roomDetail.roomId}有${languageListForEachRoom}語系`)
@@ -117,13 +96,15 @@ socketio.getSocketio = function (server) {
     })
 
     socket.on('disconnect', () => {
-      const removeIndex = roomUsersPair[currentSelectedRoomId].findIndex(user => {
-        return user.socketId === socket.id;
-      });
-      if (removeIndex !== -1) {
-        roomUsersPair[currentSelectedRoomId].splice(removeIndex, 1);
-        console.log('斷線後房間剩下的', roomUsersPair[currentSelectedRoomId])
-        socket.leave(currentSelectedRoomId);
+      if (roomUsersPair[currentSelectedRoomId]) {
+        const removeIndex = roomUsersPair[currentSelectedRoomId].findIndex(user => {
+          return user.socketId === socket.id;
+        });
+        if (removeIndex !== -1) {
+          roomUsersPair[currentSelectedRoomId].splice(removeIndex, 1);
+          console.log('斷線後房間剩下的', roomUsersPair[currentSelectedRoomId])
+          socket.leave(currentSelectedRoomId);
+        }  
       }
     })
   })

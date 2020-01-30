@@ -22,10 +22,11 @@ const messageTranslation = async (req, res) => {
   }
   Promise.all(translatePromiseList)
   .then((translateResults) => {
-    let translatedList = [messageContent];
+    let translatedList = [];
     for (let i = 0; i < translateResults.length; i++) {
       translatedList.push(translateResults[i].translatedText);
     }
+    console.log('翻譯訊息', translatedList);
     res.status(200).json({
       data: {
         messageUserName: name,
