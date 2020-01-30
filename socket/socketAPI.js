@@ -5,15 +5,48 @@ const { translationPromise } = require('../common/common');
 
 let roomUsersPair = {};
 let socketio = {};
+// 用來記錄當前選到的 roomId，作為斷線時移除使用
+let currentSelectedRoomId;
 // 獲取io
 socketio.getSocketio = function (server) {
   const io = socket_io.listen(server);
   io.on('connection', function (socket) {
     console.log('a user connected')
     // 有人連線進該房間
+    socket.on('changeRoom', function (roomDetailInfo, callback) {
+      const { roomId } = roomDetailInfo.joinRoomInfo;
+      currentSelectedRoomId = roomId;
+      // 如果該房間都還沒有會員進入
+      if (!roomUsersPair[roomId]) {
+        roomUsersPair[roomId] = [];
+      }
+      // console.log(`切換房間加入房間${roomId}的人`, roomDetailInfo.userInfo);
+      roomDetailInfo.userInfo.socketId = socket.id;
+      roomUsersPair[roomId].push(roomDetailInfo.userInfo);
+      socket.join(roomId);
+      // console.log('離開前房間跟用戶的狀況', roomUsersPair)
+      // 2. 離開舊房間的處理
+      const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
+      if (roomUsersPair[leaveRoomId]) {
+        // 移除
+        const removeIndex = roomUsersPair[leaveRoomId].findIndex(user => {
+          return user.userId === roomDetailInfo.userInfo.userId
+        })
+        if (removeIndex !== -1) {
+          roomUsersPair[leaveRoomId].splice(removeIndex, 1);
+          console.log('剛剛移除後房間剩下的', roomUsersPair[roomId])
+          socket.leave(leaveRoomId);
+        }
+      }
+      console.log('離開後房間跟用戶的狀況', roomUsersPair);
+      // 代表都完成了
+      callback('finished');
+    });
+
     socket.on('join', (joinInfo) => {
-      // console.log("房間", joinInfo.roomInfo);
       const { roomId } = joinInfo.roomInfo;
+      currentSelectedRoomId = roomId;
+      joinInfo.userInfo.socketId = socket.id;
       // 如果該房間都還沒有會員進入
       if (!roomUsersPair[roomId]) {
         roomUsersPair[roomId] = [];
@@ -23,25 +56,26 @@ socketio.getSocketio = function (server) {
       socket.join(roomId);
     })
 
-    socket.on('leave', (leaveInfo) => {
-      if (leaveInfo.lastChooseRoom.roomId !== -1) {
-        const { lastChooseRoom, userInfo } = leaveInfo;
-        const { roomId } = lastChooseRoom;
-        // 因為 javascript 無法直接用 indexOf 比較 object，所以這邊利用 userId 來找
-        if (roomUsersPair[roomId]) {
-          const roomUserIdPairList = roomUsersPair[roomId].map(function(user) {
-            return user.userId;
-          });
-          const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
-          console.log('leaveUserIndex', leaveUserIndex);
-          if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
-            roomUsersPair[roomId].splice(leaveUserIndex, 1);
-            console.log('欲移除的對象', roomUsersPair)
-            socket.leave(roomId);
-          }  
-        }
-      }
-    })
+    // socket.on('leave', (leaveInfo) => {
+    //   console.log('觸發server端 leave')
+    //   if (leaveInfo.lastChooseRoom.roomId !== -1) {
+    //     const { lastChooseRoom, userInfo } = leaveInfo;
+    //     const { roomId } = lastChooseRoom;
+    //     // 因為 javascript 無法直接用 indexOf 比較 object，所以這邊利用 userId 來找
+    //     if (roomUsersPair[roomId]) {
+    //       const roomUserIdPairList = roomUsersPair[roomId].map(function(user) {
+    //         return user.userId;
+    //       });
+    //       const leaveUserIndex = roomUserIdPairList.indexOf(userInfo.userId);
+    //       console.log('leaveUserIndex', leaveUserIndex);
+    //       if (roomUsersPair[roomId].length > 0 && leaveUserIndex !== -1) {
+    //         roomUsersPair[roomId].splice(leaveUserIndex, 1);
+    //         console.log('現在房間跟用戶的狀況', roomUsersPair);
+    //         socket.leave(roomId);
+    //       }  
+    //     }
+    //   }
+    // })
 
     socket.on('clientMessage', async (dataFromClient) => {
       // 儲存訊息到 mySQL
@@ -54,9 +88,10 @@ socketio.getSocketio = function (server) {
       console.log('傳過來的 dataFromClient', dataFromClient);
       // 每個房間現在有哪些語系
       console.log(roomUsersPair)
-      const languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function(user) {
+      const languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function (user) {
         return user.selectedLanguage;
       });
+      console.log(`房間${dataFromClient.roomDetail.roomId}有${languageListForEachRoom}語系`)
       try {
         const createMessageResult = await insertChatMessage(messageObj, languageListForEachRoom);
         if (createMessageResult) {
@@ -78,6 +113,17 @@ socketio.getSocketio = function (server) {
         }
       } catch (error) {
         throw error;
+      }
+    })
+
+    socket.on('disconnect', () => {
+      const removeIndex = roomUsersPair[currentSelectedRoomId].findIndex(user => {
+        return user.socketId === socket.id;
+      });
+      if (removeIndex !== -1) {
+        roomUsersPair[currentSelectedRoomId].splice(removeIndex, 1);
+        console.log('斷線後房間剩下的', roomUsersPair[currentSelectedRoomId])
+        socket.leave(currentSelectedRoomId);
       }
     })
   })

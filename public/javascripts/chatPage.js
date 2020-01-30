@@ -177,8 +177,6 @@ sidePadChannelSection.addEventListener('click', function (event) {
     const roomTitleTag = document.querySelector('#room_title h1');
     roomTitleTag.textContent = currentSelectedRoom.roomTitle;
 
-    // 記錄使用者選到的房間
-
     // 打 restful Api 獲取聊天室內容
     // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
     const chatContentArea = document.querySelector('#message_flow_area');
@@ -186,30 +184,54 @@ sidePadChannelSection.addEventListener('click', function (event) {
     getChatHistory(validRoomId);
 
     // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
-    console.log('currentRoomDetail', currentSelectedRoom)
-    console.log('lastChooseRoom', lastChooseRoom)
+    // defect 一樣是 非同步造成的
+    console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
+    console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
     if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
-      socket.emit('join', {
-        roomInfo: currentSelectedRoom,
-        userInfo: currentUserDetail
-      }, (error) => {
-        if (error) {
-          alert(error)
-          window.location = '/'
-        }
+
+      // 更換房間事件 (未完成)
+      console.log('進到切換房間事件')
+      socket.emit('changeRoom', {
+        joinRoomInfo: currentSelectedRoom,
+        userInfo: currentUserDetail,
+        lastChooseRoom: lastChooseRoom
+      }, function(finishedInfo) {
+        console.log('完成切換', finishedInfo)
+        lastChooseRoom.roomId = currentSelectedRoom.roomId;
+        lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+        // (finished) => {
+        //   if (finished) {
+        //     console.log('callback 完成')
+        //     lastChooseRoom.roomId = currentSelectedRoom.roomId;
+        //     lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+        //   } else {
+        //     alert(error);
+        //     window.location = '/';
+        //   }
+        // }
       })
 
-      socket.emit('leave', {
-        lastChooseRoom: lastChooseRoom,
-        userInfo: currentUserDetail
-      }, (error) => {
-        if (error) {
-          alert(error)
-          window.location = '/'
-        }
-      });
-      lastChooseRoom.roomId = currentSelectedRoom.roomId;
-      lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+      // socket.emit('join', {
+      //   roomInfo: currentSelectedRoom,
+      //   userInfo: currentUserDetail
+      // }, (error) => {
+      //   if (error) {
+      //     alert(error)
+      //     window.location = '/'
+      //   }
+      // })
+
+      // socket.emit('leave', {
+      //   lastChooseRoom: lastChooseRoom,
+      //   userInfo: currentUserDetail
+      // }, (error) => {
+      //   if (error) {
+      //     alert(error)
+      //     window.location = '/'
+      //   }
+      // });
+      // lastChooseRoom.roomId = currentSelectedRoom.roomId;
+      // lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
     }
   }
 })
@@ -304,12 +326,13 @@ function getChatHistory(selectedRoomId) {
             jsonConvertList.push(responseResults[i].json());
           }
           Promise.all(jsonConvertList)
-          .then((convertResults) => {
-            for (let i = 0; i < convertResults.length; i++) {
-              const eachConverMessage = convertResults[i];
-              showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults)
-            }
-          })
+            .then((convertResults) => {
+              for (let i = 0; i < convertResults.length; i++) {
+                const eachConverMessage = convertResults[i];
+                console.log('----', eachConverMessage);
+                showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults)
+              }
+            })
         })
     })
 }
