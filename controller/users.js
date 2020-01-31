@@ -1,6 +1,15 @@
-const crypto = require('crypto');
 require('dotenv').config();
-const { insertUser, searchFBUser, searchUser, getUserProfileByToken, updateUserToken, updateUserFBInfo, getAllUsers, updateUserAvatar } = require('../model/users');
+const { 
+  insertUser, 
+  searchFBUser, 
+  searchUser, 
+  getUserProfileByToken, 
+  updateUserToken, 
+  updateUserFBInfo, 
+  getAllUsers, 
+  updateUserAvatar,
+  updateUserSelectedRoom 
+} = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise');
 
@@ -164,10 +173,28 @@ const updateAvatar = async (req, res) => {
   }
 }
 
+const updateUserRoom = async (req, res) => {
+  const { userId, roomId } = req.body;
+  try {
+    const updateResult = await updateUserSelectedRoom(userId, roomId);
+    if (updateResult) {
+      res.status(200).json({
+        data: {
+          userId: userId,
+          selectedRoomId: roomId
+        }
+      })
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
 module.exports = {
   userSignin,
   signupUser,
   getUserProfile,
   listAllUsers,
-  updateAvatar
+  updateAvatar,
+  updateUserRoom
 }

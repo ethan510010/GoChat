@@ -114,16 +114,33 @@ sidePadChannelSection.addEventListener('click', function (event) {
     console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
     console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
     if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
-
-      // 更換房間事件
-      socket.emit('changeRoom', {
-        joinRoomInfo: currentSelectedRoom,
-        userInfo: currentUserDetail,
-        lastChooseRoom: lastChooseRoom
-      }, function(finishedInfo) {
-        lastChooseRoom.roomId = currentSelectedRoom.roomId;
-        lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+      // 切換房間要紀錄起來
+      // 要有一支 api (未完成)
+      fetch('/users/renewUserSelectedRoom', {
+        method: 'PUT',
+        body: JSON.stringify({
+          userId: currentUserDetail.userId,
+          roomId: currentSelectedRoom.roomId
+        }),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
       })
+        .then(response => response.json())
+        .catch(error => console.log(error))
+        .then((validResponse) => {
+          if (validResponse.data) {
+            // 更換房間事件
+            socket.emit('changeRoom', {
+              joinRoomInfo: currentSelectedRoom,
+              userInfo: currentUserDetail,
+              lastChooseRoom: lastChooseRoom
+            }, function (finishedInfo) {
+              lastChooseRoom.roomId = currentSelectedRoom.roomId;
+              lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+            })
+          }
+        })
     }
   }
 })
@@ -194,11 +211,10 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId, messageT
   // timeStamp 變 date
   const messageDate = new Date(messageTime);
   if (messageDate.getMinutes() < 10) {
-    messageTimeTag.textContent = `${messageDate.getHours()}:0${messageDate.getMinutes()}`;  
+    messageTimeTag.textContent = `${messageDate.getHours()}:0${messageDate.getMinutes()}`;
   } else {
     messageTimeTag.textContent = `${messageDate.getHours()}:${messageDate.getMinutes()}`;
   }
-  // messagesDiv.appendChild(messageTimeTag);
   messageOuterDiv.appendChild(messageTimeTag);
 
   eachMessageDiv.appendChild(messageUserInfoDiv);
@@ -250,10 +266,10 @@ function getChatHistory(selectedRoomId) {
             .then((convertResults) => {
               for (let i = 0; i < convertResults.length; i++) {
                 const eachConverMessage = convertResults[i].data;
-                showChatContent(eachConverMessage.messageUserAvatar, 
-                  eachConverMessage.messageUserName, 
-                  eachConverMessage.translationResults, 
-                  eachConverMessage.messageFromUser, 
+                showChatContent(eachConverMessage.messageUserAvatar,
+                  eachConverMessage.messageUserName,
+                  eachConverMessage.translationResults,
+                  eachConverMessage.messageFromUser,
                   eachConverMessage.messageTime
                 );
               }

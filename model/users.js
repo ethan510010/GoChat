@@ -266,6 +266,18 @@ const updateUserAvatar = async (userId, avatarUrl) => {
   }
 }
 
+const updateUserSelectedRoom = async (userId, roomId) => {
+  const updateResult = await exec(`
+    update user set last_selected_room_id=${roomId}
+    where id=${userId}
+  `);
+  if (updateResult) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -276,5 +288,6 @@ module.exports = {
   getTokenExpiredTime,
   updateUserToken,
   getAllUsers,
-  updateUserAvatar
+  updateUserAvatar,
+  updateUserSelectedRoom
 }
