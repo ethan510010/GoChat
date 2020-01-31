@@ -237,7 +237,7 @@ const getTokenExpiredTime = async (token) => {
   }
 }
 
-const getAllUsers = async() => {
+const getAllUsers = async () => {
   const users = await exec(`
     select 
     tempTable.userId, 
@@ -253,6 +253,19 @@ const getAllUsers = async() => {
   return users;
 }
 
+const updateUserAvatar = async (userId, avatarUrl) => {
+  const updateAvatarResult = await exec(`
+    update general_user_info set
+    avatarUrl='${avatarUrl}'
+    where userId=${userId}
+  `);
+  if (updateAvatarResult) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -262,5 +275,6 @@ module.exports = {
   getUserProfileByToken,
   getTokenExpiredTime,
   updateUserToken,
-  getAllUsers
+  getAllUsers,
+  updateUserAvatar
 }

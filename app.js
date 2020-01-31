@@ -3,7 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const aws = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+require('dotenv').config();
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var roomsRouter = require('./routes/rooms');
@@ -13,7 +16,33 @@ var userLanguageRouter = require('./routes/userLanguage');
 var chatPageRouter = require('./routes/chat');
 
 var app = express();
-
+// aws 設定
+aws.config.update({
+  secretAccessKey: process.env.awsSecretKey,
+  accessKeyId: process.env.awsAccessKeyId,
+  region: 'us-east-2',
+});
+const awsS3 = new aws.S3();
+const fileStorage = multerS3({
+  s3: awsS3,
+  bucket: 'ethangochat',
+  acl: 'public-read',
+  key: function (req, file, callback) {
+    callback(null, `${Date.now()}_${file.originalname}`);
+  },
+  metadata: function (req, file, callback) {
+    callback(null, {fieldName: file.fieldname});
+  },
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+});
+app.use(
+  multer({ storage: fileStorage }).fields([
+    {
+      name: 'userAvatar',
+      maxCount: 1,
+    }
+  ]),
+);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

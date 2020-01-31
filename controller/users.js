@@ -1,8 +1,8 @@
 const crypto = require('crypto');
 require('dotenv').config();
-const { insertUser, searchFBUser, searchUser, getUserProfileByToken, updateUserToken, updateUserFBInfo, getAllUsers } = require('../model/users');
+const { insertUser, searchFBUser, searchUser, getUserProfileByToken, updateUserToken, updateUserFBInfo, getAllUsers, updateUserAvatar } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
-const rp = require('request-promise'); 
+const rp = require('request-promise');
 
 // 登入
 const userSignin = async (req, res) => {
@@ -23,7 +23,7 @@ const userSignin = async (req, res) => {
                 user: {
                   id: userId,
                   provider: 'native',
-                  email: email, 
+                  email: email,
                   name: name,
                   avatarUrl: avatarUrl
                 }
@@ -145,9 +145,29 @@ const listAllUsers = async (req, res) => {
   }
 }
 
+// 更新使用者大頭貼
+const updateAvatar = async (req, res) => {
+  const userAvatarUrl = `https://d23udu0vnjg8rb.cloudfront.net/${req.files.userAvatar[0].key}`;
+  const userId = req.body.userId;
+  try {
+    const updateResult = await updateUserAvatar(userId, userAvatarUrl);
+    if (updateResult) {
+      res.status(200).json({
+        data: {
+          userId: userId,
+          avatarUrl: userAvatarUrl
+        }
+      })
+    }
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+
 module.exports = {
   userSignin,
   signupUser,
   getUserProfile,
-  listAllUsers
+  listAllUsers,
+  updateAvatar
 }

@@ -54,10 +54,24 @@ selectLanguageTag.addEventListener('change', function () {
 const uploadAvatarTag = document.getElementById('customFileInput');
 uploadAvatarTag.addEventListener('change', function(e) {
   const fileData = e.target.files[0];
-  console.log('上傳大頭貼的檔案資訊', fileData);
-  // 這邊要補做一隻上傳大頭貼的 api
-  const userAvatarImageTag = document.querySelector('#user_basic .user_avatar');
-  userAvatarImageTag.src = URL.createObjectURL(fileData);
+  console.log('要上傳的大頭貼資訊', fileData);
+  // 上傳打 api
+  const formData = new FormData();
+  formData.append('userAvatar', fileData);
+  formData.append('userId', userId);
+  const options = {
+    method: 'PUT',
+    body: formData
+  }
+  fetch('/users/renewUserAvatar', options)
+  .then(response => response.json())
+  .catch(error => console.log(error))
+  .then((validResponse) => {
+    if (validResponse.data) {
+      const userAvatarImageTag = document.querySelector('#user_basic .user_avatar');
+      userAvatarImageTag.src = URL.createObjectURL(fileData);
+    }
+  })
 })
 
 // 進入房間
