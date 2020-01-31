@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="/stylesheets/normalize.css">
+  <link rel="stylesheet" href="/stylesheets/chatPage.css">
+</head>
+<body>
+  <header>
+    <div id="room_title">
+      <h1><%= roomTitle %></h1>
+    </div>
+    <div id="small_avatar">
+      <img src=<%= userAvatar %> alt="">
+    </div>
+  </header>
+  <div class="content">
+    <div class="side_pad">
+      <div class="upper_section">
+        <div class="room_header">
+          <p>Channels</p>
+          <input class="add_room" type="button">
+        </div>
+        <% for (let i = 0; i < rooms.length; i++) { %>
+          <div class="room_title" id=channelId_<%= rooms[i].id%>>
+            <%= rooms[i].name %>
+          </div>
+        <% } %>
+      </div>
+      <div class="lower_section">
+
+      </div>
+    </div>
+    <div class="chat_content">
+      <div id="chat_area">
+        <div id="message_flow_area"></div>
+        <div id="message_input">
+          <input id="message_window" type="text" placeholder="Type message ...">
+          <input id="send_btn" type="image" src="/images/sendMsg.png">
+        </div>
+      </div>
+      <div id="resize"></div>
+      <div id="draw_area"></div>
+    </div>
+  </div>
+  <!-- Modal Div -->
+  <div id="addRoomModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Create a channel</h3>
+      <p>please enter channel name</p>
+      <input class="enter_channel_name" type="text" placeholder='channel name'>
+      <p>invite people to this channel</p>
+      <!-- 這邊之後一定要改，這邊只是先用很簡單的方式不要卡住我 -->
+      <input class="enter_member_name" list="members" placeholder="member name">
+      <input class="confirm_button" type="button" value="confirm">
+    </div>
+  </div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+  <script>
+    let currentUserDetail = <%- JSON.stringify(currentUserDetail) %>;
+    let currentSelectedRoom = {
+      roomId: currentUserDetail.lastSelectedRoomId,
+      roomTitle: currentUserDetail.lastSelectedRoomTitle
+    } 
+  </script>
+  <script src="/javascripts/common.js"></script>
+  <script src="/javascripts/chat.js"></script>
+  <script src="/javascripts/resizeBorder.js"></script>
+  <script src="/javascripts/modalPopup.js"></script> 
+</body>
+</html>

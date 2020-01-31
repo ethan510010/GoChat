@@ -17,7 +17,3 @@ function getCookie(cname) {
   }
   return '';
 }
-
-let currentUserDetail = {};
-// 用戶當前所在房間 Room
-let currentSelectedRoom = {};

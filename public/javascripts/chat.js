@@ -1,57 +1,19 @@
-let currentUserDetail = {};
-// 用戶當前所在房間 Room
-let currentSelectedRoom = {};
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
-// Token
-const accessToken = getCookie('access_token');
-if (!accessToken || accessToken === '') {
-  window.location = '/';
-} else {
-  fetch('/users/profile', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
-    .then((response) => response.json())
-    .catch((err) => console.log(err))
-    .then((validResponse) => {
-      if (typeof validResponse.data === 'string') {
-        window.location = '/'
-      } else {
-        const avatarImg = document.querySelector('#small_avatar img');
-        // 如果用戶現在沒有自己上傳大頭貼因為 DB 是空的，所以我們就先給他預設的
-        const uiAvatar = validResponse.data.avatarUrl === '' ? '/images/defaultAvatar.png' : validResponse.data.avatarUrl; 
-        avatarImg.src = uiAvatar;
-        validResponse.data.avatarUrl = uiAvatar;
-        // 設定當前用戶
-        currentUserDetail = validResponse.data;
-        console.log('當前用戶', currentUserDetail);
-        // 用戶當前選到的房間也是由使用者的 profile 拿到
-        currentSelectedRoom.roomId = validResponse.data.lastSelectedRoomId;
-        currentSelectedRoom.roomTitle = validResponse.data.lastSelectedRoomTitle;
-        console.log('用戶目前所在房間', currentSelectedRoom);
-        const roomTitleTag = document.querySelector('#room_title h1');
-        roomTitleTag.textContent = currentSelectedRoom.roomTitle;
-        // 顯示訊息
-        chatFlowContent.innerHTML = '';
-        getChatHistory(currentSelectedRoom.roomId);
-        // 顯示房間列表
-        fetchChatRooms(currentUserDetail.userId);
-        // 加入房間
-        socket.emit('join', {
-          roomInfo: currentSelectedRoom,
-          userInfo: currentUserDetail
-        }, (error) => {
-          if (error) {
-            alert(error)
-            window.location = '/'
-          }
-        })
-      }
-    })
-}
+chatFlowContent.innerHTML = '';
+// 顯示歷史訊息
+getChatHistory(currentSelectedRoom.roomId);
+
+// 加入房間
+socket.emit('join', {
+  roomInfo: currentSelectedRoom,
+  userInfo: currentUserDetail
+}, (error) => {
+  if (error) {
+    alert(error)
+    window.location = '/'
+  }
+})
 
 // 2.  邀請用戶進到 channel 時獲取全部用戶資訊
 let allUsers = [];
@@ -124,25 +86,6 @@ buildChannelBtn.addEventListener('click', function () {
       }
     })
 })
-
-// 4. 獲取房間列表
-function fetchChatRooms(userId) {
-  fetch(`/rooms/getRooms?userId=${userId}`)
-    .then((response) => response.json())
-    .catch((error) => console.log(error))
-    .then((validResponse) => {
-      const rooms = validResponse.data;
-      for (let index = 0; index < rooms.length; index++) {
-        const eachRoom = rooms[index];
-        const roomListArea = document.querySelector('.side_pad .upper_section');
-        const eachRoomTag = document.createElement('div');
-        eachRoomTag.setAttribute('id', `channelId_${eachRoom.id}`)
-        eachRoomTag.classList.add('room_title');
-        eachRoomTag.textContent = eachRoom.name;
-        roomListArea.appendChild(eachRoomTag);
-      }
-    })
-}
 
 // 切換房間相關邏輯
 // 紀錄上一次切換的 Room (預設就是 general 這個 room)

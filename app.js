@@ -10,6 +10,7 @@ var roomsRouter = require('./routes/rooms');
 var messageRouter = require('./routes/message');
 var languageRouter = require('./routes/language');
 var userLanguageRouter = require('./routes/userLanguage');
+var chatPageRouter = require('./routes/chat');
 
 var app = express();
 
@@ -28,7 +29,8 @@ app.use('/users', usersRouter);
 app.use('/rooms', roomsRouter);
 app.use('/messages', messageRouter);
 app.use('/language', languageRouter);
-app.use('/userLanguage', userLanguageRouter)
+app.use('/userLanguage', userLanguageRouter);
+app.use('/chat', chatPageRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -37,6 +37,7 @@ selectLanguageTag.addEventListener('change', function () {
 // 進入房間
 const enterChatRoomBtn = document.querySelector('#user_basic .enter_button');
 enterChatRoomBtn.addEventListener('click', function(e) {
-  window.location = '/chatPage.html'
+  // window.location = '/chatPage.html'
+  window.location = `/chat?userId=${userId}`
 })
 
