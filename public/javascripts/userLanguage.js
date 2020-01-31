@@ -29,7 +29,23 @@ selectLanguageTag.addEventListener('change', function () {
     .catch(error => console.log(error))
     .then((validResponse) => {
       if (validResponse.data === 'success') {
-        console.log('用戶現在更新的語言', selectLanguageTag.value)
+        const userLanguageTag = document.querySelector('.userLanguage');
+        let selectedUILanguage = '';
+        switch (selectLanguageTag.value) {
+          case 'en':
+            selectedUILanguage = 'English';
+            break;
+          case 'zh-TW':
+            selectedUILanguage = 'Traditional Chinese';
+            break;
+          case 'ja':
+            selectedUILanguage = 'Japanese';
+            break;
+          case 'es':
+            selectedUILanguage = 'Spanish';
+            break;
+        }
+        userLanguageTag.textContent = `User preferred language: ${selectedUILanguage}`;
       }
     })
   }
