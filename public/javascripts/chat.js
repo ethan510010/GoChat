@@ -145,12 +145,13 @@ sendMessageBtn.addEventListener('click', function () {
 socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
+  const messageTime = dataFromServer.messageTime;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
-  showChatContent(avatarUrl, name, dataFromServer.translateResults, userId);
+  showChatContent(avatarUrl, name, dataFromServer.translateResults, userId, messageTime);
 })
 
 //  顯示聊天室內容 UI
-function showChatContent(avatarUrl, name, translateResults, fromUserId) {
+function showChatContent(avatarUrl, name, translateResults, fromUserId, messageTime) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
   if (currentUserDetail.userId === fromUserId) {
@@ -169,10 +170,13 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId) {
   const userNameTag = document.createElement('p');
   userNameTag.classList.add('userName');
   userNameTag.textContent = name;
-  
+
   messageUserInfoDiv.appendChild(avatarImg);
   messageUserInfoDiv.appendChild(userNameTag);
-  // 訊息跟名字包一起
+  // 訊息區塊
+  const messageOuterDiv = document.createElement('div');
+  messageOuterDiv.classList.add('messageOuterBox');
+
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messageDetail');
   // 翻譯訊息
@@ -182,8 +186,23 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId) {
     eachTranslateTag.textContent = eachTranslateMessage;
     messagesDiv.appendChild(eachTranslateTag);
   }
+  messageOuterDiv.appendChild(messagesDiv);
+  // 加上時間
+  // 訊息時間
+  const messageTimeTag = document.createElement('p');
+  messageTimeTag.classList.add('messageTime');
+  // timeStamp 變 date
+  const messageDate = new Date(messageTime);
+  if (messageDate.getMinutes() < 10) {
+    messageTimeTag.textContent = `${messageDate.getHours()}:0${messageDate.getMinutes()}`;  
+  } else {
+    messageTimeTag.textContent = `${messageDate.getHours()}:${messageDate.getMinutes()}`;
+  }
+  // messagesDiv.appendChild(messageTimeTag);
+  messageOuterDiv.appendChild(messageTimeTag);
+
   eachMessageDiv.appendChild(messageUserInfoDiv);
-  eachMessageDiv.appendChild(messagesDiv);
+  eachMessageDiv.appendChild(messageOuterDiv);
   chatFlowContent.appendChild(eachMessageDiv);
   // 自動捲動到底部
   chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
@@ -202,7 +221,7 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, userId, messageContent, languageVersion } = eachMessage;
+        const { avatarUrl, name, userId, messageContent, languageVersion, createdTime } = eachMessage;
         // 這邊要再做一支翻譯 api
         const languageList = Array.from(new Set(languageVersion.split(',')));
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
@@ -213,7 +232,8 @@ function getChatHistory(selectedRoomId) {
             name: name,
             messageContent: messageContent,
             languageList: languageList,
-            fromUserId: userId
+            fromUserId: userId,
+            createdTime: createdTime
           }),
           headers: new Headers({
             'Content-Type': 'application/json'
@@ -229,8 +249,13 @@ function getChatHistory(selectedRoomId) {
           Promise.all(jsonConvertList)
             .then((convertResults) => {
               for (let i = 0; i < convertResults.length; i++) {
-                const eachConverMessage = convertResults[i];
-                showChatContent(eachConverMessage.data.messageUserAvatar, eachConverMessage.data.messageUserName, eachConverMessage.data.translationResults, eachConverMessage.data.messageFromUser)
+                const eachConverMessage = convertResults[i].data;
+                showChatContent(eachConverMessage.messageUserAvatar, 
+                  eachConverMessage.messageUserName, 
+                  eachConverMessage.translationResults, 
+                  eachConverMessage.messageFromUser, 
+                  eachConverMessage.messageTime
+                );
               }
             })
         })

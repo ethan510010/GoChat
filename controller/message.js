@@ -14,7 +14,7 @@ const getMessagesForEachRoom = async (req, res) => {
 }
 
 const messageTranslation = async (req, res) => {
-  const { messageContent, languageList, name, avatarUrl, fromUserId }  = req.body;
+  const { messageContent, languageList, name, avatarUrl, fromUserId, createdTime }  = req.body;
   let translatePromiseList = [];
   for (let index = 0; index < languageList.length; index++) {
     const eachLanguage = languageList[index];
@@ -32,7 +32,8 @@ const messageTranslation = async (req, res) => {
         messageFromUser: fromUserId,
         messageUserName: name,
         messageUserAvatar: avatarUrl,
-        translationResults: translatedList
+        translationResults: translatedList,
+        messageTime: createdTime
       }
     })
   })
