@@ -50,6 +50,16 @@ selectLanguageTag.addEventListener('change', function () {
     })
   }
 })
+// 上傳用戶大頭貼
+const uploadAvatarTag = document.getElementById('customFileInput');
+uploadAvatarTag.addEventListener('change', function(e) {
+  const fileData = e.target.files[0];
+  console.log('上傳大頭貼的檔案資訊', fileData);
+  // 這邊要補做一隻上傳大頭貼的 api
+  const userAvatarImageTag = document.querySelector('#user_basic .user_avatar');
+  userAvatarImageTag.src = URL.createObjectURL(fileData);
+})
+
 // 進入房間
 const enterChatRoomBtn = document.querySelector('#user_basic .enter_button');
 enterChatRoomBtn.addEventListener('click', function(e) {

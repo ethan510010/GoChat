@@ -49,6 +49,24 @@ body, html {
   outline: none;
 }
 
+/* 客製化上傳檔案按鈕 */
+#customFileInput {
+  display: none;
+}
+
+#user_basic label {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#user_basic .icon {
+  width: 40px;
+  height: 40px;  
+}
+
 #user_basic .enter_button {
   border-radius: 5px;
   border: 1px solid #03E3FC;

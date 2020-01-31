@@ -12,7 +12,7 @@
   <div id="blur_background"></div>
   <div id="user_basic">
     <h3>User Setting</h3>
-    <img src="<%= userAvatar %>" alt="">
+    <img class="user_avatar" src="<%= userAvatar %>" alt="">
     <!-- 這邊之後要再加上可以上傳使用者大頭貼的部分 -->
     <p>User name: <%= userName %></p>
     <p>User email: <%= userEmail %></p>
@@ -23,6 +23,13 @@
       <option value="ja">Japanese</option>
       <option value="es">Spanish</option>
     </select>
+    <div class="upload_button_box">
+      <input id="customFileInput" type="file" accept="image/*">
+      <label for="customFileInput" class="button-primary">
+        <img class="icon" src="/images/upload.png" alt="">
+        <span>Upload avatar</span>
+      </label>
+    </div>
     <input class="enter_button" type="button" value="Enter Chat Page">
   </div>
   <script src="/javascripts/userLanguage.js"></script>
