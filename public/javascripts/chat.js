@@ -15,6 +15,7 @@ socket.emit('join', {
   }
 })
 
+// 使用者行為相關邏輯
 // 2.  邀請用戶進到 channel 時獲取全部用戶資訊
 let allUsers = [];
 
@@ -184,6 +185,10 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId) {
   eachMessageDiv.appendChild(messageUserInfoDiv);
   eachMessageDiv.appendChild(messagesDiv);
   chatFlowContent.appendChild(eachMessageDiv);
+  // 自動捲動到底部
+  chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+  let chatFlowArea = document.getElementById('message_flow_area');
+  chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
 }
 
 // 獲取聊天室歷史內容
