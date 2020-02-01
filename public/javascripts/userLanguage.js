@@ -13,8 +13,9 @@ function getParameterByName(name, url) {
 
 const userId = getParameterByName('userId', window.location);
 
-// 測試下拉選單
+// 下拉選單
 const selected = document.querySelector('.selected');
+const selectedParaTag = document.querySelector('.selected p');
 const optionsContainer = document.querySelector('.options-container');
 
 const optionsList = document.querySelectorAll('.option');
@@ -23,51 +24,48 @@ selected.addEventListener('click', () => {
   optionsContainer.classList.toggle('active');
 });
 
-optionsList.forEach(o => {
-  o.addEventListener('click', () => {
-    const selectedParaTag = document.querySelector('.selected p')
-    selectedParaTag.innerHTML = o.querySelector('label').innerHTML;
-    optionsContainer.classList.remove('active');
-  });
-});
-
-selectLanguageTag.addEventListener('change', function () {
+// 測試 event delegate
+optionsContainer.addEventListener('click', function(e) {
+  let selectedUILanguage = '';
+  let selectedLanguageValue = '';
+  switch (e.target.nodeName.toUpperCase()) {
+    case 'DIV':
+      const innerLabel = e.target.querySelector('label');
+      selectedLanguageValue = innerLabel.getAttribute('for');
+      selectedUILanguage = innerLabel.innerHTML;
+      break;
+    case 'LABEL':
+      selectedLanguageValue = e.target.getAttribute('for');
+      selectedUILanguage = e.target.innerHTML;
+      e.preventDefault();
+      break;
+  }
+  // 打 api
   if (userId) {
     fetch('/language/userPreferedLanguage', {
       body: JSON.stringify({
         userId: userId,
-        selectedLanguage: selectLanguageTag.value
+        selectedLanguage: selectedLanguageValue
       }),
       headers: new Headers({
         'Content-Type': 'application/json'
       }),
-      method: 'PUT',
+      method: 'PUT'
     })
-    .then(response => response.json())
-    .catch(error => console.log(error))
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
     .then((validResponse) => {
       if (validResponse.data === 'success') {
         const userLanguageTag = document.querySelector('.userLanguage');
-        let selectedUILanguage = '';
-        switch (selectLanguageTag.value) {
-          case 'en':
-            selectedUILanguage = 'English';
-            break;
-          case 'zh-TW':
-            selectedUILanguage = 'Traditional Chinese';
-            break;
-          case 'ja':
-            selectedUILanguage = 'Japanese';
-            break;
-          case 'es':
-            selectedUILanguage = 'Spanish';
-            break;
-        }
         userLanguageTag.textContent = `User preferred language: ${selectedUILanguage}`;
+        selectedParaTag.innerHTML = selectedUILanguage;
+        optionsContainer.classList.remove('active');
       }
     })
   }
+  
 })
+
 // 上傳用戶大頭貼
 const uploadAvatarTag = document.getElementById('customFileInput');
 uploadAvatarTag.addEventListener('change', function(e) {

@@ -46,7 +46,7 @@ body, html {
   font-weight: bold;
 }
 
-/* 測試客製化下拉 */
+/* 客製化下拉選單 */
 .select-box {
   display: flex;
   width: 80%;
@@ -132,21 +132,7 @@ body, html {
 .select-box .option .radio {
   display: none;
 }
-/* 原生下拉選單 */
-#user_basic select {
-  margin: 16px 0;
-  outline: none;
-  background: #035EFC;
-  color: #FFF;
-  padding: 10px;
-  width: 200px;
-  height: 30px;
-  font-size: 18px;
-  font-weight: bold;
-  border: none;
-  -webkit-appearance: button;
-  outline: none;
-}
+
 /* 客製化上傳檔案按鈕 */
 #customFileInput {
   display: none;
