@@ -17,12 +17,37 @@
     <p>User name: <%= userName %></p>
     <p>User email: <%= userEmail %></p>
     <p class="userLanguage">User preferred language: <%= userLanguage %></p>
-    <select name="" id="">
-      <option value="en">English</option>
-      <option value="zh-TW">Traditional Chinese</option>
-      <option value="ja">Japanese</option>
-      <option value="es">Spanish</option>
-    </select>
+    <div class="select-box">
+      <div class="options-container">
+        <div class="option">
+          <input type="radio" class="radio" id="en" name="language">
+          <label for="en">English</label>
+        </div>
+        <div class="option">
+          <input type="radio" class="radio" id="zh-TW" name="language">
+          <label for="zh-TW">Traditional Chinese</label>
+        </div>
+        <div class="option">
+          <input type="radio" class="radio" id="ja" name="language">
+          <label for="ja">Japanese</label>
+        </div>
+        <div class="option">
+          <input type="radio" class="radio" id="es" name="language">
+          <label for="es">Spanish</label>
+        </div>
+      </div>
+      <div class="selected">
+        <p>Select Language</p>
+      </div>
+    </div>
+    <div class="box">
+      <select name="" id="">
+        <option value="en">English</option>
+        <option value="zh-TW">Traditional Chinese</option>
+        <option value="ja">Japanese</option>
+        <option value="es">Spanish</option>
+      </select>
+    </div>
     <div class="upload_button_box">
       <input id="customFileInput" type="file" accept="image/*">
       <label for="customFileInput" class="button-primary">

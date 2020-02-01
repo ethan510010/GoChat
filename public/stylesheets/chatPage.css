@@ -138,6 +138,7 @@ header {
 
 /* The Close Button */
 .close {
+  text-align: right;
   color: #aaaaaa;
   float: right;
   font-size: 28px;
@@ -149,6 +150,19 @@ header {
   color: #000;
   text-decoration: none;
   cursor: pointer;
+}
+
+.modal-content h3 {
+  margin: 0;
+}
+
+.modal-content .enter_channel_name,
+.modal-content .enter_member_name {
+  border-radius: 5px;
+  border: 1px solid #000000;
+  outline: none;
+  padding-left: 10px;
+  height: 30px;
 }
 
 /* 聊天視窗 */

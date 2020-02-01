@@ -13,6 +13,24 @@ function getParameterByName(name, url) {
 
 const userId = getParameterByName('userId', window.location);
 
+// 測試下拉選單
+const selected = document.querySelector('.selected');
+const optionsContainer = document.querySelector('.options-container');
+
+const optionsList = document.querySelectorAll('.option');
+
+selected.addEventListener('click', () => {
+  optionsContainer.classList.toggle('active');
+});
+
+optionsList.forEach(o => {
+  o.addEventListener('click', () => {
+    const selectedParaTag = document.querySelector('.selected p')
+    selectedParaTag.innerHTML = o.querySelector('label').innerHTML;
+    optionsContainer.classList.remove('active');
+  });
+});
+
 selectLanguageTag.addEventListener('change', function () {
   if (userId) {
     fetch('/language/userPreferedLanguage', {
