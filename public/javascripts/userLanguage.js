@@ -63,7 +63,6 @@ optionsContainer.addEventListener('click', function(e) {
       }
     })
   }
-  
 })
 
 // 上傳用戶大頭貼

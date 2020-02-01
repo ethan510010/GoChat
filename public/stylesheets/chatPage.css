@@ -124,7 +124,7 @@ header {
 .modal-content {
   background-color: #fefefe;
   margin: auto;
-  padding: 20px;
+  padding: 10px 15px 20px;
   border: 1px solid #888;
   width: 80%;
   border-radius: 20px;
@@ -165,6 +165,117 @@ header {
   height: 30px;
 }
 
+/* 彈出式視窗 - 會員列表選單 */
+.select-box {
+  display: flex;
+  width: 80%;
+  flex-direction: column;
+}
+
+.select-box p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.select-box .options-container {
+  background: #003e85;
+  color: #FFF;
+  max-height: 0;
+  width: 100%;
+  opacity: 0;
+  transition: all 0.5s;
+  border-radius: 8px;
+  overflow: hidden;
+  order: 1;
+}
+
+.selected {
+  background: #003e85;
+  border-radius: 8px;
+  margin: 8px 0;
+  color: #FFF;
+  position: relative;
+  order: 0;
+  outline: none;
+  /* 測試 tag input 加的*/
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.selected::after {
+  content: '';
+  background: url("/images/arrow-down.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  height: 100%;
+  width: 32px;
+  right: 10px;
+  top: 5px;
+  transition: all 0.5s;
+  outline: none;
+}
+
+.select-box .options-container.active {
+  max-height: 240px;
+  opacity: 1;
+  overflow-y: auto;
+}
+
+.select-box .options-container.active + .selected::after {
+  transform: rotateX(180deg);
+  top: -6px;
+}
+
+ .select-box .options-container::-webkit-scrollbar {
+  width: 8px;
+  background: #0d141f;
+  border-radius: 0 8px 8px 0;
+}
+
+.select-box .options-container::-webkit-scrollbar-thumb {
+  background: #525861;
+  border-radius: 0 8px 8px 0;
+}
+
+.select-box .option,
+.selected {
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
+.select-box .option:hover {
+  background: #012D5C;
+}
+
+.select-box label {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.select-box .option .radio {
+  display: none;
+}
+/* tags input 測試加上去的 */
+/* 姓名標籤 */
+.nameTag {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFF;
+  color: #000000;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 3px; 
+}
+
+.nameTag img {
+  width: 20px;
+  height: 20px;
+}
 /* 聊天視窗 */
 .chat_content {
   width: 70%;

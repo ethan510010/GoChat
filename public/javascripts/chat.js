@@ -17,25 +17,79 @@ socket.emit('join', {
 
 // 使用者行為相關邏輯
 // 2.  邀請用戶進到 channel 時獲取全部用戶資訊
-let allUsers = [];
+// let allUsers = [];
 
-const invitePeopleTag = document.querySelector('#addRoomModal .enter_member_name');
-invitePeopleTag.addEventListener('focus', function (e) {
-  // 打 api 獲取用戶列表
-  fetch('/users/listUsers', {})
-    .then((response) => response.json())
-    .catch((err) => console.log(err))
-    .then((validResponse) => {
-      if (typeof validResponse.data === 'string') {
-        console.log('獲取全部用戶資料有問題')
-      } else {
-        // const inviteMembersTag = document.querySelector('.modal-content');
-        const users = validResponse.data;
-        allUsers = users;
+// const invitePeopleTag = document.querySelector('#addRoomModal .enter_member_name');
+// invitePeopleTag.addEventListener('focus', function (e) {
+//   // 打 api 獲取用戶列表
+//   fetch('/users/listUsers', {})
+//     .then((response) => response.json())
+//     .catch((err) => console.log(err))
+//     .then((validResponse) => {
+//       if (typeof validResponse.data === 'string') {
+//         console.log('獲取全部用戶資料有問題')
+//       } else {
+//         // const inviteMembersTag = document.querySelector('.modal-content');
+//         const users = validResponse.data;
+//         allUsers = users;
+//       }
+//     })
+// })
+// 跳出選單
+const selected = document.querySelector('.selected');
+const optionsContainer = document.querySelector('.options-container');
+
+const optionsList = document.querySelectorAll('.option');
+
+selected.addEventListener('click', function (e) {
+  // selected.textContent = '';
+  // 為了 tags input 這邊要加上可以刪除標籤的 delegate
+  switch (e.target.nodeName.toUpperCase()) {
+    case 'IMG':
+      const beRemovedNameTag = e.target.parentElement;
+      selected.removeChild(beRemovedNameTag);
+      e.preventDefault();
+      return;
+    case 'SPAN':
+      e.preventDefault();
+      return;
+    case 'DIV':
+      if (e.target.getAttribute('class') === 'nameTag') {
+        e.preventDefault();
+        return;  
       }
-    })
+  }
+  optionsContainer.classList.toggle('active');
 })
 
+optionsContainer.addEventListener('click', function(e) {
+  let selectedUILanguage = '';
+  let selectedLanguageValue = '';
+  switch (e.target.nodeName.toUpperCase()) {
+    case 'DIV':
+      const innerLabel = e.target.querySelector('label');
+      selectedLanguageValue = innerLabel.getAttribute('for');
+      selectedUILanguage = innerLabel.innerHTML;
+      break;
+    case 'LABEL':
+      selectedLanguageValue = e.target.getAttribute('for');
+      selectedUILanguage = e.target.innerHTML;
+      e.preventDefault();
+      break;
+  }
+  // 產生有 X 的姓名 div
+  const nameTag = document.createElement('div');
+  nameTag.classList.add('nameTag');
+  const nameSpan = document.createElement('span');
+  nameSpan.textContent = selectedUILanguage;
+  const removeNameImg = document.createElement('img');
+  removeNameImg.src = '/images/remove.png';
+  nameTag.appendChild(nameSpan);
+  nameTag.appendChild(removeNameImg);
+  selected.appendChild(nameTag);
+  // selected.textContent = selectedUILanguage;
+  optionsContainer.classList.remove('active');
+})
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function () {

@@ -24,11 +24,11 @@
           <p>Channels</p>
           <input class="add_room" type="button">
         </div>
-        <% for (let i = 0; i < rooms.length; i++) { %>
-          <div class="room_title" id=channelId_<%= rooms[i].id%>>
-            <%= rooms[i].name %>
-          </div>
-        <% } %>
+          <% for (let i = 0; i < rooms.length; i++) { %>
+            <div class="room_title" id=channelId_<%= rooms[i].id%>>
+              <%= rooms[i].name %>
+            </div>
+          <% } %>
       </div>
       <div class="lower_section">
 
@@ -57,6 +57,23 @@
       <p>invite people to this channel</p>
       <!-- 這邊之後一定要改，這邊只是先用很簡單的方式不要卡住我 -->
       <input class="enter_member_name" list="members" placeholder="member name">
+      <!-- 開始測試 會員下拉式選單 -->
+      <div class="select-box">
+        <div class="options-container">
+          <% for (let i = 0; i < allUsers.length; i++) { %>
+            <div class="option">
+              <input type="radio" class="radio" name="user" id=userId_<%= allUsers[i].userId%>>
+              <label for=userId_<%= allUsers[i].userId%>><%= allUsers[i].name%></label>
+            </div>
+          <% } %>
+        </div>
+        <!-- 測試 tag input 加 contentEditable -->
+        <div class="selected">
+          select member
+          <!-- <input type="text" placeholder="select member"> -->
+          <!-- <p>Select Language</p> -->
+        </div>
+      </div>
       <input class="confirm_button" type="button" value="confirm">
     </div>
   </div>
@@ -66,7 +83,8 @@
     let currentSelectedRoom = {
       roomId: currentUserDetail.lastSelectedRoomId,
       roomTitle: currentUserDetail.lastSelectedRoomTitle
-    } 
+    }
+    let allUsers = <%- JSON.stringify(allUsers) %>;
   </script>
   <script src="/javascripts/common.js"></script>
   <script src="/javascripts/chat.js"></script>
