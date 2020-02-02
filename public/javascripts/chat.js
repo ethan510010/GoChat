@@ -39,6 +39,23 @@ selected.addEventListener('click', function (e) {
       });
       beInvitedMembers.splice(beRemovedIndex, 1);
       selected.removeChild(beRemovedNameTag);
+      // 需要把下拉選單該用戶加回來，否則會看不到該用戶
+      // 1. option div
+      const userOption = document.createElement('div');
+      userOption.classList.add('option');
+      // 2. input ratio
+      const userRatioInput = document.createElement('input');
+      userRatioInput.type = 'radio';
+      userRatioInput.classList.add('radio');
+      userRatioInput.name = 'user';
+      userRatioInput.id = `userId_${beRemovedUserId}`;
+      // 3. label
+      const optionLabel = document.createElement('label');
+      optionLabel.setAttribute('for', `userId_${beRemovedUserId}`);
+      optionLabel.textContent = beRemovedNameTag.textContent;
+      userOption.appendChild(userRatioInput);
+      userOption.appendChild(optionLabel);
+      optionsContainer.appendChild(userOption);
       e.preventDefault();
       return;
     case 'SPAN':
@@ -55,21 +72,23 @@ selected.addEventListener('click', function (e) {
     //   decorationInput.placeholder = 'name';
     //   selected.appendChild(decorationInput);
   }
+  // 如果在已經有該用戶的 tag 在視窗中，那麼之後的選擇列表就不應該有該用戶可以選
+  
   optionsContainer.classList.toggle('active');
 })
 
 optionsContainer.addEventListener('click', function(e) {
-  let selectedUILanguage = '';
-  let selectedLanguageValue = '';
+  let selectedUIUser = '';
+  let selectedUserIdValue = '';
   switch (e.target.nodeName.toUpperCase()) {
     case 'DIV':
       const innerLabel = e.target.querySelector('label');
-      selectedLanguageValue = innerLabel.getAttribute('for').replace('userId_', '');
-      selectedUILanguage = innerLabel.innerHTML;
+      selectedUserIdValue = innerLabel.getAttribute('for').replace('userId_', '');
+      selectedUIUser = innerLabel.innerHTML;
       break;
     case 'LABEL':
-      selectedLanguageValue = e.target.getAttribute('for').replace('userId_', '');
-      selectedUILanguage = e.target.innerHTML;
+      selectedUserIdValue = e.target.getAttribute('for').replace('userId_', '');
+      selectedUIUser = e.target.innerHTML;
       e.preventDefault();
       break;
   }
@@ -78,11 +97,22 @@ optionsContainer.addEventListener('click', function(e) {
   // 產生有 X 的姓名 div
   const nameTag = document.createElement('div');
   nameTag.classList.add('nameTag');
-  nameTag.classList.add(`userId${selectedLanguageValue}`);
+  nameTag.classList.add(`userId${selectedUserIdValue}`);
   // 記錄到要加進 channel 的用戶
-  beInvitedMembers.push(selectedLanguageValue);
+  beInvitedMembers.push(selectedUserIdValue);
+  // 同時也要把下拉選單該用戶先移除掉，避免重複選取
+  const allUserOptions = document.querySelectorAll('.option');
+  for (let i = 0; i < allUserOptions.length; i++) {
+    const eachOption = allUserOptions[i];
+    if (eachOption.children[0].nodeName.toUpperCase() === 'INPUT') {
+      const userIdValue =  eachOption.children[0].getAttribute('id').replace('userId_', '');
+      if (userIdValue === selectedUserIdValue) {
+        optionsContainer.removeChild(eachOption);
+      }
+    }
+  }
   const nameSpan = document.createElement('span');
-  nameSpan.textContent = selectedUILanguage;
+  nameSpan.textContent = selectedUIUser;
   const removeNameImg = document.createElement('img');
   removeNameImg.src = '/images/remove.png';
   nameTag.appendChild(nameSpan);

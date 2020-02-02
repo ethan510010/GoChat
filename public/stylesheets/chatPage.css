@@ -209,7 +209,8 @@ header {
   height: 100%;
   width: 32px;
   right: 10px;
-  top: 5px;
+  top: 50%;
+  transform: translateY(-50%); 
   transition: all 0.5s;
   outline: none;
 }
@@ -229,7 +230,7 @@ header {
 
 .select-box .options-container.active + .selected::after {
   transform: rotateX(180deg);
-  top: -6px;
+   top: -6px;
 }
 
  .select-box .options-container::-webkit-scrollbar {
