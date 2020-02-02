@@ -18,8 +18,8 @@ socket.emit('join', {
 // 跳出選單
 const selected = document.querySelector('.selected');
 const optionsContainer = document.querySelector('.options-container');
-
 const optionsList = document.querySelectorAll('.option');
+const searchBox = document.querySelector('.search-box input');
 // 被邀請進 channel 的用戶
 let beInvitedMembers = [];
 
@@ -72,9 +72,12 @@ selected.addEventListener('click', function (e) {
     //   decorationInput.placeholder = 'name';
     //   selected.appendChild(decorationInput);
   }
-  // 如果在已經有該用戶的 tag 在視窗中，那麼之後的選擇列表就不應該有該用戶可以選
-  
   optionsContainer.classList.toggle('active');
+  searchBox.value = '';
+  filterList('');
+  if (optionsContainer.classList.contains('active')) {
+    searchBox.focus();
+  }
 })
 
 optionsContainer.addEventListener('click', function(e) {
@@ -121,6 +124,22 @@ optionsContainer.addEventListener('click', function(e) {
   // selected.textContent = selectedUILanguage;
   optionsContainer.classList.remove('active');
 })
+
+searchBox.addEventListener('keyup', function (e) {
+  filterList(e.target.value);
+})
+// 過濾用戶
+const filterList = (searchTerm) => {
+  searchTerm = searchTerm.toLowerCase();
+  optionsList.forEach(option => {
+    let label = option.firstElementChild.nextElementSibling.innerText.toLowerCase();
+    if (label.indexOf(searchTerm) != -1) {
+      option.style.display = "block";
+    } else {
+      option.style.display = "none";
+    }
+  });
+};
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function () {
