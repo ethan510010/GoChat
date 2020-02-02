@@ -24,7 +24,11 @@ const optionsList = document.querySelectorAll('.option');
 let beInvitedMembers = [];
 
 selected.addEventListener('click', function (e) {
-  // selected.textContent = '';
+  // 移除原本的提示 p tag，並加上一個可編輯的 div 作為裝飾用
+  if (document.querySelector('.selected p')) {
+    document.querySelector('.selected p').textContent = '';
+    selected.removeChild(document.querySelector('.selected p'));
+  }
   // 為了 tags input 這邊要加上可以刪除標籤的 delegate
   switch (e.target.nodeName.toUpperCase()) {
     case 'IMG':
@@ -45,6 +49,11 @@ selected.addEventListener('click', function (e) {
         e.preventDefault();
         return;  
       }
+    // default:
+    //   const decorationInput = document.createElement('input');
+    //   decorationInput.classList.add('decorationEdit');
+    //   decorationInput.placeholder = 'name';
+    //   selected.appendChild(decorationInput);
   }
   optionsContainer.classList.toggle('active');
 })
@@ -64,6 +73,8 @@ optionsContainer.addEventListener('click', function(e) {
       e.preventDefault();
       break;
   }
+  // 先把裝飾用的 input 移掉
+  // selected.removeChild(document.querySelector('.selected .decorationEdit'));
   // 產生有 X 的姓名 div
   const nameTag = document.createElement('div');
   nameTag.classList.add('nameTag');
@@ -112,7 +123,8 @@ buildChannelBtn.addEventListener('click', function () {
         const roomListArea = document.querySelector('.side_pad .upper_section');
         const newCreatedRoomTag = document.createElement('div');
         newCreatedRoomTag.textContent = channelName;
-        newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`)
+        newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
+        newCreatedRoomTag.classList.add('room_title');
         roomListArea.appendChild(newCreatedRoomTag);
       }
     })

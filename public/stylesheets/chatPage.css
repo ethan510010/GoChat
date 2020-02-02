@@ -132,10 +132,6 @@ header {
   flex-direction: column;
 }
 
-.modal-content .enter_member_name {
-  margin-bottom: 10px;
-}
-
 /* The Close Button */
 .close {
   text-align: right;
@@ -197,11 +193,11 @@ header {
   position: relative;
   order: 0;
   outline: none;
-  /* 測試 tag input 加的*/
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+  min-height: 60px;
 }
 
 .selected::after {
@@ -216,6 +212,13 @@ header {
   top: 5px;
   transition: all 0.5s;
   outline: none;
+}
+
+.selected .decorationEdit {
+  background-color: #003e85;
+  outline: none;
+  border: 0;
+  color: #C3C6C9;
 }
 
 .select-box .options-container.active {

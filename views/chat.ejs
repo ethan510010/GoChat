@@ -55,9 +55,7 @@
       <p>please enter channel name</p>
       <input class="enter_channel_name" type="text" placeholder='channel name'>
       <p>invite people to this channel</p>
-      <!-- 這邊之後一定要改，這邊只是先用很簡單的方式不要卡住我 -->
-      <input class="enter_member_name" list="members" placeholder="member name">
-      <!-- 開始測試 會員下拉式選單 -->
+      <!-- 會員下拉式選單 -->
       <div class="select-box">
         <div class="options-container">
           <% for (let i = 0; i < allUsers.length; i++) { %>
@@ -69,7 +67,7 @@
         </div>
         <!-- 測試 tag input 加 contentEditable -->
         <div class="selected">
-          select member
+          <p>select member</p>
           <!-- <input type="text" placeholder="select member"> -->
           <!-- <p>Select Language</p> -->
         </div>
