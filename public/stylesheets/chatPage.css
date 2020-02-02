@@ -18,7 +18,10 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #469BE5;
+  background: -webkit-linear-gradient(left top,#073C78,#2c619e);
+  background: -o-linear-gradient(bottom right,#073C78,#2c619e);
+  background: -moz-linear-gradient(bottom right,#073C78,#2c619e);
+  background: linear-gradient(to bottom right,#073C78, #2c619e);
   border-bottom: 0.5px solid #fff;
   color: #fff;
 }
@@ -45,8 +48,20 @@ header {
   height: 40px;
   border-radius: 50%;
 }
-
 /* 聊天區塊 */
+.background_img {
+  background-image: url('/images/scene.jpg');
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: calc(100% - 60px);
+  position: absolute;
+  top: 60px; 
+  width: 100%;
+}
+
 .content {
   display: flex;
   flex-direction: row;
@@ -55,15 +70,15 @@ header {
   bottom: 0px;
   left: 0px;
   width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 2;
 }
 
 /* 左半邊側欄 */
 .side_pad {
   width: 30%;
-  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
-  background-color: #E6E6E6;
   padding: 10px;
 }
 
@@ -109,7 +124,7 @@ header {
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 10; /* Sit on top */
   padding-top: 100px; /* Location of the box */
   left: 0;
   top: 0;
@@ -126,7 +141,7 @@ header {
   margin: auto;
   padding: 10px 15px 20px;
   border: 1px solid #888;
-  width: 80%;
+  width: 60%;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -148,19 +163,39 @@ header {
   cursor: pointer;
 }
 
-.modal-content h3 {
-  margin: 0;
+.modal-content .title_area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.modal-content .enter_channel_name,
-.modal-content .enter_member_name {
+.modal-content h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.modal-content p {
+  margin: 10px 0;
+}
+
+.modal-content .enter_channel_name {
   border-radius: 5px;
-  border: 1px solid #000000;
+  border: 2px solid #425AF5;
   outline: none;
   padding-left: 10px;
   height: 30px;
 }
 
+.modal-content .confirm_button {
+  margin: 0 auto;
+  background-color: #175091;
+  color: #FFF;
+  font-size: 16px;
+  font-weight: 500;
+  height: 40px;
+  border-radius: 5px;
+  width: 60%;
+}
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
   position: relative;
@@ -271,7 +306,7 @@ header {
 .search-box input {
   width: 100%;
   padding: 12px 16px;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   position: absolute;
   border-radius: 8px 8px 0 0;
@@ -317,7 +352,7 @@ header {
 #chat_area {
   width: 100%;
   height: calc(95% - 3px);
-  background-color: #E6E6E6;
+  /* background-color: #E6E6E6; */
   float: left;
   display: flex;
   flex-direction: column;
@@ -326,7 +361,7 @@ header {
 
 #message_flow_area {
   overflow-y: auto;
-  background-color: #E6E6E6;
+  /* background-color: #E6E6E6; */
 }
 
 #resize {
@@ -374,7 +409,8 @@ header {
 
 .message_block .userName {
   font-size: 10px;
-  margin: 0;
+  margin: 2px 0;
+  color: #FFF;
 }
 
 .message_block .messageDetail p {
@@ -383,8 +419,9 @@ header {
 }
 
 .message_block .messageTime {
-  font-size: 3px;
+  font-size: 10px;
   margin-top: 3px;
+  color: #FFF;
 }
 
 .messageHost {
@@ -407,8 +444,9 @@ header {
 }
 
 .messageHost .messageDetail {
-  background-color: #469BE5;
+  background-color: #549E0F;
   color: #FFF;
+  border: 0.5px solid #FFF;
 }
 
 .messageHost .messageOuterBox {

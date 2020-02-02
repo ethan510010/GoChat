@@ -17,6 +17,7 @@
       <img src=<%= userAvatar %> alt="">
     </div>
   </header>
+  <div class="background_img"></div>
   <div class="content">
     <div class="side_pad">
       <div class="upper_section">
@@ -50,8 +51,10 @@
   <div id="addRoomModal" class="modal">
     <!-- Modal content -->
     <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Create a channel</h3>
+      <div class="title_area">
+        <h3>Create a channel</h3>
+        <span class="close">&times;</span>
+      </div>
       <p>please enter channel name</p>
       <input class="enter_channel_name" type="text" placeholder='channel name'>
       <p>invite people to this channel</p>
