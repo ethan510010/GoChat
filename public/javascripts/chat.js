@@ -15,31 +15,13 @@ socket.emit('join', {
   }
 })
 
-// 使用者行為相關邏輯
-// 2.  邀請用戶進到 channel 時獲取全部用戶資訊
-// let allUsers = [];
-
-// const invitePeopleTag = document.querySelector('#addRoomModal .enter_member_name');
-// invitePeopleTag.addEventListener('focus', function (e) {
-//   // 打 api 獲取用戶列表
-//   fetch('/users/listUsers', {})
-//     .then((response) => response.json())
-//     .catch((err) => console.log(err))
-//     .then((validResponse) => {
-//       if (typeof validResponse.data === 'string') {
-//         console.log('獲取全部用戶資料有問題')
-//       } else {
-//         // const inviteMembersTag = document.querySelector('.modal-content');
-//         const users = validResponse.data;
-//         allUsers = users;
-//       }
-//     })
-// })
 // 跳出選單
 const selected = document.querySelector('.selected');
 const optionsContainer = document.querySelector('.options-container');
 
 const optionsList = document.querySelectorAll('.option');
+// 被邀請進 channel 的用戶
+let beInvitedMembers = [];
 
 selected.addEventListener('click', function (e) {
   // selected.textContent = '';
@@ -47,6 +29,11 @@ selected.addEventListener('click', function (e) {
   switch (e.target.nodeName.toUpperCase()) {
     case 'IMG':
       const beRemovedNameTag = e.target.parentElement;
+      const beRemovedUserId = beRemovedNameTag.classList[1].replace('userId', '');
+      const beRemovedIndex = beInvitedMembers.findIndex((userId) => {
+        return userId === beRemovedUserId;
+      });
+      beInvitedMembers.splice(beRemovedIndex, 1);
       selected.removeChild(beRemovedNameTag);
       e.preventDefault();
       return;
@@ -68,11 +55,11 @@ optionsContainer.addEventListener('click', function(e) {
   switch (e.target.nodeName.toUpperCase()) {
     case 'DIV':
       const innerLabel = e.target.querySelector('label');
-      selectedLanguageValue = innerLabel.getAttribute('for');
+      selectedLanguageValue = innerLabel.getAttribute('for').replace('userId_', '');
       selectedUILanguage = innerLabel.innerHTML;
       break;
     case 'LABEL':
-      selectedLanguageValue = e.target.getAttribute('for');
+      selectedLanguageValue = e.target.getAttribute('for').replace('userId_', '');
       selectedUILanguage = e.target.innerHTML;
       e.preventDefault();
       break;
@@ -80,6 +67,9 @@ optionsContainer.addEventListener('click', function(e) {
   // 產生有 X 的姓名 div
   const nameTag = document.createElement('div');
   nameTag.classList.add('nameTag');
+  nameTag.classList.add(`userId${selectedLanguageValue}`);
+  // 記錄到要加進 channel 的用戶
+  beInvitedMembers.push(selectedLanguageValue);
   const nameSpan = document.createElement('span');
   nameSpan.textContent = selectedUILanguage;
   const removeNameImg = document.createElement('img');
@@ -93,25 +83,11 @@ optionsContainer.addEventListener('click', function(e) {
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function () {
-  let selectedMembers = [];
   const channelName = document.querySelector('#addRoomModal .enter_channel_name').value;
-  // 這邊邏輯之後會配合邀請成員的 UI 修改跟著變動
-  const memberListStr = document.querySelector('.modal-content .enter_member_name').value;
-  const memberList = memberListStr.split(',');
-  for (let index = 0; index < allUsers.length; index++) {
-    const user = allUsers[index];
-    for (let i = 0; i < memberList.length; i++) {
-      const inputMember = memberList[i];
-      if (inputMember === user.name) {
-        selectedMembers.push(user);
-      }
-    }
-  }
   // 把當前用戶的 id 先放進去
   let userIdList = [currentUserDetail.userId];
-  for (let i = 0; i < selectedMembers.length; i++) {
-    const userDetail = selectedMembers[i];
-    userIdList.push(userDetail.userId);
+  for (let i = 0; i < beInvitedMembers.length; i++) {
+    userIdList.push(beInvitedMembers[i]);
   }
   // 打 api 創建 Room
   fetch('/rooms/createRoom', {
