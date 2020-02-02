@@ -163,6 +163,7 @@ header {
 
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
+  position: relative;
   display: flex;
   width: 80%;
   flex-direction: column;
@@ -183,6 +184,7 @@ header {
   border-radius: 8px;
   overflow: hidden;
   order: 1;
+  margin-bottom: 10px;
 }
 
 .selected {
@@ -215,17 +217,18 @@ header {
   outline: none;
 }
 
-.selected .decorationEdit {
+/* .selected .decorationEdit {
   background-color: #003e85;
   outline: none;
   border: 0;
   color: #C3C6C9;
-}
+} */
 
 .select-box .options-container.active {
   max-height: 240px;
   opacity: 1;
   overflow-y: auto;
+  margin-top: 54px;
 }
 
 .select-box .options-container.active + .selected::after {
@@ -262,7 +265,32 @@ header {
 .select-box .option .radio {
   display: none;
 }
-/* tags input 測試加上去的 */
+
+/* Searchbox */
+
+.search-box input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  position: absolute;
+  border-radius: 8px 8px 0 0;
+  z-index: 100;
+  border: 8px solid #2f3640;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s;
+}
+
+.search-box input:focus {
+  outline: none;
+}
+
+.select-box .options-container.active ~ .search-box input {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* 姓名標籤 */
 .nameTag {
   display: flex;
