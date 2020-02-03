@@ -507,15 +507,27 @@ header {
 #draw_area .color_options {
   display: flex;
   align-items: center;
-  width: 80%;
+  width: 40%;
 }
 
-#draw_area .download_btn {
-  width: 20%;
+#draw_area .tool_area {
+  display: flex;
+  align-items: center;
+  width: 60%;
+  justify-content: flex-end;
+}
+
+#draw_area .download_btn,
+#draw_area .clear_btn {
   text-align: center;
   border: 2px solid #141D73;
   border-radius: 3px;
-  padding: 3px 0px;
+  padding: 3px 5px;
+  margin-left: 10px;
+}
+
+#draw_area .clear_btn p {
+  margin: 0;
 }
 
 .red_block,
@@ -523,9 +535,10 @@ header {
 .green_block,
 .blue_block,
 .black_block {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   margin: 0 10px;
+  border-radius: 50%;
 }
 
 .red_block {

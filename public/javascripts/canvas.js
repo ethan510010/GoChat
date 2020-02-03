@@ -94,9 +94,24 @@ drawColorOptions.addEventListener('click', function(e) {
   }
 })
 
+// 清空 canvas
+const clearCanvasBtn = document.querySelector('.clear_btn');
+clearCanvasBtn.addEventListener('click', function() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  socket.emit('canvasClear', {
+    roomDetail: currentSelectedRoom,
+    userInfo: currentUserDetail,
+  })
+})
+
+socket.on('clearDrawContent', (clearDrawMsg) => {
+  if (clearDrawMsg) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  }
+})
 // 可以下載 canvas
-const downloadLink = document.querySelector('#draw_area a');
-downloadLink.addEventListener('click', function(e) {
+const downloadLink = document.querySelector('.download_btn a');
+downloadLink.addEventListener('click', function() {
   downloadLink.href = canvas.toDataURL();
   downloadLink.download = 'canvas.png';
 })
