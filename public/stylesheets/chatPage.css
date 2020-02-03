@@ -500,11 +500,57 @@ header {
 #draw_area .draw_option {
   height: 40px;
   padding: 10px;
-  text-align: end;
+  display: flex;
+  align-items: center;
+}
+
+#draw_area .color_options {
+  display: flex;
+  align-items: center;
+  width: 80%;
+}
+
+#draw_area .download_btn {
+  width: 20%;
+  text-align: center;
+  border: 2px solid #141D73;
+  border-radius: 3px;
+  padding: 3px 0px;
+}
+
+.red_block,
+.orange_block,
+.green_block,
+.blue_block,
+.black_block {
+  width: 20px;
+  height: 20px;
+  margin: 0 10px;
+}
+
+.red_block {
+  background-color: #F20000;
+}
+
+.orange_block {
+  background-color: #FFAF03;
+}
+
+.green_block {
+  background-color: #08CF26;
+}
+
+.blue_block {
+  background-color: #034EFF;
+}
+
+.black_block {
+  background-color: #000000;
 }
 
 #draw_area a {
   text-decoration: none;
+  color: #141D73;
 }
 
 #canvas {

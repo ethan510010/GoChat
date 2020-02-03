@@ -6,6 +6,7 @@ context.lineCap = 'round';
 context.lineJoin = 'round';
 context.strokeStyle = '#000000';
 context.lineWidth = 5;
+let currentStrokeColor = '';
 
 // 紀錄 canvas 是否有動作
 let isDrawing = false;
@@ -62,10 +63,36 @@ function drawStroke(e) {
     }
     socket.emit('draw', {
       drawInfo: drawInfo,
+      strokeColor: currentStrokeColor,
       roomDetail: currentSelectedRoom,
       userInfo: currentUserDetail,
     })
 }
+
+// 可以選顏色
+const drawColorOptions = document.querySelector('.color_options');
+drawColorOptions.addEventListener('click', function(e) {
+  if (e.target.nodeName.toUpperCase() === 'DIV') {
+    switch (e.target.className) {
+      case 'red_block':
+        currentStrokeColor = '#F20000';
+        break;
+      case 'orange_block':
+        currentStrokeColor = '#FFAF03';
+        break;
+      case 'green_block':
+        currentStrokeColor = '#08CF26';
+        break;
+      case 'blue_block':
+        currentStrokeColor = '#034EFF';
+        break;
+      case 'black_block':
+        currentStrokeColor = '#000000';
+        break;
+    }
+    context.strokeStyle = currentStrokeColor;
+  }
+})
 
 // 可以下載 canvas
 const downloadLink = document.querySelector('#draw_area a');
@@ -75,8 +102,7 @@ downloadLink.addEventListener('click', function(e) {
 })
 
 socket.on('showDrawData', (drawInfoFromServer) => {
-  const { roomId } = drawInfoFromServer.roomDetail;
-  console.log('畫圖的房間資訊', roomId);
+  context.strokeStyle = drawInfoFromServer.strokeColor;
   context.beginPath();
   context.moveTo(drawInfoFromServer.drawInfo.originalX, drawInfoFromServer.drawInfo.originalY);
   context.lineTo(drawInfoFromServer.drawInfo.destinationX, drawInfoFromServer.drawInfo.destinationY);
