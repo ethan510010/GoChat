@@ -379,6 +379,8 @@ header {
   background-color: #FFFFFF;
   position: relative;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 聊天區塊內部 */
@@ -495,9 +497,19 @@ header {
 }
 
 /* 下半部畫版 */
+#draw_area .draw_option {
+  height: 40px;
+  padding: 10px;
+  text-align: end;
+}
+
+#draw_area a {
+  text-decoration: none;
+}
+
 #canvas {
   cursor: crosshair;
   position: absolute;
-  top: 0;
+  top: 40px;
   left: 0;
 }

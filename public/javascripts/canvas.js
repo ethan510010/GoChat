@@ -67,6 +67,13 @@ function drawStroke(e) {
     })
 }
 
+// 可以下載 canvas
+const downloadLink = document.querySelector('#draw_area a');
+downloadLink.addEventListener('click', function(e) {
+  downloadLink.href = canvas.toDataURL();
+  downloadLink.download = 'canvas.png';
+})
+
 socket.on('showDrawData', (drawInfoFromServer) => {
   const { roomId } = drawInfoFromServer.roomDetail;
   console.log('畫圖的房間資訊', roomId);
