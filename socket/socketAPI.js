@@ -102,6 +102,10 @@ socketio.getSocketio = function (server) {
       }
     })
 
+    socket.on('draw', async (drawInfoFromClient) => {
+      io.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
+    })
+
     socket.on('disconnect', () => {
       if (roomUsersPair[currentSelectedRoomId]) {
         const removeIndex = roomUsersPair[currentSelectedRoomId].findIndex(user => {
