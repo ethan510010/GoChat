@@ -377,6 +377,8 @@ header {
   float: right;
   height: 5%;
   background-color: #FFFFFF;
+  position: relative;
+  overflow: auto;
 }
 
 /* 聊天區塊內部 */
@@ -490,4 +492,12 @@ header {
   width: 35px;
   height: 35px;
   margin-right: 10px;
+}
+
+/* 下半部畫版 */
+#canvas {
+  cursor: crosshair;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
