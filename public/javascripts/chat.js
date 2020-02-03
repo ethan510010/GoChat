@@ -81,8 +81,36 @@ sendMessageBtn.addEventListener('click', function () {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
     messageContent: enterMessageInput.value,
-    messageTime: Date.now()
+    messageTime: Date.now(),
+    messageType: 'text'
   });
+})
+
+// 發送圖片訊息
+const sendImageBtn = document.getElementById('send_image');
+sendImageBtn.addEventListener('change', function (e) {
+  const fileData = e.target.files[0];
+  // 上傳檔案打 api
+  const formData = new FormData();
+  formData.append('messageImage', fileData);
+  const options = {
+    method: 'POST',
+    body: formData
+  }
+  fetch('/messages/uploadImage', options)
+    .then(response => response.json())
+    .catch(error => console.log(error))
+    .then((validResponse) => {
+      // 還沒完成
+      console.log('訊息檔案路徑', validResponse.data)
+      socket.emit('clientMessage', {
+        roomDetail: currentSelectedRoom,
+        userInfo: currentUserDetail,
+        messageContent: validResponse.data,
+        messageTime: Date.now(),
+        messageType: 'image'
+      })
+    })
 })
 
 // 接收 Server 端發過來的 message 事件
@@ -90,12 +118,13 @@ socket.on('message', (dataFromServer) => {
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   console.log('房間資訊', roomId, roomTitle)
   const messageTime = dataFromServer.messageTime;
+  const messageType = dataFromServer.messageType;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
-  showChatContent(avatarUrl, name, dataFromServer.translateResults, userId, messageTime);
+  showChatContent(avatarUrl, name, dataFromServer.chatMsgResults, userId, messageTime, messageType);
 })
 
 //  顯示聊天室內容 UI
-function showChatContent(avatarUrl, name, translateResults, fromUserId, messageTime) {
+function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTime, messageType) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
   if (currentUserDetail.userId === fromUserId) {
@@ -123,12 +152,19 @@ function showChatContent(avatarUrl, name, translateResults, fromUserId, messageT
 
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messageDetail');
-  // 翻譯訊息
-  for (let i = 0; i < translateResults.length; i++) {
-    const eachTranslateMessage = translateResults[i];
-    const eachTranslateTag = document.createElement('p');
-    eachTranslateTag.textContent = eachTranslateMessage;
-    messagesDiv.appendChild(eachTranslateTag);
+  if (messageType === 'text') {
+    // 翻譯訊息
+    for (let i = 0; i < chatMsgResults.length; i++) {
+      const eachTranslateMessage = chatMsgResults[i];
+      const eachTranslateTag = document.createElement('p');
+      eachTranslateTag.textContent = eachTranslateMessage;
+      messagesDiv.appendChild(eachTranslateTag);
+    }
+  } else if (messageType === 'image') {
+    const messageImageTag = document.createElement('img');
+    messageImageTag.classList.add('imageMessage');
+    messageImageTag.src = chatMsgResults[0];
+    messagesDiv.append(messageImageTag);
   }
   messageOuterDiv.appendChild(messagesDiv);
   // 加上時間
@@ -164,7 +200,7 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, userId, messageContent, languageVersion, createdTime } = eachMessage;
+        const { avatarUrl, name, userId, messageContent, languageVersion, createdTime, messageType } = eachMessage;
         // 這邊要再做一支翻譯 api
         const languageList = Array.from(new Set(languageVersion.split(',')));
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
@@ -176,7 +212,8 @@ function getChatHistory(selectedRoomId) {
             messageContent: messageContent,
             languageList: languageList,
             fromUserId: userId,
-            createdTime: createdTime
+            createdTime: createdTime,
+            messageType: messageType
           }),
           headers: new Headers({
             'Content-Type': 'application/json'
@@ -195,9 +232,10 @@ function getChatHistory(selectedRoomId) {
                 const eachConverMessage = convertResults[i].data;
                 showChatContent(eachConverMessage.messageUserAvatar,
                   eachConverMessage.messageUserName,
-                  eachConverMessage.translationResults,
+                  eachConverMessage.chatResults,
                   eachConverMessage.messageFromUser,
-                  eachConverMessage.messageTime
+                  eachConverMessage.messageTime,
+                  eachConverMessage.messageType
                 );
               }
             })

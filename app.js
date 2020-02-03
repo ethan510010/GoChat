@@ -40,6 +40,10 @@ app.use(
     {
       name: 'userAvatar',
       maxCount: 1,
+    },
+    {
+      name: 'messageImage',
+      maxCount: 1,
     }
   ]),
 );

@@ -62,7 +62,8 @@ socketio.getSocketio = function (server) {
         createdTime: dataFromClient.messageTime,
         messageContent: dataFromClient.messageContent,
         userId: dataFromClient.userInfo.userId,
-        roomId: dataFromClient.roomDetail.roomId
+        roomId: dataFromClient.roomDetail.roomId,
+        messageType: dataFromClient.messageType
       }
       console.log('傳過來的 dataFromClient', dataFromClient);
       // 每個房間現在有哪些語系
@@ -80,14 +81,20 @@ socketio.getSocketio = function (server) {
           saveCacheMessage(dataFromClient);
           // 這邊要做翻譯，根據拿到房間裡面有哪些語系，需要做翻譯
           let languageVersionMessageList = [];
-          for (let index = 0; index < languageListForEachRoom.length; index++) {
-            const eachLanguage = languageListForEachRoom[index];
-            const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
-            languageVersionMessageList.push(translateResult.originalText);
-            languageVersionMessageList.push(translateResult.translatedText);
+          // 只有文字類的訊息要做翻譯，圖片就傳回原始 url
+          if (dataFromClient.messageType === 'text') {
+            for (let index = 0; index < languageListForEachRoom.length; index++) {
+              const eachLanguage = languageListForEachRoom[index];
+              const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
+              languageVersionMessageList.push(translateResult.originalText);
+              languageVersionMessageList.push(translateResult.translatedText);
+            }
+            // 把重複的語言濾掉
+            dataFromClient.chatMsgResults = Array.from(new Set(languageVersionMessageList));  
+          } else if (dataFromClient.messageType === 'image') {
+            // 圖片的話就傳回原始訊息
+            dataFromClient.chatMsgResults = [dataFromClient.messageContent];
           }
-          // 把重複的語言濾掉
-          dataFromClient.translateResults = Array.from(new Set(languageVersionMessageList));
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         }
       } catch (error) {

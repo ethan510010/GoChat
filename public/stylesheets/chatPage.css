@@ -475,6 +475,17 @@ header {
   padding-left: 15px;
 }
 
+#send_image {
+  display: none;
+}
+
+.send_img_msg_icon {
+  padding-top: 3px;
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+}
+
 #send_btn {
   width: 35px;
   height: 35px;

@@ -28,7 +28,8 @@ const saveCacheMessage = (fullMessage) => {
     provider: fullMessage.userInfo.provider,
     name: fullMessage.userInfo.name,
     email: fullMessage.userInfo.email,
-    avatarUrl: fullMessage.userInfo.avatarUrl
+    avatarUrl: fullMessage.userInfo.avatarUrl,
+    messageType: fullMessage.messageType
   }
   redisClient.lpush(`roomId${fullMessage.roomDetail.roomId}`, JSON.stringify(saveMessageFormat));
   redisClient.ltrim(`roomId${fullMessage.roomDetail.roomId}`, 0, 29);

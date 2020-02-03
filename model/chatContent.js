@@ -13,6 +13,7 @@ const insertChatMessage = async (messageObj, languageListForEachRoom) => {
     messageContent=?, 
     userId=?, 
     roomId=?,
+    messageType=?,
     languageVersion='${messageLanguages}'`
   , messageObj);
   return insertMessageResult;

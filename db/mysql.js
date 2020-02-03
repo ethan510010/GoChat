@@ -205,7 +205,7 @@ function updateFBUserInfo(generalUserSQL, fbUserSQL, userDetailObj) {
 function createMessageRecord(insertMsgSQL, messageObj) {
   return new Promise((resolve, reject) => {
     mySQLPool.query(insertMsgSQL,
-      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId],
+      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId, messageObj.messageType],
       (err, result) => {
         if (err) {
           reject(err);
