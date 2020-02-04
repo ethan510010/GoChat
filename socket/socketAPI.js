@@ -89,7 +89,7 @@ socketio.getSocketio = function (server) {
               languageVersionMessageList.push(translateResult.originalText);
               languageVersionMessageList.push(translateResult.translatedText);
             }
-            // 把重複的語言濾掉
+            // 把重複的語言濾掉 (這裡面已經包含原始訊息了)
             dataFromClient.chatMsgResults = Array.from(new Set(languageVersionMessageList));  
           } else if (dataFromClient.messageType === 'image') {
             // 圖片的話就傳回原始訊息

@@ -200,6 +200,7 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
+        console.log('歷史訊息', eachMessage);
         const { avatarUrl, name, userId, messageContent, languageVersion, createdTime, messageType } = eachMessage;
         // 這邊要再做一支翻譯 api
         const languageList = Array.from(new Set(languageVersion.split(',')));

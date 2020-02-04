@@ -518,7 +518,8 @@ header {
 }
 
 #draw_area .download_btn,
-#draw_area .clear_btn {
+#draw_area .clear_btn,
+#draw_area .eraser {
   text-align: center;
   border: 2px solid #141D73;
   border-radius: 3px;
@@ -526,7 +527,8 @@ header {
   margin-left: 10px;
 }
 
-#draw_area .clear_btn p {
+#draw_area .clear_btn p,
+#draw_area .eraser p {
   margin: 0;
 }
 

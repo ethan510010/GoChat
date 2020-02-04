@@ -15,6 +15,9 @@ let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
+// 紀錄是否開啟橡皮擦
+let eraserEnabled = false;
+
 // 按下滑鼠
 canvas.addEventListener('mousedown', function(e) {
   isDrawing = true;
@@ -28,8 +31,13 @@ canvas.addEventListener('mousemove', function(e) {
   e.preventDefault();
 
   if (isDrawing) {
-    drawStroke(e)
+    drawOrEraseStroke(e)
   }
+  // if (isDrawing && !eraserEnabled) {
+  //   drawOrEraseStroke(e)
+  // } else {
+  //   context.clearRect(lastX, lastY, 15, 15);
+  // }
   lastX = e.offsetX;
   lastY = e.offsetY;
 });
@@ -47,7 +55,7 @@ canvas.addEventListener('mouseout', function(e) {
   isDrawing = false;
 })
 
-function drawStroke(e) {
+function drawOrEraseStroke(e) {
     context.beginPath(); // 開始建立路徑
     context.moveTo(lastX, lastY); // 移動當前所在位置
     context.lineTo(e.offsetX, e.offsetY); // 拉到的目的地
@@ -73,6 +81,7 @@ function drawStroke(e) {
 const drawColorOptions = document.querySelector('.color_options');
 drawColorOptions.addEventListener('click', function(e) {
   if (e.target.nodeName.toUpperCase() === 'DIV') {
+    eraserEnabled = false;
     switch (e.target.className) {
       case 'red_block':
         currentStrokeColor = '#F20000';
@@ -94,6 +103,12 @@ drawColorOptions.addEventListener('click', function(e) {
   }
 })
 
+// 橡皮擦效果
+const eraserBtn = document.querySelector('.eraser');
+eraserBtn.addEventListener('click', function() {
+  eraserEnabled = true;
+})
+
 // 清空 canvas
 const clearCanvasBtn = document.querySelector('.clear_btn');
 clearCanvasBtn.addEventListener('click', function() {
@@ -106,6 +121,7 @@ clearCanvasBtn.addEventListener('click', function() {
 
 socket.on('clearDrawContent', (clearDrawMsg) => {
   if (clearDrawMsg) {
+    eraserEnabled = false;
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 })
