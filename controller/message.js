@@ -16,39 +16,30 @@ const getMessagesForEachRoom = async (req, res) => {
 const messageTranslation = async (req, res) => {
   const { messageContent, languageList, name, avatarUrl, fromUserId, createdTime, messageType } = req.body;
   if (messageType === 'text') {
-    let translatePromiseList = [];
-    for (let index = 0; index < languageList.length; index++) {
-      const eachLanguage = languageList[index];
-      translatePromiseList.push(translationPromise(messageContent, eachLanguage));
-    }
-    Promise.all(translatePromiseList)
-      .then((translateResults) => {
-        let translatedList = [];
-        for (let i = 0; i < translateResults.length; i++) {
-          translatedList.push(translateResults[i].translatedText);
+    try {
+      const translatedWord = await translationPromise(messageContent, languageList);
+      res.status(200).json({
+        data: {
+          messageFromUser: fromUserId,
+          messageUserName: name,
+          messageUserAvatar: avatarUrl,
+          originalMessage: messageContent,
+          translatedWord: translatedWord.translatedText,
+          messageTime: createdTime,
+          messageType: messageType
         }
-        console.log('翻譯訊息', translatedList);
-        res.status(200).json({
-          data: {
-            messageFromUser: fromUserId,
-            messageUserName: name,
-            messageUserAvatar: avatarUrl,
-            chatResults: translatedList,
-            messageTime: createdTime,
-            messageType: messageType
-          }
-        })
       })
-      .catch((error) => {
-        res.status(500).send(error.message);
-      })
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   } else if (messageType === 'image') {
     res.status(200).json({
       data: {
         messageFromUser: fromUserId,
         messageUserName: name,
         messageUserAvatar: avatarUrl,
-        chatResults: [messageContent],
+        originalMessage: messageContent,
+        translatedWord: [],
         messageTime: createdTime,
         messageType: messageType
       }

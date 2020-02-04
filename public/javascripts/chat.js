@@ -115,12 +115,34 @@ sendImageBtn.addEventListener('change', function (e) {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
-  const { roomId, roomTitle } = dataFromServer.roomDetail;
-  console.log('房間資訊', roomId, roomTitle)
-  const messageTime = dataFromServer.messageTime;
-  const messageType = dataFromServer.messageType;
+  // const { roomId, roomTitle } = dataFromServer.roomDetail;
+  // console.log('房間資訊', roomId, roomTitle)
+  const { messageTime, messageContent, messageType } = dataFromServer;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
-  showChatContent(avatarUrl, name, dataFromServer.chatMsgResults, userId, messageTime, messageType);
+  fetch('/messages/translateMessage', {
+    method: 'POST',
+    body: JSON.stringify({
+      avatarUrl: avatarUrl,
+      name: name,
+      messageContent: messageContent,
+      languageList: currentUserDetail.selectedLanguage,
+      fromUserId: userId,
+      createdTime: messageTime,
+      messageType: messageType
+    }),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  })
+    .then((res) => res.json())
+    .catch((err) => console.log(err))
+    .then((validResponse) => {
+      // 把原始訊息、跟翻譯後的丟進去
+      // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
+      const { originalMessage, translatedWord } = validResponse.data;
+      const messageWords = Array.from(new Set([originalMessage, translatedWord]));
+      showChatContent(avatarUrl, name, messageWords, userId, messageTime, messageType);
+    })
 })
 
 //  顯示聊天室內容 UI
@@ -137,6 +159,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
   messageUserInfoDiv.classList.add('messageUserInfo');
   // 頭像
   const avatarImg = document.createElement('img');
+  avatarImg.classList.add('messageAvatar');
   avatarImg.src = avatarUrl;
   eachMessageDiv.appendChild(avatarImg);
   // 名稱
@@ -200,10 +223,7 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        console.log('歷史訊息', eachMessage);
-        const { avatarUrl, name, userId, messageContent, languageVersion, createdTime, messageType } = eachMessage;
-        // 這邊要再做一支翻譯 api
-        const languageList = Array.from(new Set(languageVersion.split(',')));
+        const { avatarUrl, name, userId, messageContent, createdTime, messageType } = eachMessage;
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
         translateMessagePromiseList.push(fetch('/messages/translateMessage', {
           method: 'POST',
@@ -211,7 +231,7 @@ function getChatHistory(selectedRoomId) {
             avatarUrl: avatarUrl,
             name: name,
             messageContent: messageContent,
-            languageList: languageList,
+            languageList: currentUserDetail.selectedLanguage,
             fromUserId: userId,
             createdTime: createdTime,
             messageType: messageType
@@ -231,9 +251,10 @@ function getChatHistory(selectedRoomId) {
             .then((convertResults) => {
               for (let i = 0; i < convertResults.length; i++) {
                 const eachConverMessage = convertResults[i].data;
+                const messageWords = Array.from(new Set([eachConverMessage.originalMessage, eachConverMessage.translatedWord]));
                 showChatContent(eachConverMessage.messageUserAvatar,
                   eachConverMessage.messageUserName,
-                  eachConverMessage.chatResults,
+                  messageWords,
                   eachConverMessage.messageFromUser,
                   eachConverMessage.messageTime,
                   eachConverMessage.messageType

@@ -65,36 +65,28 @@ socketio.getSocketio = function (server) {
         roomId: dataFromClient.roomDetail.roomId,
         messageType: dataFromClient.messageType
       }
-      console.log('傳過來的 dataFromClient', dataFromClient);
-      // 每個房間現在有哪些語系
-      console.log('roomUserPair', roomUsersPair)
-      let languageListForEachRoom = roomUsersPair[dataFromClient.roomDetail.roomId].map(function (user) {
-        return user.selectedLanguage;
-      });
-      console.log(`房間${dataFromClient.roomDetail.roomId}有${languageListForEachRoom}語系`)
       try {
-        const createMessageResult = await insertChatMessage(messageObj, languageListForEachRoom);
+        const createMessageResult = await insertChatMessage(messageObj);
         if (createMessageResult) {
           dataFromClient.messageId = createMessageResult.insertId;
-          dataFromClient.roomLanguages = languageListForEachRoom;
           // 儲存成功發送出去，並存到 redis
           saveCacheMessage(dataFromClient);
           // 這邊要做翻譯，根據拿到房間裡面有哪些語系，需要做翻譯
-          let languageVersionMessageList = [];
+          // let languageVersionMessageList = [];
           // 只有文字類的訊息要做翻譯，圖片就傳回原始 url
-          if (dataFromClient.messageType === 'text') {
-            for (let index = 0; index < languageListForEachRoom.length; index++) {
-              const eachLanguage = languageListForEachRoom[index];
-              const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
-              languageVersionMessageList.push(translateResult.originalText);
-              languageVersionMessageList.push(translateResult.translatedText);
-            }
-            // 把重複的語言濾掉 (這裡面已經包含原始訊息了)
-            dataFromClient.chatMsgResults = Array.from(new Set(languageVersionMessageList));  
-          } else if (dataFromClient.messageType === 'image') {
-            // 圖片的話就傳回原始訊息
-            dataFromClient.chatMsgResults = [dataFromClient.messageContent];
-          }
+          // if (dataFromClient.messageType === 'text') {
+          //   for (let index = 0; index < languageListForEachRoom.length; index++) {
+          //     const eachLanguage = languageListForEachRoom[index];
+          //     const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
+          //     languageVersionMessageList.push(translateResult.originalText);
+          //     languageVersionMessageList.push(translateResult.translatedText);
+          //   }
+          //   // 把重複的語言濾掉 (這裡面已經包含原始訊息了)
+          //   dataFromClient.chatMsgResults = Array.from(new Set(languageVersionMessageList));  
+          // } else if (dataFromClient.messageType === 'image') {
+          //   // 圖片的話就傳回原始訊息
+          //   dataFromClient.chatMsgResults = [dataFromClient.messageContent];
+          // }
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         }
       } catch (error) {
