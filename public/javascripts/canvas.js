@@ -18,10 +18,22 @@ let lastY = 0;
 // 紀錄是否開啟橡皮擦
 let eraserEnabled = false;
 
+let currentType = 'draw';
+
 // 按下滑鼠
 canvas.addEventListener('mousedown', function(e) {
-  isDrawing = true;
-
+  switch (currentType) {
+    case 'draw':
+      isDrawing = true;
+      break;
+    case 'eraser':
+      eraserEnabled = true;
+      break;
+  }
+  // isDrawing = true;
+  // if (!isDrawing) {
+  //   eraserEnabled = true;
+  // }
   lastX = e.offsetX;
   lastY = e.offsetY;
 })
@@ -29,10 +41,7 @@ canvas.addEventListener('mousedown', function(e) {
 // 移動滑鼠
 canvas.addEventListener('mousemove', function(e) {
   e.preventDefault();
-
-  if (isDrawing) {
-    drawOrEraseStroke(e)
-  }
+  drawOrEraseStroke(e)
   // if (isDrawing && !eraserEnabled) {
   //   drawOrEraseStroke(e)
   // } else {
@@ -47,15 +56,18 @@ canvas.addEventListener('mouseup', function (e) {
   e.preventDefault();
 
   isDrawing = false;
+  eraserEnabled = false;
 })
 
 // 滑鼠移出 canvas
 canvas.addEventListener('mouseout', function(e) {
   e.preventDefault();
   isDrawing = false;
+  eraserEnabled = false;
 })
 
 function drawOrEraseStroke(e) {
+  if (isDrawing && currentType === 'draw') {
     context.beginPath(); // 開始建立路徑
     context.moveTo(lastX, lastY); // 移動當前所在位置
     context.lineTo(e.offsetX, e.offsetY); // 拉到的目的地
@@ -75,12 +87,21 @@ function drawOrEraseStroke(e) {
       roomDetail: currentSelectedRoom,
       userInfo: currentUserDetail,
     })
+  } else if (eraserEnabled && currentType === 'eraser') {
+    context.clearRect(lastX, lastY, 15, 15);
+    socket.emit('erase', {
+      clearCoordinateX: lastX,
+      clearCoordinateY: lastY,
+      roomDetail: currentSelectedRoom,
+    })
+  }
 }
 
 // 可以選顏色
 const drawColorOptions = document.querySelector('.color_options');
 drawColorOptions.addEventListener('click', function(e) {
   if (e.target.nodeName.toUpperCase() === 'DIV') {
+    currentType = 'draw';
     eraserEnabled = false;
     switch (e.target.className) {
       case 'red_block':
@@ -106,7 +127,8 @@ drawColorOptions.addEventListener('click', function(e) {
 // 橡皮擦效果
 const eraserBtn = document.querySelector('.eraser');
 eraserBtn.addEventListener('click', function() {
-  eraserEnabled = true;
+  isDrawing = false;
+  currentType = 'eraser';
 })
 
 // 清空 canvas
@@ -122,6 +144,7 @@ clearCanvasBtn.addEventListener('click', function() {
 socket.on('clearDrawContent', (clearDrawMsg) => {
   if (clearDrawMsg) {
     eraserEnabled = false;
+    currentType = 'draw';
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 })
@@ -139,4 +162,8 @@ socket.on('showDrawData', (drawInfoFromServer) => {
   context.lineTo(drawInfoFromServer.drawInfo.destinationX, drawInfoFromServer.drawInfo.destinationY);
   context.closePath();
   context.stroke();
+})
+
+socket.on('eraseDrawData', (eraseInfo) => {
+  context.clearRect(eraseInfo.clearCoordinateX, eraseInfo.clearCoordinateY, 15, 15);
 })

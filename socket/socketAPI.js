@@ -1,7 +1,6 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveCacheMessage } = require('../db/redis');
-const { translationPromise } = require('../common/common');
 
 let roomUsersPair = {};
 let socketio = {};
@@ -71,22 +70,6 @@ socketio.getSocketio = function (server) {
           dataFromClient.messageId = createMessageResult.insertId;
           // 儲存成功發送出去，並存到 redis
           saveCacheMessage(dataFromClient);
-          // 這邊要做翻譯，根據拿到房間裡面有哪些語系，需要做翻譯
-          // let languageVersionMessageList = [];
-          // 只有文字類的訊息要做翻譯，圖片就傳回原始 url
-          // if (dataFromClient.messageType === 'text') {
-          //   for (let index = 0; index < languageListForEachRoom.length; index++) {
-          //     const eachLanguage = languageListForEachRoom[index];
-          //     const translateResult = await translationPromise(dataFromClient.messageContent, eachLanguage);
-          //     languageVersionMessageList.push(translateResult.originalText);
-          //     languageVersionMessageList.push(translateResult.translatedText);
-          //   }
-          //   // 把重複的語言濾掉 (這裡面已經包含原始訊息了)
-          //   dataFromClient.chatMsgResults = Array.from(new Set(languageVersionMessageList));  
-          // } else if (dataFromClient.messageType === 'image') {
-          //   // 圖片的話就傳回原始訊息
-          //   dataFromClient.chatMsgResults = [dataFromClient.messageContent];
-          // }
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         }
       } catch (error) {
@@ -96,6 +79,10 @@ socketio.getSocketio = function (server) {
 
     socket.on('draw', async (drawInfoFromClient) => {
       io.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
+    })
+
+    socket.on('erase', (eraseInfo) => {
+      io.to(eraseInfo.roomDetail.roomId).emit('eraseDrawData', eraseInfo);
     })
 
     socket.on('canvasClear', async (clearCanvasMsg) => {
