@@ -20,8 +20,8 @@
       <img src=<%= userAvatar %> alt="">
     </div>
     <div class="settings_block">
-      <div>Add people</div>
-      <div>Delete current channel</div>
+      <div class="add_people">Add people</div>
+      <div class="delete_channel">Delete current channel</div>
     </div>
   </header>
   <div class="background_img"></div>
@@ -88,9 +88,9 @@
         <h3>Create a channel</h3>
         <span class="close">&times;</span>
       </div>
-      <p>please enter channel name</p>
+      <p class="enter_channel_name_mention">please enter channel name</p>
       <input class="enter_channel_name" type="text" placeholder='channel name'>
-      <p>invite people to this channel</p>
+      <p class="enter_people_name_mention">invite people to this channel</p>
       <!-- 會員下拉式選單 -->
       <div class="select-box">
         <div class="options-container">
@@ -120,11 +120,11 @@
     }
     let allRooms = <%- JSON.stringify(allRooms)%>;
   </script>
-  <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/common.js"></script>
   <script src="/javascripts/chat.js"></script>
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
+  <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/canvas.js"></script>
 </body>
 </html>

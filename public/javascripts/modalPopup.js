@@ -45,6 +45,7 @@ createRoomBtn.addEventListener('click',function(event) {
     selected.appendChild(pTag);  
   }
 
+  shouldHideChannelInput(false);
   modal.style.display = 'block';
 })
 
@@ -53,6 +54,16 @@ closePopupSpan.addEventListener('click', function() {
   modal.style.display = 'none';
 })
 
+// 裡面的 channel input 及 channel name 提示是否要隱藏 (如果是從設定按鈕按的就必須隱藏，如果是 Create channel 按的就不用)
+const shouldHideChannelInput = (hide) => {
+  const displayType = hide ? 'none' : 'block';
+  const title = hide ? `Add People to channel ${currentSelectedRoom.roomTitle}` : 'Create a channel'
+  
+  document.querySelector('.title_area h3').textContent = title;
+  document.querySelector('.enter_people_name_mention').style.display = displayType;
+  document.querySelector('.enter_channel_name_mention').style.display = displayType;
+  document.querySelector('.enter_channel_name').style.display = displayType;
+}
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (event.target == modal) {
