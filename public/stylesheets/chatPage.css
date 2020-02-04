@@ -18,16 +18,26 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   background: -webkit-linear-gradient(left top,#073C78,#2c619e);
   background: -o-linear-gradient(bottom right,#073C78,#2c619e);
   background: -moz-linear-gradient(bottom right,#073C78,#2c619e);
   background: linear-gradient(to bottom right,#073C78, #2c619e);
   border-bottom: 0.5px solid #fff;
   color: #fff;
+  position: relative;
+}
+
+#room_setting img {
+  width: 30px;
+  height: 30px;
+}
+
+#room_setting  {
+  padding-left: 40px;
 }
 
 #room_title {
-  width: 95%;
   text-align: center;
 }
 
@@ -48,6 +58,32 @@ header {
   height: 40px;
   border-radius: 50%;
 }
+
+/* 設定區塊 */
+.settings_block {
+  width: 200px;
+  height: 80px;
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 5px;
+  z-index: 6;
+  background-color: #175091;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.settings_block div {
+  height: 40px;
+  line-height: 40px;
+  padding-left: 5px;
+}
+
+.settings_block div:hover {
+  background-color: #141D73;
+  cursor: pointer;
+}
+
 /* 聊天區塊 */
 .background_img {
   background-image: url('/images/scene.jpg');

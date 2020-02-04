@@ -1,5 +1,5 @@
 const { getUserInfoByUserId } = require('../model/chat');
-const { getRooms } = require('../model/rooms');
+const { getRooms, listExistedRooms } = require('../model/rooms');
 const { getAllUsers } = require('../model/users');
 
 const chatPageContent = async (req, res) => {
@@ -18,14 +18,16 @@ const chatPageContent = async (req, res) => {
     const roomsOfUser = await getRooms(userId);
     // render 出全部的用戶
     const allUsers = await getAllUsers();
+    // render 出全部現存的房間
+    const allExistedRooms = await listExistedRooms();
     res.render('chat', {
       roomTitle: lastSelectedRoomTitle,
       currentUserDetail: userProfile,
       userAvatar: uiAvatar,
       rooms: roomsOfUser,
-      allUsers: allUsers
+      allUsers: allUsers,
+      allRooms: allExistedRooms
     })
-
   } catch (error) {
     res.status(500).send(error.message);
   }

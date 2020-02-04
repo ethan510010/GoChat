@@ -195,6 +195,15 @@ buildChannelBtn.addEventListener('click', function () {
     userIdList.push(beInvitedMembers[i]);
   }
   // 打 api 創建 Room
+  // 先確定有沒有 room 的名稱重複了
+  if (allRooms.includes(channelName)) {
+    alert(`${channelName}已經存在了，請輸入其他的`);
+    return;
+  } 
+  if (channelName === '') {
+    alert('請輸入 Channel 名字');
+    return;
+  }
   fetch('/rooms/createRoom', {
     method: 'POST',
     body: JSON.stringify({

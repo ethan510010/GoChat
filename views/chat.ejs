@@ -10,11 +10,18 @@
 </head>
 <body>
   <header>
+    <div id="room_setting">
+      <img src="/images/settings.png" alt="">
+    </div>
     <div id="room_title">
       <h1><%= roomTitle %></h1>
     </div>
     <div id="small_avatar">
       <img src=<%= userAvatar %> alt="">
+    </div>
+    <div class="settings_block">
+      <div>Add people</div>
+      <div>Delete current channel</div>
     </div>
   </header>
   <div class="background_img"></div>
@@ -111,7 +118,9 @@
       roomId: currentUserDetail.lastSelectedRoomId,
       roomTitle: currentUserDetail.lastSelectedRoomTitle
     }
+    let allRooms = <%- JSON.stringify(allRooms)%>;
   </script>
+  <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/common.js"></script>
   <script src="/javascripts/chat.js"></script>
   <script src="/javascripts/resizeBorder.js"></script>

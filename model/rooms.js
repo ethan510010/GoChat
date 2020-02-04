@@ -13,17 +13,28 @@ const insertNewRoom = async (roomName, userIdList) => {
   return createRoomResultList;
 }
 
+const listExistedRooms = async () => {
+  const allRooms = await exec(`
+    select name from room
+  `);
+  allRoomsName = allRooms.map((eachRoom) => {
+    return eachRoom.name;
+  });
+  return allRoomsName;
+}
+
 const getRooms = async (userId) => {
-  const allRoomsResultList = await exec(`
+  const roomsOfUser = await exec(`
     select user_room_junction.roomId as id, room.name as name
     from user_room_junction 
     inner join room 
     on user_room_junction.roomId=room.id where userId=${userId}
   `);
-  return allRoomsResultList;
+  return roomsOfUser;
 }
 
 module.exports = {
   insertNewRoom,
+  listExistedRooms,
   getRooms
 }
