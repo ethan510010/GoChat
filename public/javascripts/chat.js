@@ -15,6 +15,8 @@ socket.emit('join', {
   }
 })
 
+// 聊天內容是否需要自動捲到底部 (如果今天是新訊息通知切換過來的時候，不需要自動捲動到底部，只有正常聊天需要)
+let shouldAutoScrollToBottom = true;
 // 切換房間相關邏輯
 // 紀錄上一次切換的 Room (預設就是 general 這個 room)
 let lastChooseRoom = currentSelectedRoom;
@@ -81,55 +83,6 @@ roomsAreaSection.addEventListener('click', function (event) {
         }
       })
   }
-  // if (event.target.nodeName.toUpperCase() === 'DIV') {
-  // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
-  // currentSelectedRoom = {
-  //   roomId: validRoomId,
-  //   roomTitle: event.target.children[0].textContent
-  // }
-  // // 改變上方 header UI
-  // const roomTitleTag = document.querySelector('#room_title h1');
-  // roomTitleTag.textContent = currentSelectedRoom.roomTitle;
-
-  // // 打 restful Api 獲取聊天室內容
-  // // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
-  // chatFlowContent.innerHTML = '';
-  // getChatHistory(validRoomId);
-
-  // // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
-  // // defect 一樣是 非同步造成的
-  // console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
-  // console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
-  // if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
-  //   // 切換房間要紀錄起來
-  //   // 要有一支 api (未完成)
-  //   fetch('/users/renewUserSelectedRoom', {
-  //     method: 'PUT',
-  //     body: JSON.stringify({
-  //       userId: currentUserDetail.userId,
-  //       roomId: currentSelectedRoom.roomId
-  //     }),
-  //     headers: new Headers({
-  //       'Content-Type': 'application/json'
-  //     })
-  //   })
-  //     .then(response => response.json())
-  //     .catch(error => console.log(error))
-  //     .then((validResponse) => {
-  //       if (validResponse.data) {
-  //         // 更換房間事件
-  //         socket.emit('changeRoom', {
-  //           joinRoomInfo: currentSelectedRoom,
-  //           userInfo: currentUserDetail,
-  //           lastChooseRoom: lastChooseRoom
-  //         }, function (finishedInfo) {
-  //           lastChooseRoom.roomId = currentSelectedRoom.roomId;
-  //           lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-  //         })
-  //       }
-  //     })
-  // }
-  // }
 })
 
 // 發送簡單訊息
@@ -201,12 +154,15 @@ socket.on('message', (dataFromServer) => {
       // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
       const { originalMessage, translatedWord } = validResponse.data;
       const messageWords = Array.from(new Set([originalMessage, translatedWord]));
+      // 開啟自動捲動到底部
+      shouldAutoScrollToBottom = true;
       showChatContent(avatarUrl, name, messageWords, userId, messageTime, messageType);
     })
 })
 
 // 接收有新訊息
 let newMessageAndRoomPair = {};
+let newMessageTimeAndRoomPair = {};
 socket.on('newMessageMention', (newMessageInfo) => {
   const newMessageRoomId = newMessageInfo.newMessageRoomId;
   if (currentSelectedRoom.roomId !== newMessageRoomId) {
@@ -223,12 +179,17 @@ socket.on('newMessageMention', (newMessageInfo) => {
           newMessageAndRoomPair[newMessageRoomId] += 1;
           mentionTag.textContent = `${newMessageAndRoomPair[newMessageRoomId]}`
         } else {
+          // 第一筆新訊息
           const mentionDiv = document.createElement('div');
           newMessageAndRoomPair[newMessageRoomId] = 1;
           mentionDiv.textContent = `${newMessageAndRoomPair[newMessageRoomId]}`;
           mentionDiv.classList.add('messageMention');
           mentionDiv.id = `mentionId${newMessageRoomId}`;
           eachRoomDiv.appendChild(mentionDiv);
+          newMessageTimeAndRoomPair[newMessageRoomId] = newMessageInfo.messageTime;
+          console.log('第一筆新訊息的時間', newMessageTimeAndRoomPair)
+          // 關閉自動滾動功能
+          shouldAutoScrollToBottom = false;
         }
       }
     }
@@ -298,11 +259,28 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
 
   eachMessageDiv.appendChild(messageUserInfoDiv);
   eachMessageDiv.appendChild(messageOuterDiv);
+  // 這邊一定是錯的，只是先測試
+  if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
+    const newMessageMentionLine = document.createElement('div');
+    newMessageMentionLine.classList.add('new_message_mention_line');
+    const leftDecorationLine = document.createElement('div');
+    leftDecorationLine.classList.add('left_decoration_line');
+    const rightDecorationLine = document.createElement('div');
+    rightDecorationLine.classList.add('right_decoration_line');
+    const mentionP = document.createElement('p');
+    mentionP.textContent = 'New message';
+    newMessageMentionLine.appendChild(leftDecorationLine);
+    newMessageMentionLine.appendChild(mentionP);
+    newMessageMentionLine.appendChild(rightDecorationLine);
+    chatFlowContent.appendChild(newMessageMentionLine); 
+  }
   chatFlowContent.appendChild(eachMessageDiv);
   // 自動捲動到底部
-  chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
-  let chatFlowArea = document.getElementById('message_flow_area');
-  chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
+  if (shouldAutoScrollToBottom) {
+    chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+    let chatFlowArea = document.getElementById('message_flow_area');
+    chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);  
+  }
 }
 
 // 獲取聊天室歷史內容
