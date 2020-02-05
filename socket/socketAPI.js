@@ -71,6 +71,10 @@ socketio.getSocketio = function (server) {
           // 儲存成功發送出去，並存到 redis
           saveCacheMessage(dataFromClient);
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+          // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast
+          socket.broadcast.emit('newMessageMention', {
+            newMessageRoomId: dataFromClient.roomDetail.roomId 
+          })
         }
       } catch (error) {
         throw error;

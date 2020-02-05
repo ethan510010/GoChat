@@ -155,6 +155,17 @@ header {
   padding-left: 7px;
   margin-top: 10px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.upper_section .messageMention {
+  color: #FFF;
+  background-color: red;
+  margin-left: 10px;
+  border-radius: 5px;
+  font-weight: normal;
+  padding: 3px;
 }
 /* 彈出式視窗 (create channel) */
 .modal {
@@ -538,6 +549,7 @@ header {
   width: 35px;
   height: 35px;
   margin-right: 10px;
+  outline: none;
 }
 
 /* 下半部畫版 */

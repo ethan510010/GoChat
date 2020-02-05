@@ -19,57 +19,113 @@ socket.emit('join', {
 // 紀錄上一次切換的 Room (預設就是 general 這個 room)
 let lastChooseRoom = currentSelectedRoom;
 
-const sidePadChannelSection = document.querySelector('.side_pad .upper_section');
-sidePadChannelSection.addEventListener('click', function (event) {
-  if (event.target && event.target.nodeName.toUpperCase() === 'DIV') {
-    const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
-    currentSelectedRoom = {
-      roomId: validRoomId,
-      roomTitle: event.target.textContent
-    }
-    // 改變上方 header UI
-    const roomTitleTag = document.querySelector('#room_title h1');
-    roomTitleTag.textContent = currentSelectedRoom.roomTitle;
-
-    // 打 restful Api 獲取聊天室內容
-    // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
-    chatFlowContent.innerHTML = '';
-    getChatHistory(validRoomId);
-
-    // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
-    // defect 一樣是 非同步造成的
-    console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
-    console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
-    if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
-      // 切換房間要紀錄起來
-      // 要有一支 api (未完成)
-      fetch('/users/renewUserSelectedRoom', {
-        method: 'PUT',
-        body: JSON.stringify({
-          userId: currentUserDetail.userId,
-          roomId: currentSelectedRoom.roomId
-        }),
-        headers: new Headers({
-          'Content-Type': 'application/json'
-        })
-      })
-        .then(response => response.json())
-        .catch(error => console.log(error))
-        .then((validResponse) => {
-          if (validResponse.data) {
-            // 更換房間事件
-            socket.emit('changeRoom', {
-              joinRoomInfo: currentSelectedRoom,
-              userInfo: currentUserDetail,
-              lastChooseRoom: lastChooseRoom
-            }, function (finishedInfo) {
-              lastChooseRoom.roomId = currentSelectedRoom.roomId;
-              lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-            })
-          }
-        })
-    }
+const roomsAreaSection = document.querySelector('.side_pad .rooms');
+roomsAreaSection.addEventListener('click', function (event) {
+  let validRoomId = 0;
+  let roomTitle = '';
+  if (event.target.nodeName.toUpperCase() === 'DIV') {
+    validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
+    roomTitle = event.target.children[0].textContent;
+  } else if (event.target.nodeName.toUpperCase() === 'P') {
+    validRoomId = parseInt(event.target.parentElement.getAttribute('id').replace('channelId_', ''), 10);
+    roomTitle = event.target.textContent; 
   }
+  // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
+  currentSelectedRoom = {
+    roomId: validRoomId,
+    roomTitle: roomTitle
+  }
+  // 改變上方 header UI
+  const roomTitleTag = document.querySelector('#room_title h1');
+  roomTitleTag.textContent = currentSelectedRoom.roomTitle;
+
+  // 打 restful Api 獲取聊天室內容
+  // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
+  chatFlowContent.innerHTML = '';
+  getChatHistory(validRoomId);
+
+  // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
+  // defect 一樣是 非同步造成的
+  console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
+  console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
+  if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
+    // 切換房間要紀錄起來
+    // 要有一支 api (未完成)
+    fetch('/users/renewUserSelectedRoom', {
+      method: 'PUT',
+      body: JSON.stringify({
+        userId: currentUserDetail.userId,
+        roomId: currentSelectedRoom.roomId
+      }),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .catch(error => console.log(error))
+      .then((validResponse) => {
+        if (validResponse.data) {
+          // 更換房間事件
+          socket.emit('changeRoom', {
+            joinRoomInfo: currentSelectedRoom,
+            userInfo: currentUserDetail,
+            lastChooseRoom: lastChooseRoom
+          }, function (finishedInfo) {
+            lastChooseRoom.roomId = currentSelectedRoom.roomId;
+            lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+          })
+        }
+      })
+  }
+  // if (event.target.nodeName.toUpperCase() === 'DIV') {
+  // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
+  // currentSelectedRoom = {
+  //   roomId: validRoomId,
+  //   roomTitle: event.target.children[0].textContent
+  // }
+  // // 改變上方 header UI
+  // const roomTitleTag = document.querySelector('#room_title h1');
+  // roomTitleTag.textContent = currentSelectedRoom.roomTitle;
+
+  // // 打 restful Api 獲取聊天室內容
+  // // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
+  // chatFlowContent.innerHTML = '';
+  // getChatHistory(validRoomId);
+
+  // // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
+  // // defect 一樣是 非同步造成的
+  // console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
+  // console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
+  // if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
+  //   // 切換房間要紀錄起來
+  //   // 要有一支 api (未完成)
+  //   fetch('/users/renewUserSelectedRoom', {
+  //     method: 'PUT',
+  //     body: JSON.stringify({
+  //       userId: currentUserDetail.userId,
+  //       roomId: currentSelectedRoom.roomId
+  //     }),
+  //     headers: new Headers({
+  //       'Content-Type': 'application/json'
+  //     })
+  //   })
+  //     .then(response => response.json())
+  //     .catch(error => console.log(error))
+  //     .then((validResponse) => {
+  //       if (validResponse.data) {
+  //         // 更換房間事件
+  //         socket.emit('changeRoom', {
+  //           joinRoomInfo: currentSelectedRoom,
+  //           userInfo: currentUserDetail,
+  //           lastChooseRoom: lastChooseRoom
+  //         }, function (finishedInfo) {
+  //           lastChooseRoom.roomId = currentSelectedRoom.roomId;
+  //           lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+  //         })
+  //       }
+  //     })
+  // }
+  // }
 })
 
 // 發送簡單訊息
@@ -143,6 +199,36 @@ socket.on('message', (dataFromServer) => {
       const messageWords = Array.from(new Set([originalMessage, translatedWord]));
       showChatContent(avatarUrl, name, messageWords, userId, messageTime, messageType);
     })
+})
+
+// 接收有新訊息
+let newMessageAndRoomPair = {};
+socket.on('newMessageMention', (newMessageInfo) => {
+  const newMessageRoomId = newMessageInfo.newMessageRoomId;
+  if (currentSelectedRoom.roomId !== newMessageRoomId) {
+    // 加上提示標籤
+    const roomsDiv = document.querySelector('.upper_section .rooms');
+    console.log(roomsDiv.children)
+    for (let i = 0; i < roomsDiv.children.length; i++) {
+      const eachRoomDiv = roomsDiv.children[i];
+      const eachRoomDivId = parseInt(eachRoomDiv.getAttribute('id').replace('channelId_', ''), 10);
+      if (eachRoomDivId === newMessageRoomId) {
+        // UI 加上提示
+        let mentionTag = document.getElementById(`mentionId${newMessageRoomId}`);
+        if (mentionTag && parseInt(mentionTag.getAttribute('id').replace('mentionId', ''), 10) === newMessageRoomId) {
+          newMessageAndRoomPair[newMessageRoomId] += 1;
+          mentionTag.textContent = `${newMessageAndRoomPair[newMessageRoomId]}`
+        } else {
+          const mentionDiv = document.createElement('div');
+          newMessageAndRoomPair[newMessageRoomId] = 1;
+          mentionDiv.textContent = `${newMessageAndRoomPair[newMessageRoomId]}`;
+          mentionDiv.classList.add('messageMention');
+          mentionDiv.id = `mentionId${newMessageRoomId}`;
+          eachRoomDiv.appendChild(mentionDiv);
+        }
+      }
+    }
+  }
 })
 
 //  顯示聊天室內容 UI

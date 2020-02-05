@@ -32,11 +32,13 @@
           <p>Channels</p>
           <input class="add_room" type="button">
         </div>
+        <div class="rooms">
           <% for (let i = 0; i < rooms.length; i++) { %>
             <div class="room_title" id=channelId_<%= rooms[i].id%>>
-              <%= rooms[i].name %>
+              <p><%= rooms[i].name %></p>
             </div>
           <% } %>
+        </div>
       </div>
       <div class="lower_section">
 
@@ -124,6 +126,7 @@
   <script src="/javascripts/chat.js"></script>
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
+  <!-- 使用者按下左上方的設定相關的 js -->
   <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/canvas.js"></script>
 </body>
