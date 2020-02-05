@@ -33,7 +33,7 @@ const fileStorage = multerS3({
   metadata: function (req, file, callback) {
     callback(null, {fieldName: file.fieldname});
   },
-  contentType: multerS3.AUTO_CONTENT_TYPE,
+  // contentType: multerS3.AUTO_CONTENT_TYPE, ( 讓使用者可以直接下載 )
 });
 app.use(
   multer({ storage: fileStorage }).fields([

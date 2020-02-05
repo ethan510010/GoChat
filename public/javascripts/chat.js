@@ -277,7 +277,10 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     const messageImageTag = document.createElement('img');
     messageImageTag.classList.add('imageMessage');
     messageImageTag.src = chatMsgResults[0];
-    messagesDiv.append(messageImageTag);
+    const downloadImageLink = document.createElement('a');
+    downloadImageLink.href = chatMsgResults[0];
+    downloadImageLink.appendChild(messageImageTag);
+    messagesDiv.append(downloadImageLink);
   }
   messageOuterDiv.appendChild(messagesDiv);
   // 加上時間
