@@ -216,12 +216,51 @@ function createMessageRecord(insertMsgSQL, messageObj) {
   })
 }
 
+// 更新房間用戶
+function updateRoomMember(updateRoomSQL, roomId, userIdList) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      for (let i = 0; i < userIdList.length; i++) {
+        const userId = userIdList[i];
+        connection.query(updateRoomSQL, [roomId, userId], (err, result) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(err);
+            })
+          }
+        });
+      }
+      connection.commit((commitErr) => {
+        if (commitErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(commitErr);
+          })
+        }
+        resolve({
+          roomId: roomId,
+          userIdList: userIdList
+        });
+        connection.release();
+        console.log('更新房間用戶成功');
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   createGeneralUser,
   updateFBUserInfo,
   escape: mySQL.escape,
   createRoomTransaction,
-  createMessageRecord
+  createMessageRecord,
+  updateRoomMember
 }
 

@@ -3,6 +3,12 @@ const modal = document.getElementById('addRoomModal');
 const createRoomBtn = document.querySelector('.room_header .add_room');
 let allUsers = [];
 
+// 用來分辨是要新增房間還是更新房間用戶
+let updateOrCreateRoomType = 'createRoom';
+
+// 被邀請進 channel 的用戶
+let beInvitedMembers = [];
+
 fetch('/users/listUsers')
   .then((response) => response.json())
   .catch((err) => console.log(err))
@@ -14,7 +20,9 @@ fetch('/users/listUsers')
 // 獲取 close button
 var closePopupSpan = document.getElementsByClassName("close")[0];
 
-createRoomBtn.addEventListener('click',function(event) {
+createRoomBtn.addEventListener('click', function (event) {
+  beInvitedMembers = [];
+  updateOrCreateRoomType = 'createRoom';
   // 把搜尋會員弄回原本的樣子
   const selected = document.querySelector('.selected');
   selected.innerHTML = '';
@@ -42,30 +50,41 @@ createRoomBtn.addEventListener('click',function(event) {
   if (!document.querySelector('.selected p')) {
     const pTag = document.createElement('p');
     pTag.textContent = 'select member';
-    selected.appendChild(pTag);  
+    selected.appendChild(pTag);
   }
 
-  shouldHideChannelInput(false);
+  shouldHideChannelInput(updateOrCreateRoomType);
   modal.style.display = 'block';
 })
 
 // popup 關閉按鈕
-closePopupSpan.addEventListener('click', function() {
+closePopupSpan.addEventListener('click', function () {
   modal.style.display = 'none';
 })
 
 // 裡面的 channel input 及 channel name 提示是否要隱藏 (如果是從設定按鈕按的就必須隱藏，如果是 Create channel 按的就不用)
-const shouldHideChannelInput = (hide) => {
-  const displayType = hide ? 'none' : 'block';
-  const title = hide ? `Add People to channel ${currentSelectedRoom.roomTitle}` : 'Create a channel'
-  
+const shouldHideChannelInput = (updateOrCreateRoomType) => {
+  let displayType = '';
+  let title = '';
+  switch (updateOrCreateRoomType) {
+    case 'createRoom':
+      displayType = 'block';
+      title = 'Create a channel';
+      break;
+    case 'updateRoom':
+      displayType = 'none';
+      title = `Add People to channel ${currentSelectedRoom.roomTitle}`;
+      break;
+  }
+
   document.querySelector('.title_area h3').textContent = title;
   document.querySelector('.enter_people_name_mention').style.display = displayType;
   document.querySelector('.enter_channel_name_mention').style.display = displayType;
   document.querySelector('.enter_channel_name').style.display = displayType;
+  document.querySelector('.enter_channel_name').value = '';
 }
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
+window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = 'none';
   }
@@ -76,8 +95,6 @@ const selected = document.querySelector('.selected');
 const optionsContainer = document.querySelector('.options-container');
 const optionsList = document.querySelectorAll('.option');
 const searchBox = document.querySelector('.search-box input');
-// 被邀請進 channel 的用戶
-let beInvitedMembers = [];
 
 selected.addEventListener('click', function (e) {
   // 移除原本的提示 p tag，並加上一個可編輯的 div 作為裝飾用
@@ -120,7 +137,7 @@ selected.addEventListener('click', function (e) {
     case 'DIV':
       if (e.target.getAttribute('class') === 'nameTag') {
         e.preventDefault();
-        return;  
+        return;
       }
     // default:
     //   const decorationInput = document.createElement('input');
@@ -136,7 +153,7 @@ selected.addEventListener('click', function (e) {
   }
 })
 
-optionsContainer.addEventListener('click', function(e) {
+optionsContainer.addEventListener('click', function (e) {
   let selectedUIUser = '';
   let selectedUserIdValue = '';
   switch (e.target.nodeName.toUpperCase()) {
@@ -158,13 +175,13 @@ optionsContainer.addEventListener('click', function(e) {
   nameTag.classList.add('nameTag');
   nameTag.classList.add(`userId${selectedUserIdValue}`);
   // 記錄到要加進 channel 的用戶
-  beInvitedMembers.push(selectedUserIdValue);
+  beInvitedMembers.push(parseInt(selectedUserIdValue, 10));
   // 同時也要把下拉選單該用戶先移除掉，避免重複選取
   const allUserOptions = document.querySelectorAll('.option');
   for (let i = 0; i < allUserOptions.length; i++) {
     const eachOption = allUserOptions[i];
     if (eachOption.children[0].nodeName.toUpperCase() === 'INPUT') {
-      const userIdValue =  eachOption.children[0].getAttribute('id').replace('userId_', '');
+      const userIdValue = eachOption.children[0].getAttribute('id').replace('userId_', '');
       if (userIdValue === selectedUserIdValue) {
         optionsContainer.removeChild(eachOption);
       }
@@ -199,47 +216,70 @@ const filterList = (searchTerm) => {
 //  3. 創建 channel 及 選好的用戶
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function () {
-  const channelName = document.querySelector('#addRoomModal .enter_channel_name').value;
   // 把當前用戶的 id 先放進去
+  const channelName = document.querySelector('.enter_channel_name').value; 
   let userIdList = [currentUserDetail.userId];
   for (let i = 0; i < beInvitedMembers.length; i++) {
     userIdList.push(beInvitedMembers[i]);
   }
-  // 打 api 創建 Room
-  // 先確定有沒有 room 的名稱重複了
-  if (allRooms.includes(channelName)) {
-    alert(`${channelName}已經存在了，請輸入其他的`);
-    return;
-  } 
-  if (channelName === '') {
-    alert('請輸入 Channel 名字');
-    return;
-  }
-  fetch('/rooms/createRoom', {
-    method: 'POST',
-    body: JSON.stringify({
-      channelName: channelName,
-      userIdList: userIdList
-    }),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  }).then((response) => response.json())
+  // 如果是從新增房間輸入的，才會有上面這個值，如果是直接從設定加人的就是更新
+  if (updateOrCreateRoomType === 'updateRoom') {
+    // console.log('被新增進房間的用戶', userIdList.splice(0, 1))
+    // 如果是更新，必須把第一個用戶 id 拿掉
+    fetch('/rooms/updateRoomMember', {
+      method: 'PUT',
+      body: JSON.stringify({
+        roomId: currentSelectedRoom.roomId,
+        userIdList: userIdList.splice(0, 1)
+      }),
+      headers: new Headers({
+        'Content-type': 'application/json'
+      })
+    }).then((response) => response.json())
     .catch((error) => console.log(error))
     .then((validResponse) => {
-      if (typeof validResponse.data === 'string') {
-        alert('新增房間失敗，請稍後再試');
-      } else {
-        // 新增成功這邊要讓前端顯示房間
+      if (validResponse.data) {
         const modal = document.getElementById('addRoomModal');
         modal.style.display = 'none';
-        // 新增 Room 到畫面上
-        const roomListArea = document.querySelector('.side_pad .upper_section');
-        const newCreatedRoomTag = document.createElement('div');
-        newCreatedRoomTag.textContent = channelName;
-        newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
-        newCreatedRoomTag.classList.add('room_title');
-        roomListArea.appendChild(newCreatedRoomTag);
       }
     })
+  } else {
+    // 打 api 創建 Room
+    // 先確定有沒有 room 的名稱重複了
+    if (allRooms.includes(channelName)) {
+      alert(`${channelName}已經存在了，請輸入其他的`);
+      return;
+    }
+    if (channelName === '') {
+      alert('請輸入 Channel 名字');
+      return;
+    }
+    fetch('/rooms/createRoom', {
+      method: 'POST',
+      body: JSON.stringify({
+        channelName: channelName,
+        userIdList: userIdList
+      }),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    }).then((response) => response.json())
+      .catch((error) => console.log(error))
+      .then((validResponse) => {
+        if (typeof validResponse.data === 'string') {
+          alert('新增房間失敗，請稍後再試');
+        } else {
+          // 新增成功這邊要讓前端顯示房間
+          const modal = document.getElementById('addRoomModal');
+          modal.style.display = 'none';
+          // 新增 Room 到畫面上
+          const roomListArea = document.querySelector('.side_pad .upper_section');
+          const newCreatedRoomTag = document.createElement('div');
+          newCreatedRoomTag.textContent = channelName;
+          newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
+          newCreatedRoomTag.classList.add('room_title');
+          roomListArea.appendChild(newCreatedRoomTag);
+        }
+      })
+  }
 })

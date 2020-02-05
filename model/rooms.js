@@ -1,4 +1,4 @@
-const { exec, createRoomTransaction } = require('../db/mysql');
+const { exec, createRoomTransaction, updateRoomMember } = require('../db/mysql');
 
 const insertNewRoom = async (roomName, userIdList) => {
   const insertRoomSQL = `
@@ -33,8 +33,18 @@ const getRooms = async (userId) => {
   return roomsOfUser;
 }
 
+const updateRoom = async (roomId, userIdList) => {
+  const updateRoomMemberSQL = `
+    insert into user_room_junction
+    set roomId=?, userId=?
+  `;
+  const updateRoomMemberResult = await updateRoomMember(updateRoomMemberSQL, roomId, userIdList);
+  return updateRoomMemberResult;
+}
+
 module.exports = {
   insertNewRoom,
   listExistedRooms,
-  getRooms
+  getRooms,
+  updateRoom
 }

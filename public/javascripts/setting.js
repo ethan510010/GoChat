@@ -15,6 +15,8 @@ const addPeopleBtn = document.querySelector('.settings_block .add_people');
 addPeopleBtn.addEventListener('click', function() {
   // 跳出 Modal 視窗
   // 這邊的話要隱藏裡面的 channel name p 及 channel name input
-  shouldHideChannelInput(true);
+  beInvitedMembers = [];
+  updateOrCreateRoomType = 'updateRoom';
+  shouldHideChannelInput(updateOrCreateRoomType);
   modal.style.display = 'block';
 });

@@ -1,4 +1,4 @@
-const { insertNewRoom, getRooms } = require('../model/rooms')
+const { insertNewRoom, getRooms, updateRoom } = require('../model/rooms')
 
 const createNewRoom = async (req, res) => {
   const { channelName, userIdList } = req.body;
@@ -27,7 +27,21 @@ const listRooms = async (req, res) => {
   }
 }
 
+const updateRoomMember = async (req, res) => {
+  try {
+    const { roomId, userIdList } = req.body;
+    console.log('被新增進房間的用戶', userIdList)
+    const updateResult =  await updateRoom(roomId, userIdList);
+    res.status(200).json({
+      data: updateResult
+    })
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
 module.exports = {
   createNewRoom,
-  listRooms
+  listRooms,
+  updateRoomMember
 }
