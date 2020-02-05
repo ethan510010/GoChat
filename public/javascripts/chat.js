@@ -50,7 +50,7 @@ roomsAreaSection.addEventListener('click', function (event) {
   console.log('lastChooseRoom', lastChooseRoom.roomId, lastChooseRoom.roomTitle)
   if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
     // 切換房間要紀錄起來
-    // 要有一支 api (未完成)
+    // 要有一支 api
     fetch('/users/renewUserSelectedRoom', {
       method: 'PUT',
       body: JSON.stringify({
@@ -73,6 +73,10 @@ roomsAreaSection.addEventListener('click', function (event) {
           }, function (finishedInfo) {
             lastChooseRoom.roomId = currentSelectedRoom.roomId;
             lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+            // 把提示新訊息的 UI 刪除掉
+            const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
+            const beRemovedNewMsgMentionTag = document.getElementById(`channelId_${currentSelectedRoom.roomId}`).lastChild;
+            channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
           })
         }
       })
