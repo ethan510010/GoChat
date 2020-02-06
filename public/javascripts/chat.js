@@ -1,6 +1,5 @@
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
-chatFlowContent.innerHTML = '';
 chatFlowContent.addEventListener('scroll', function() {
   const mentionLine = document.querySelector('.new_message_mention_line');
   if (mentionLine) {
@@ -58,8 +57,6 @@ roomsAreaSection.addEventListener('click', function (event) {
   roomTitleTag.textContent = currentSelectedRoom.roomTitle;
 
   // 打 restful Api 獲取聊天室內容
-  // 1. 先把當下的畫面清除掉避免畫面看到之前房間留下來的訊息
-  chatFlowContent.innerHTML = '';
   getChatHistory(validRoomId);
 
   // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
@@ -110,6 +107,7 @@ sendMessageBtn.addEventListener('click', function () {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
     messageContent: enterMessageInput.value,
+    fileName: '',
     messageTime: Date.now(),
     messageType: 'text'
   });
@@ -119,27 +117,39 @@ sendMessageBtn.addEventListener('click', function () {
 const sendImageBtn = document.getElementById('send_image');
 sendImageBtn.addEventListener('change', function (e) {
   const fileData = e.target.files[0];
-  // 上傳檔案打 api
-  const formData = new FormData();
-  formData.append('messageImage', fileData);
-  const options = {
-    method: 'POST',
-    body: formData
-  }
-  fetch('/messages/uploadImage', options)
-    .then(response => response.json())
-    .catch(error => console.log(error))
-    .then((validResponse) => {
-      // 還沒完成
-      console.log('訊息檔案路徑', validResponse.data)
-      socket.emit('clientMessage', {
-        roomDetail: currentSelectedRoom,
-        userInfo: currentUserDetail,
-        messageContent: validResponse.data,
-        messageTime: Date.now(),
-        messageType: 'image'
-      })
+  let reader = new FileReader();
+  reader.readAsDataURL(fileData);
+  reader.onload = function () {
+    socket.emit('clientMessage', {
+      roomDetail: currentSelectedRoom,
+      userInfo: currentUserDetail,
+      messageContent: this.result,
+      fileName: fileData.name,
+      messageTime: Date.now(),
+      messageType: 'image'
     })
+  }
+  // 上傳檔案打 api
+  // const formData = new FormData();
+  // formData.append('messageImage', fileData);
+  // const options = {
+  //   method: 'POST',
+  //   body: formData
+  // }
+  // fetch('/messages/uploadImage', options)
+  //   .then(response => response.json())
+  //   .catch(error => console.log(error))
+  //   .then((validResponse) => {
+  //     // 還沒完成
+  //     console.log('訊息檔案路徑', validResponse.data)
+  //     socket.emit('clientMessage', {
+  //       roomDetail: currentSelectedRoom,
+  //       userInfo: currentUserDetail,
+  //       messageContent: validResponse.data,
+  //       messageTime: Date.now(),
+  //       messageType: 'image'
+  //     })
+  //   })
 })
 
 // 接收 Server 端發過來的 message 事件
@@ -325,6 +335,7 @@ function scrollToElement(element, speed) {
 
 // 獲取聊天室歷史內容
 function getChatHistory(selectedRoomId) {
+  chatFlowContent.innerHTML = '';
   fetch(`/messages/getMessages?roomId=${selectedRoomId}`)
     .then((response) => response.json())
     .catch((error) => console.log(error))
