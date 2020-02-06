@@ -1,4 +1,4 @@
-const { listSpecifiedRoomMessages } = require('../model/message');
+const { listSpecifiedRoomMessages, saveTranslatedContent } = require('../model/message');
 const { translationPromise } = require('../common/common');
 
 const getMessagesForEachRoom = async (req, res) => {
@@ -14,10 +14,16 @@ const getMessagesForEachRoom = async (req, res) => {
 }
 
 const messageTranslation = async (req, res) => {
-  const { messageContent, languageList, name, avatarUrl, fromUserId, createdTime, messageType } = req.body;
+  const { messageId, messageContent, languageList, name, avatarUrl, fromUserId, createdTime, messageType } = req.body;
   if (messageType === 'text') {
     try {
       const translatedWord = await translationPromise(messageContent, languageList);
+      // 把翻譯訊息存起來
+      const insertTranslateResult = await saveTranslatedContent({
+        messageId: messageId,
+        language: languageList,
+        translatedContent: translatedWord.translatedText
+      });
       res.status(200).json({
         data: {
           messageFromUser: fromUserId,
@@ -45,7 +51,6 @@ const messageTranslation = async (req, res) => {
       }
     })
   }
-
 }
 
 const uploadMessageImage = async (req, res) => {

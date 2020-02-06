@@ -6,12 +6,8 @@ chatFlowContent.addEventListener('scroll', function() {
   if (mentionLine) {
     // Get parent element properties
     const chatFlowContentTop = chatFlowContent.scrollTop;
-    const chatFlowContentBottom = chatFlowContentTop + chatFlowContent.clientHeight;
-
     // Get new message mention line properties
     const mentionLineTop = mentionLine.offsetTop;
-    const mentionLineBottom = mentionLineTop + mentionLine.clientHeight;
-
     // Check if in view
     let isTotalOutside = (mentionLineTop < chatFlowContentTop);
     if (isTotalOutside) {
@@ -150,34 +146,30 @@ sendImageBtn.addEventListener('change', function (e) {
 socket.on('message', (dataFromServer) => {
   // const { roomId, roomTitle } = dataFromServer.roomDetail;
   // console.log('房間資訊', roomId, roomTitle)
-  const { messageTime, messageContent, messageType } = dataFromServer;
+  const { messageTime, messageContent, messageType, messageId } = dataFromServer;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
-  fetch('/messages/translateMessage', {
-    method: 'POST',
-    body: JSON.stringify({
-      avatarUrl: avatarUrl,
-      name: name,
-      messageContent: messageContent,
-      languageList: currentUserDetail.selectedLanguage,
-      fromUserId: userId,
-      createdTime: messageTime,
-      messageType: messageType
-    }),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
+  // 改成 socket 觸發
+  socket.emit('translateMessage', {
+    messageId: messageId,
+    avatarUrl: avatarUrl,
+    name: name,
+    messageContent: messageContent,
+    languageList: currentUserDetail.selectedLanguage,
+    fromUserId: userId,
+    createdTime: messageTime,
+    messageType: messageType
   })
-    .then((res) => res.json())
-    .catch((err) => console.log(err))
-    .then((validResponse) => {
-      // 把原始訊息、跟翻譯後的丟進去
-      // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
-      const { originalMessage, translatedWord } = validResponse.data;
-      const messageWords = Array.from(new Set([originalMessage, translatedWord]));
-      // 開啟自動捲動到底部
-      shouldAutoScrollToBottom = true;
-      showChatContent(avatarUrl, name, messageWords, userId, messageTime, messageType);
-    })
+})
+
+// 接收翻譯訊息並顯示出來
+socket.on('saveTranslatedMessageFinish', (translatedInfo) => {
+  // 把原始訊息、跟翻譯後的丟進去
+  // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
+  const { messageFromUser, messageUserName, messageUserAvatar, originalMessage, translatedWord, messageTime, messageType } = translatedInfo;
+  const messageWords = Array.from(new Set([originalMessage, translatedWord]));
+  // 開啟自動捲動到底部
+  shouldAutoScrollToBottom = true;
+  showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType);
 })
 
 // 接收有新訊息
@@ -342,44 +334,45 @@ function getChatHistory(selectedRoomId) {
       let translateMessagePromiseList = [];
       for (let index = 0; index < chatMessageList.length; index++) {
         const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, userId, messageContent, createdTime, messageType } = eachMessage;
+        const { avatarUrl, name, userId, messageContent, createdTime, messageType, messageId } = eachMessage;
         // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
-        translateMessagePromiseList.push(fetch('/messages/translateMessage', {
-          method: 'POST',
-          body: JSON.stringify({
-            avatarUrl: avatarUrl,
-            name: name,
-            messageContent: messageContent,
-            languageList: currentUserDetail.selectedLanguage,
-            fromUserId: userId,
-            createdTime: createdTime,
-            messageType: messageType
-          }),
-          headers: new Headers({
-            'Content-Type': 'application/json'
-          })
-        }))
+        // translateMessagePromiseList.push(fetch('/messages/translateMessage', {
+        //   method: 'POST',
+        //   body: JSON.stringify({
+        //     messageId: messageId,
+        //     avatarUrl: avatarUrl,
+        //     name: name,
+        //     messageContent: messageContent,
+        //     languageList: currentUserDetail.selectedLanguage,
+        //     fromUserId: userId,
+        //     createdTime: createdTime,
+        //     messageType: messageType
+        //   }),
+        //   headers: new Headers({
+        //     'Content-Type': 'application/json'
+        //   })
+        // }))
       }
-      Promise.all(translateMessagePromiseList)
-        .then((responseResults) => {
-          let jsonConvertList = [];
-          for (let i = 0; i < responseResults.length; i++) {
-            jsonConvertList.push(responseResults[i].json());
-          }
-          Promise.all(jsonConvertList)
-            .then((convertResults) => {
-              for (let i = 0; i < convertResults.length; i++) {
-                const eachConverMessage = convertResults[i].data;
-                const messageWords = Array.from(new Set([eachConverMessage.originalMessage, eachConverMessage.translatedWord]));
-                showChatContent(eachConverMessage.messageUserAvatar,
-                  eachConverMessage.messageUserName,
-                  messageWords,
-                  eachConverMessage.messageFromUser,
-                  eachConverMessage.messageTime,
-                  eachConverMessage.messageType
-                );
-              }
-            })
-        })
+      // Promise.all(translateMessagePromiseList)
+      //   .then((responseResults) => {
+      //     let jsonConvertList = [];
+      //     for (let i = 0; i < responseResults.length; i++) {
+      //       jsonConvertList.push(responseResults[i].json());
+      //     }
+      //     Promise.all(jsonConvertList)
+      //       .then((convertResults) => {
+      //         for (let i = 0; i < convertResults.length; i++) {
+      //           const eachConverMessage = convertResults[i].data;
+      //           const messageWords = Array.from(new Set([eachConverMessage.originalMessage, eachConverMessage.translatedWord]));
+      //           showChatContent(eachConverMessage.messageUserAvatar,
+      //             eachConverMessage.messageUserName,
+      //             messageWords,
+      //             eachConverMessage.messageFromUser,
+      //             eachConverMessage.messageTime,
+      //             eachConverMessage.messageType
+      //           );
+      //         }
+      //       })
+      //   })
     })
 }

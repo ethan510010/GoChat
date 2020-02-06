@@ -16,6 +16,18 @@ function exec(sql) {
   })
 }
 
+function execWithParaObj(sql, paraObj) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.query(sql, paraObj, (err, result) => {
+    if (err) {
+        reject(err);
+        return;
+      }
+      resolve(result);
+    })
+  })
+}
+
 // Create Room and Binding user
 function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
   return new Promise((resolve, reject) => {
@@ -256,6 +268,7 @@ function updateRoomMember(updateRoomSQL, roomId, userIdList) {
 
 module.exports = {
   exec,
+  execWithParaObj,
   createGeneralUser,
   updateFBUserInfo,
   escape: mySQL.escape,

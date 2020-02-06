@@ -1,6 +1,8 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
+const { saveTranslatedContent } = require('../model/message');
 const { saveCacheMessage } = require('../db/redis');
+const { translationPromise } = require('../common/common');
 
 let roomUsersPair = {};
 let socketio = {};
@@ -69,7 +71,7 @@ socketio.getSocketio = function (server) {
         if (createMessageResult) {
           dataFromClient.messageId = createMessageResult.insertId;
           // 儲存成功發送出去，並存到 redis
-          saveCacheMessage(dataFromClient);
+          // saveCacheMessage(dataFromClient);
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
@@ -79,6 +81,28 @@ socketio.getSocketio = function (server) {
         }
       } catch (error) {
         throw error;
+      }
+    })
+
+    socket.on('translateMessage', async (dataFromClient) => {
+      try {
+        const translatedWord = await translationPromise(dataFromClient.messageContent, dataFromClient.languageList);
+        const insertTranslatedMsg = await saveTranslatedContent({ 
+          messageId: dataFromClient.messageId,
+          language: dataFromClient.languageList,
+          translatedContent: translatedWord.translatedText
+        });
+        socket.emit('saveTranslatedMessageFinish', {
+          messageFromUser: dataFromClient.fromUserId,
+          messageUserName: dataFromClient.name,
+          messageUserAvatar: dataFromClient.avatarUrl,
+          originalMessage: dataFromClient.messageContent,
+          translatedWord: translatedWord.translatedText,
+          messageTime: dataFromClient.createdTime,
+          messageType: dataFromClient.messageType
+        })
+      } catch (error) {
+        console.log(error);
       }
     })
 

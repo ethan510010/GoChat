@@ -1,4 +1,4 @@
-const { exec } = require('../db/mysql');
+const { exec, execWithParaObj } = require('../db/mysql');
 
 const listSpecifiedRoomMessages = async (roomId) => {
   const messages = await exec(`
@@ -16,6 +16,15 @@ const listSpecifiedRoomMessages = async (roomId) => {
   return messages;
 }
 
+const saveTranslatedContent = async(translateObj) => {
+  const insertResult = await execWithParaObj(`
+    insert into translation_message
+    set ? 
+  `, translateObj);
+  return insertResult;
+}
+
 module.exports = {
-  listSpecifiedRoomMessages
+  listSpecifiedRoomMessages,
+  saveTranslatedContent
 }
