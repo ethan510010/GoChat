@@ -1,6 +1,26 @@
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.innerHTML = '';
+chatFlowContent.addEventListener('scroll', function() {
+  const mentionLine = document.querySelector('.new_message_mention_line');
+  if (mentionLine) {
+    // Get parent element properties
+    const chatFlowContentTop = chatFlowContent.scrollTop;
+    const chatFlowContentBottom = chatFlowContentTop + chatFlowContent.clientHeight;
+
+    // Get new message mention line properties
+    const mentionLineTop = mentionLine.offsetTop;
+    const mentionLineBottom = mentionLineTop + mentionLine.clientHeight;
+
+    // Check if in view
+    let isTotalOutside = (mentionLineTop < chatFlowContentTop);
+    if (isTotalOutside) {
+      console.log('新訊息提示完全移出外面');
+      // 移除新訊息提示
+      chatFlowContent.removeChild(mentionLine);
+    }
+  }
+})
 // 顯示歷史訊息
 getChatHistory(currentSelectedRoom.roomId);
 
@@ -280,7 +300,35 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
     let chatFlowArea = document.getElementById('message_flow_area');
     chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);  
+  } else {
+    const mentionLine = document.querySelector('.new_message_mention_line');
+    if (mentionLine) {
+      // mentionLine.scrollIntoView();
+      // 如果新訊息非常多 new message 提示線會一直往上，如果非常多的話，最多就是在 chatFlowContent 的頂部
+      const mentionLineTop = mentionLine.offsetTop;
+      chatFlowContent.scrollTop = mentionLineTop;
+    }
   }
+}
+
+// 捲動到特定元素
+function scrollToElement(element, speed) {
+  let rect=element.getBoundingClientRect();
+    //获取元素相对窗口的top值，此处应加上窗口本身的偏移
+    let top=window.pageYOffset+rect.top;
+    let currentTop=0;
+    let requestId;
+    //采用requestAnimationFrame，平滑动画
+    function step(timestamp) {
+      currentTop+=speed;
+      if(currentTop<=top){
+        window.scrollTo(0,currentTop);
+        requestId=window.requestAnimationFrame(step);
+      }else{
+        window.cancelAnimationFrame(requestId);
+      }
+    }
+    window.requestAnimationFrame(step);
 }
 
 // 獲取聊天室歷史內容
