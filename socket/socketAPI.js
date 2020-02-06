@@ -1,6 +1,7 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
-const { saveTranslatedContent } = require('../model/message');
+const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
+const { updateUserSelectedRoom } = require('../model/users');
 const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 require('dotenv').config();
@@ -26,37 +27,41 @@ socketio.getSocketio = function (server) {
   const io = socket_io.listen(server);
   io.on('connection', function (socket) {
     // 有人連線進該房間
-    socket.on('changeRoom', function (roomDetailInfo, callback) {
+    socket.on('changeRoom', async (roomDetailInfo, callback) => {
       const { roomId } = roomDetailInfo.joinRoomInfo;
-      currentSelectedRoomId = roomId;
-      // 如果該房間都還沒有會員進入
-      if (!roomUsersPair[roomId]) {
-        roomUsersPair[roomId] = [];
-      }
-      // console.log(`切換房間加入房間${roomId}的人`, roomDetailInfo.userInfo);
-      roomDetailInfo.userInfo.socketId = socket.id;
-      roomUsersPair[roomId].push(roomDetailInfo.userInfo);
-      socket.join(roomId);
-      // console.log('離開前房間跟用戶的狀況', roomUsersPair)
-      // 2. 離開舊房間的處理
-      const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
-      if (roomUsersPair[leaveRoomId]) {
-        // 移除
-        const removeIndex = roomUsersPair[leaveRoomId].findIndex(user => {
-          return user.userId === roomDetailInfo.userInfo.userId
-        })
-        if (removeIndex !== -1) {
-          roomUsersPair[leaveRoomId].splice(removeIndex, 1);
-          console.log('剛剛移除後房間剩下的', roomUsersPair[roomId])
-          socket.leave(leaveRoomId);
+      // 更新使用者最後選到的房間
+      const updateRoomResult = await updateUserSelectedRoom(roomDetailInfo.userInfo.userId, roomId);
+      if (updateRoomResult) {
+        currentSelectedRoomId = roomId;
+        // 如果該房間都還沒有會員進入
+        if (!roomUsersPair[roomId]) {
+          roomUsersPair[roomId] = [];
         }
+        // console.log(`切換房間加入房間${roomId}的人`, roomDetailInfo.userInfo);
+        roomDetailInfo.userInfo.socketId = socket.id;
+        roomUsersPair[roomId].push(roomDetailInfo.userInfo);
+        socket.join(roomId);
+        // console.log('離開前房間跟用戶的狀況', roomUsersPair)
+        // 2. 離開舊房間的處理
+        const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
+        if (roomUsersPair[leaveRoomId]) {
+          // 移除
+          const removeIndex = roomUsersPair[leaveRoomId].findIndex(user => {
+            return user.userId === roomDetailInfo.userInfo.userId
+          })
+          if (removeIndex !== -1) {
+            roomUsersPair[leaveRoomId].splice(removeIndex, 1);
+            console.log('剛剛移除後房間剩下的', roomUsersPair[roomId])
+            socket.leave(leaveRoomId);
+          }
+        }
+        console.log('離開後房間跟用戶的狀況', roomUsersPair);
+        // 代表都完成了
+        callback('finished');
       }
-      console.log('離開後房間跟用戶的狀況', roomUsersPair);
-      // 代表都完成了
-      callback('finished');
     });
 
-    socket.on('join', (joinInfo) => {
+    socket.on('join', (joinInfo, callback) => {
       const { roomId } = joinInfo.roomInfo;
       currentSelectedRoomId = roomId;
       joinInfo.userInfo.socketId = socket.id;
@@ -68,6 +73,7 @@ socketio.getSocketio = function (server) {
       roomUsersPair[roomId].push(joinInfo.userInfo);
 
       socket.join(roomId);
+      callback(joinInfo);
     })
 
     socket.on('clientMessage', async (dataFromClient) => {
@@ -132,29 +138,38 @@ socketio.getSocketio = function (server) {
         // 如果訊息的 type 不是 text，就不需要進到 translationPromise
         let translatedWordObj = {};
         if (dataFromClient.messageType === 'text') {
-          translatedWordObj = await translationPromise(dataFromClient.messageContent, dataFromClient.languageList);  
+          translatedWordObj = await translationPromise(dataFromClient.messageContent, dataFromClient.languageList);
         } else if (dataFromClient.messageType === 'image') {
           translatedWordObj = {
             translatedText: dataFromClient.messageContent
           }
-        } 
+        }
         const insertTranslatedMsg = await saveTranslatedContent({
           messageId: dataFromClient.messageId,
           language: dataFromClient.languageList,
           translatedContent: translatedWordObj.translatedText
         });
-        socket.emit('saveTranslatedMessageFinish', {
-          messageFromUser: dataFromClient.fromUserId,
-          messageUserName: dataFromClient.name,
-          messageUserAvatar: dataFromClient.avatarUrl,
-          originalMessage: dataFromClient.messageContent,
-          translatedWord: translatedWordObj.translatedText,
-          messageTime: dataFromClient.createdTime,
-          messageType: dataFromClient.messageType
-        })
+        if (insertTranslatedMsg) {
+          socket.emit('saveTranslatedMessageFinish', {
+            messageFromUser: dataFromClient.fromUserId,
+            messageUserName: dataFromClient.name,
+            messageUserAvatar: dataFromClient.avatarUrl,
+            originalMessage: dataFromClient.messageContent,
+            translatedWord: translatedWordObj.translatedText,
+            messageTime: dataFromClient.createdTime,
+            messageType: dataFromClient.messageType
+          })
+        }
       } catch (error) {
         console.log(error);
       }
+    })
+
+    // 房間歷史訊息
+    socket.on('getRoomHistory', async (dataFromClient) => {
+      const { roomId } = dataFromClient;
+      const messages = await listSpecifiedRoomMessages(roomId);
+      io.to(roomId).emit('showHistory', messages);
     })
 
     socket.on('draw', async (drawInfoFromClient) => {

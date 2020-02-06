@@ -16,17 +16,19 @@ chatFlowContent.addEventListener('scroll', function() {
     }
   }
 })
-// 顯示歷史訊息
-getChatHistory(currentSelectedRoom.roomId);
 
 // 加入房間
 socket.emit('join', {
   roomInfo: currentSelectedRoom,
   userInfo: currentUserDetail
-}, (error) => {
-  if (error) {
-    alert(error)
-    window.location = '/'
+}, (joinInfo) => {
+  if (joinInfo) {
+    const roomId = joinInfo.roomInfo.roomId;
+    const userId = joinInfo.userInfo.userId;
+    socket.emit('getRoomHistory', {
+      roomId: roomId,
+      userId: userId
+    })
   }
 })
 
@@ -56,9 +58,6 @@ roomsAreaSection.addEventListener('click', function (event) {
   const roomTitleTag = document.querySelector('#room_title h1');
   roomTitleTag.textContent = currentSelectedRoom.roomTitle;
 
-  // 打 restful Api 獲取聊天室內容
-  getChatHistory(validRoomId);
-
   // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
   // defect 一樣是 非同步造成的
   console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
@@ -66,35 +65,26 @@ roomsAreaSection.addEventListener('click', function (event) {
   if (currentSelectedRoom.roomId !== lastChooseRoom.roomId) {
     // 切換房間要紀錄起來
     // 要有一支 api
-    fetch('/users/renewUserSelectedRoom', {
-      method: 'PUT',
-      body: JSON.stringify({
-        userId: currentUserDetail.userId,
-        roomId: currentSelectedRoom.roomId
-      }),
-      headers: new Headers({
-        'Content-Type': 'application/json'
+    // 更新房間
+    // 更換房間事件
+    socket.emit('changeRoom', {
+      joinRoomInfo: currentSelectedRoom,
+      userInfo: currentUserDetail,
+      lastChooseRoom: lastChooseRoom
+    }, function (finishedInfo) {
+      lastChooseRoom.roomId = currentSelectedRoom.roomId;
+      lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+      // 把提示新訊息的 UI 刪除掉
+      const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
+      const beRemovedNewMsgMentionTag = document.getElementById(`channelId_${currentSelectedRoom.roomId}`).lastChild;
+      channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
+      // 切換完成後去抓取歷史訊息
+      chatFlowContent.innerHTML = '';
+      socket.emit('getRoomHistory', {
+        roomId: validRoomId,
+        userId: currentUserDetail.userId
       })
     })
-      .then(response => response.json())
-      .catch(error => console.log(error))
-      .then((validResponse) => {
-        if (validResponse.data) {
-          // 更換房間事件
-          socket.emit('changeRoom', {
-            joinRoomInfo: currentSelectedRoom,
-            userInfo: currentUserDetail,
-            lastChooseRoom: lastChooseRoom
-          }, function (finishedInfo) {
-            lastChooseRoom.roomId = currentSelectedRoom.roomId;
-            lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-            // 把提示新訊息的 UI 刪除掉
-            const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
-            const beRemovedNewMsgMentionTag = document.getElementById(`channelId_${currentSelectedRoom.roomId}`).lastChild;
-            channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
-          })
-        }
-      })
   }
 })
 
@@ -129,27 +119,6 @@ sendImageBtn.addEventListener('change', function (e) {
       messageType: 'image'
     })
   }
-  // 上傳檔案打 api
-  // const formData = new FormData();
-  // formData.append('messageImage', fileData);
-  // const options = {
-  //   method: 'POST',
-  //   body: formData
-  // }
-  // fetch('/messages/uploadImage', options)
-  //   .then(response => response.json())
-  //   .catch(error => console.log(error))
-  //   .then((validResponse) => {
-  //     // 還沒完成
-  //     console.log('訊息檔案路徑', validResponse.data)
-  //     socket.emit('clientMessage', {
-  //       roomDetail: currentSelectedRoom,
-  //       userInfo: currentUserDetail,
-  //       messageContent: validResponse.data,
-  //       messageTime: Date.now(),
-  //       messageType: 'image'
-  //     })
-  //   })
 })
 
 // 接收 Server 端發過來的 message 事件
@@ -213,6 +182,23 @@ socket.on('newMessageMention', (newMessageInfo) => {
           // 關閉自動滾動功能
           shouldAutoScrollToBottom = false;
         }
+      }
+    }
+  }
+})
+
+// 接收歷史訊息
+socket.on('showHistory', (historyMessages) => {
+  // 因為 UI 越新在越底下
+  const reverseMessages = historyMessages.reverse();
+  for (let i = 0; i < reverseMessages.length; i++) {
+    const historyMsg = reverseMessages[i];
+    if (historyMsg.language === currentUserDetail.selectedLanguage) {
+      let defaultAvatar = historyMsg.avatarUrl === '' ? '/images/defaultAvatar.png' : historyMsg.avatarUrl;
+      if (historyMsg.messageType === 'image') {
+        showChatContent(defaultAvatar, historyMsg.name, [historyMsg.messageContent], historyMsg.userId, historyMsg.createdTime, historyMsg.messageType);  
+      } else if (historyMsg.messageType === 'text') {
+        showChatContent(defaultAvatar, historyMsg.name, [historyMsg.messageContent, historyMsg.translatedContent], historyMsg.userId, historyMsg.createdTime, historyMsg.messageType);  
       }
     }
   }
@@ -331,59 +317,4 @@ function scrollToElement(element, speed) {
       }
     }
     window.requestAnimationFrame(step);
-}
-
-// 獲取聊天室歷史內容
-function getChatHistory(selectedRoomId) {
-  chatFlowContent.innerHTML = '';
-  fetch(`/messages/getMessages?roomId=${selectedRoomId}`)
-    .then((response) => response.json())
-    .catch((error) => console.log(error))
-    .then(async (validResponse) => {
-      // 這邊 api 拿到的是從新到舊的訊息，但 UI 介面應該要處理的是由舊到新的，所以這邊我們要反轉
-      const chatMessageList = validResponse.data.reverse();
-      let translateMessagePromiseList = [];
-      for (let index = 0; index < chatMessageList.length; index++) {
-        const eachMessage = chatMessageList[index];
-        const { avatarUrl, name, userId, messageContent, createdTime, messageType, messageId } = eachMessage;
-        // 順序會錯是因為這邊非同步的問題，不能保證前面一個已經做完了才做下一個
-        // translateMessagePromiseList.push(fetch('/messages/translateMessage', {
-        //   method: 'POST',
-        //   body: JSON.stringify({
-        //     messageId: messageId,
-        //     avatarUrl: avatarUrl,
-        //     name: name,
-        //     messageContent: messageContent,
-        //     languageList: currentUserDetail.selectedLanguage,
-        //     fromUserId: userId,
-        //     createdTime: createdTime,
-        //     messageType: messageType
-        //   }),
-        //   headers: new Headers({
-        //     'Content-Type': 'application/json'
-        //   })
-        // }))
-      }
-      // Promise.all(translateMessagePromiseList)
-      //   .then((responseResults) => {
-      //     let jsonConvertList = [];
-      //     for (let i = 0; i < responseResults.length; i++) {
-      //       jsonConvertList.push(responseResults[i].json());
-      //     }
-      //     Promise.all(jsonConvertList)
-      //       .then((convertResults) => {
-      //         for (let i = 0; i < convertResults.length; i++) {
-      //           const eachConverMessage = convertResults[i].data;
-      //           const messageWords = Array.from(new Set([eachConverMessage.originalMessage, eachConverMessage.translatedWord]));
-      //           showChatContent(eachConverMessage.messageUserAvatar,
-      //             eachConverMessage.messageUserName,
-      //             messageWords,
-      //             eachConverMessage.messageFromUser,
-      //             eachConverMessage.messageTime,
-      //             eachConverMessage.messageType
-      //           );
-      //         }
-      //       })
-      //   })
-    })
 }
