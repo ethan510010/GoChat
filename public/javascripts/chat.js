@@ -1,6 +1,6 @@
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
-chatFlowContent.addEventListener('scroll', function() {
+chatFlowContent.addEventListener('scroll', function () {
   const mentionLine = document.querySelector('.new_message_mention_line');
   if (mentionLine) {
     // Get parent element properties
@@ -27,7 +27,8 @@ socket.emit('join', {
     const userId = joinInfo.userInfo.userId;
     socket.emit('getRoomHistory', {
       roomId: roomId,
-      userId: userId
+      userId: userId,
+      userSelectedLanguge: joinInfo.userInfo.selectedLanguage
     })
   }
 })
@@ -47,7 +48,7 @@ roomsAreaSection.addEventListener('click', function (event) {
     roomTitle = event.target.children[0].textContent;
   } else if (event.target.nodeName.toUpperCase() === 'P') {
     validRoomId = parseInt(event.target.parentElement.getAttribute('id').replace('channelId_', ''), 10);
-    roomTitle = event.target.textContent; 
+    roomTitle = event.target.textContent;
   }
   // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
   currentSelectedRoom = {
@@ -76,13 +77,15 @@ roomsAreaSection.addEventListener('click', function (event) {
       lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
       // 把提示新訊息的 UI 刪除掉
       const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
-      const beRemovedNewMsgMentionTag = document.getElementById(`channelId_${currentSelectedRoom.roomId}`).lastChild;
-      channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
+      const beRemovedNewMsgMentionTag = channelIdDiv.lastChild;
+      if (beRemovedNewMsgMentionTag.nodeName.toUpperCase() === 'DIV' && beRemovedNewMsgMentionTag.className === 'messageMention') {
+        channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
+      }
       // 切換完成後去抓取歷史訊息
-      chatFlowContent.innerHTML = '';
       socket.emit('getRoomHistory', {
         roomId: validRoomId,
-        userId: currentUserDetail.userId
+        userId: currentUserDetail.userId,
+        userSelectedLanguge: currentUserDetail.selectedLanguage
       })
     })
   }
@@ -123,12 +126,13 @@ sendImageBtn.addEventListener('change', function (e) {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
-  // const { roomId, roomTitle } = dataFromServer.roomDetail;
+  const { roomId, roomTitle } = dataFromServer.roomDetail;
   // console.log('房間資訊', roomId, roomTitle)
   const { messageTime, messageContent, messageType, messageId } = dataFromServer;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
   // 改成 socket 觸發
   socket.emit('translateMessage', {
+    roomId: roomId,
     messageId: messageId,
     avatarUrl: avatarUrl,
     name: name,
@@ -148,7 +152,9 @@ socket.on('saveTranslatedMessageFinish', (translatedInfo) => {
   const messageWords = Array.from(new Set([originalMessage, translatedWord]));
   // 開啟自動捲動到底部
   shouldAutoScrollToBottom = true;
-  showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType);
+  if (translatedInfo.language === currentUserDetail.selectedLanguage) {
+    showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType);
+  }
 })
 
 // 接收有新訊息
@@ -189,17 +195,28 @@ socket.on('newMessageMention', (newMessageInfo) => {
 
 // 接收歷史訊息
 socket.on('showHistory', (historyMessages) => {
+  chatFlowContent.innerHTML = '';
   // 因為 UI 越新在越底下
   const reverseMessages = historyMessages.reverse();
   for (let i = 0; i < reverseMessages.length; i++) {
     const historyMsg = reverseMessages[i];
-    if (historyMsg.language === currentUserDetail.selectedLanguage) {
-      let defaultAvatar = historyMsg.avatarUrl === '' ? '/images/defaultAvatar.png' : historyMsg.avatarUrl;
-      if (historyMsg.messageType === 'image') {
-        showChatContent(defaultAvatar, historyMsg.name, [historyMsg.messageContent], historyMsg.userId, historyMsg.createdTime, historyMsg.messageType);  
-      } else if (historyMsg.messageType === 'text') {
-        showChatContent(defaultAvatar, historyMsg.name, [historyMsg.messageContent, historyMsg.translatedContent], historyMsg.userId, historyMsg.createdTime, historyMsg.messageType);  
-      }
+    let defaultAvatar = historyMsg.avatarUrl === '' ? '/images/defaultAvatar.png' : historyMsg.avatarUrl;
+    if (historyMsg.messageType === 'image') {
+      showChatContent(
+        defaultAvatar,
+        historyMsg.name,
+        [historyMsg.messageContent],
+        historyMsg.userId,
+        historyMsg.createdTime,
+        historyMsg.messageType);
+    } else if (historyMsg.messageType === 'text') {
+      showChatContent(
+        defaultAvatar,
+        historyMsg.name,
+        Array.from(new Set([historyMsg.messageContent, historyMsg.translatedContent])),
+        historyMsg.userId,
+        historyMsg.createdTime,
+        historyMsg.messageType);
     }
   }
 })
@@ -280,14 +297,14 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     newMessageMentionLine.appendChild(leftDecorationLine);
     newMessageMentionLine.appendChild(mentionP);
     newMessageMentionLine.appendChild(rightDecorationLine);
-    chatFlowContent.appendChild(newMessageMentionLine); 
+    chatFlowContent.appendChild(newMessageMentionLine);
   }
   chatFlowContent.appendChild(eachMessageDiv);
   // 自動捲動到底部
   if (shouldAutoScrollToBottom) {
     chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
     let chatFlowArea = document.getElementById('message_flow_area');
-    chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);  
+    chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
   } else {
     const mentionLine = document.querySelector('.new_message_mention_line');
     if (mentionLine) {
@@ -301,20 +318,20 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
 
 // 捲動到特定元素
 function scrollToElement(element, speed) {
-  let rect=element.getBoundingClientRect();
-    //获取元素相对窗口的top值，此处应加上窗口本身的偏移
-    let top=window.pageYOffset+rect.top;
-    let currentTop=0;
-    let requestId;
-    //采用requestAnimationFrame，平滑动画
-    function step(timestamp) {
-      currentTop+=speed;
-      if(currentTop<=top){
-        window.scrollTo(0,currentTop);
-        requestId=window.requestAnimationFrame(step);
-      }else{
-        window.cancelAnimationFrame(requestId);
-      }
+  let rect = element.getBoundingClientRect();
+  //获取元素相对窗口的top值，此处应加上窗口本身的偏移
+  let top = window.pageYOffset + rect.top;
+  let currentTop = 0;
+  let requestId;
+  //采用requestAnimationFrame，平滑动画
+  function step(timestamp) {
+    currentTop += speed;
+    if (currentTop <= top) {
+      window.scrollTo(0, currentTop);
+      requestId = window.requestAnimationFrame(step);
+    } else {
+      window.cancelAnimationFrame(requestId);
     }
-    window.requestAnimationFrame(step);
+  }
+  window.requestAnimationFrame(step);
 }

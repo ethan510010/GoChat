@@ -93,7 +93,9 @@ socketio.getSocketio = function (server) {
             dataFromClient.messageId = createMessageResult.insertId;
             // 儲存成功發送出去，並存到 redis
             // saveCacheMessage(dataFromClient);
-            io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+            // debug 用
+            io.sockets.emit('message', dataFromClient);
+            // io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
             // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
             socket.broadcast.emit('newMessageMention', {
               newMessageRoomId: dataFromClient.roomDetail.roomId,
@@ -123,7 +125,9 @@ socketio.getSocketio = function (server) {
           // saveCacheMessage(dataFromClient);
           // 如果下面沒更改會是一開始傳進來的 base 64 字串
           dataFromClient.messageContent = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
-          io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+          // debug 用
+          io.sockets.emit('message', dataFromClient);
+          // io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
             newMessageRoomId: dataFromClient.roomDetail.roomId,
@@ -150,15 +154,26 @@ socketio.getSocketio = function (server) {
           translatedContent: translatedWordObj.translatedText
         });
         if (insertTranslatedMsg) {
-          socket.emit('saveTranslatedMessageFinish', {
+          // debug 用
+          io.to(dataFromClient.roomId).emit('saveTranslatedMessageFinish', {
             messageFromUser: dataFromClient.fromUserId,
             messageUserName: dataFromClient.name,
             messageUserAvatar: dataFromClient.avatarUrl,
             originalMessage: dataFromClient.messageContent,
+            language: dataFromClient.languageList,
             translatedWord: translatedWordObj.translatedText,
             messageTime: dataFromClient.createdTime,
             messageType: dataFromClient.messageType
           })
+          // socket.emit('saveTranslatedMessageFinish', {
+          //   messageFromUser: dataFromClient.fromUserId,
+          //   messageUserName: dataFromClient.name,
+          //   messageUserAvatar: dataFromClient.avatarUrl,
+          //   originalMessage: dataFromClient.messageContent,
+          //   translatedWord: translatedWordObj.translatedText,
+          //   messageTime: dataFromClient.createdTime,
+          //   messageType: dataFromClient.messageType
+          // })
         }
       } catch (error) {
         console.log(error);
@@ -167,9 +182,9 @@ socketio.getSocketio = function (server) {
 
     // 房間歷史訊息
     socket.on('getRoomHistory', async (dataFromClient) => {
-      const { roomId } = dataFromClient;
-      const messages = await listSpecifiedRoomMessages(roomId);
-      io.to(roomId).emit('showHistory', messages);
+      const { roomId, userSelectedLanguge } = dataFromClient;
+      const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge);
+      socket.emit('showHistory', messages);
     })
 
     socket.on('draw', async (drawInfoFromClient) => {

@@ -1,6 +1,6 @@
 const { exec, execWithParaObj } = require('../db/mysql');
 
-const listSpecifiedRoomMessages = async (roomId) => {
+const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge) => {
   // const messages = await exec(`
   //   select * from message 
   //   inner join
@@ -34,7 +34,7 @@ const listSpecifiedRoomMessages = async (roomId) => {
     left join fb_info
     on tempTable.userId=fb_info.userId) as wholeUserTable
     on message.userId=wholeUserTable.userId
-    where roomId=${roomId}
+    where roomId=${roomId} and language='${userSelectedLanguge}'
     order by createdTime desc
   `);
   return messages;
