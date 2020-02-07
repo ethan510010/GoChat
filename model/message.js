@@ -1,6 +1,6 @@
 const { exec, execWithParaObj } = require('../db/mysql');
 
-const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge) => {
+const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge, page) => {
   // const messages = await exec(`
   //   select * from message 
   //   inner join
@@ -35,7 +35,7 @@ const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge) => {
     on tempTable.userId=fb_info.userId) as wholeUserTable
     on message.userId=wholeUserTable.userId
     where roomId=${roomId} and language='${userSelectedLanguge}'
-    order by createdTime desc
+    order by createdTime desc limit 15 offset ${(page) * 15}
   `);
   return messages;
 }

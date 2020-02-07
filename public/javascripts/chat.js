@@ -1,10 +1,22 @@
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.addEventListener('scroll', function () {
+  // Get parent element properties
+  const chatFlowContentTop = chatFlowContent.scrollTop;
+  console.log('聊天內容捲動位置', chatFlowContentTop);
+  // 180 大約是三筆訊息的大小
+  if (chatFlowContentTop <= 180 && !scrollFinished) {
+    currentScrollPage += 1;
+    socket.emit('getRoomHistory', {
+      roomId: currentSelectedRoom.roomId,
+      userId: currentUserDetail.userId,
+      userSelectedLanguge: currentUserDetail.selectedLanguage,
+      page: currentScrollPage,
+      changeRoomMode: false
+    })
+  }
   const mentionLine = document.querySelector('.new_message_mention_line');
   if (mentionLine) {
-    // Get parent element properties
-    const chatFlowContentTop = chatFlowContent.scrollTop;
     // Get new message mention line properties
     const mentionLineTop = mentionLine.offsetTop;
     // Check if in view
@@ -16,7 +28,10 @@ chatFlowContent.addEventListener('scroll', function () {
     }
   }
 })
-
+// 紀錄捲動到的位置
+let currentScrollPage = 0;
+// 紀錄捲動是否結束
+let scrollFinished = false; 
 // 加入房間
 socket.emit('join', {
   roomInfo: currentSelectedRoom,
@@ -28,7 +43,9 @@ socket.emit('join', {
     socket.emit('getRoomHistory', {
       roomId: roomId,
       userId: userId,
-      userSelectedLanguge: joinInfo.userInfo.selectedLanguage
+      userSelectedLanguge: joinInfo.userInfo.selectedLanguage,
+      page: currentScrollPage,
+      changeRoomMode: false
     })
   }
 })
@@ -81,11 +98,15 @@ roomsAreaSection.addEventListener('click', function (event) {
       if (beRemovedNewMsgMentionTag.nodeName.toUpperCase() === 'DIV' && beRemovedNewMsgMentionTag.className === 'messageMention') {
         channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
       }
-      // 切換完成後去抓取歷史訊息
+      // 切換完成後去抓取歷史訊息 ( 這時要把 currentScrollPage 歸 0)
+      currentScrollPage = 0;
+      scrollFinished = false;
       socket.emit('getRoomHistory', {
         roomId: validRoomId,
         userId: currentUserDetail.userId,
-        userSelectedLanguge: currentUserDetail.selectedLanguage
+        userSelectedLanguge: currentUserDetail.selectedLanguage,
+        page: currentScrollPage,
+        changeRoomMode: true
       })
     })
   }
@@ -153,7 +174,7 @@ socket.on('saveTranslatedMessageFinish', (translatedInfo) => {
   // 開啟自動捲動到底部
   shouldAutoScrollToBottom = true;
   if (translatedInfo.language === currentUserDetail.selectedLanguage) {
-    showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType);
+    showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType, undefined);
   }
 })
 
@@ -194,10 +215,20 @@ socket.on('newMessageMention', (newMessageInfo) => {
 })
 
 // 接收歷史訊息
-socket.on('showHistory', (historyMessages) => {
-  chatFlowContent.innerHTML = '';
+socket.on('showHistory', (historyInfo) => {
+  if (historyInfo.changeRoomMode === true) {
+    chatFlowContent.innerHTML = '';
+  }
+  // if (currentScrollPage === 0) {
+    // chatFlowContent.innerHTML = '';  
+  // }
   // 因為 UI 越新在越底下
-  const reverseMessages = historyMessages.reverse();
+  const reverseMessages = historyInfo.messages.reverse();
+  if (reverseMessages.length === 0) {
+    scrollFinished = true;
+  }
+  const pageDiv = document.createElement('div');
+  pageDiv.id = `currentPage${currentScrollPage}`;
   for (let i = 0; i < reverseMessages.length; i++) {
     const historyMsg = reverseMessages[i];
     let defaultAvatar = historyMsg.avatarUrl === '' ? '/images/defaultAvatar.png' : historyMsg.avatarUrl;
@@ -208,7 +239,8 @@ socket.on('showHistory', (historyMessages) => {
         [historyMsg.messageContent],
         historyMsg.userId,
         historyMsg.createdTime,
-        historyMsg.messageType);
+        historyMsg.messageType,
+        pageDiv);
     } else if (historyMsg.messageType === 'text') {
       showChatContent(
         defaultAvatar,
@@ -216,13 +248,43 @@ socket.on('showHistory', (historyMessages) => {
         Array.from(new Set([historyMsg.messageContent, historyMsg.translatedContent])),
         historyMsg.userId,
         historyMsg.createdTime,
-        historyMsg.messageType);
+        historyMsg.messageType,
+        pageDiv);
     }
   }
+  chatFlowContent.prepend(pageDiv);
+  if (currentScrollPage === 0) {
+    if (shouldAutoScrollToBottom) {
+      chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+      let chatFlowArea = document.getElementById('message_flow_area');
+      chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
+    } else {
+      const mentionLine = document.querySelector('.new_message_mention_line');
+      if (mentionLine) {
+        // mentionLine.scrollIntoView();
+        // 如果新訊息非常多 new message 提示線會一直往上，如果非常多的話，最多就是在 chatFlowContent 的頂部
+        const mentionLineTop = mentionLine.offsetTop;
+        chatFlowContent.scrollTop = mentionLineTop;
+      }
+    }
+  }
+  // if (shouldAutoScrollToBottom) {
+  //   chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+  //   let chatFlowArea = document.getElementById('message_flow_area');
+  //   chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
+  // } else {
+  //   const mentionLine = document.querySelector('.new_message_mention_line');
+  //   if (mentionLine) {
+  //     // mentionLine.scrollIntoView();
+  //     // 如果新訊息非常多 new message 提示線會一直往上，如果非常多的話，最多就是在 chatFlowContent 的頂部
+  //     const mentionLineTop = mentionLine.offsetTop;
+  //     chatFlowContent.scrollTop = mentionLineTop;
+  //   }
+  // }
 })
 
 //  顯示聊天室內容 UI
-function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTime, messageType) {
+function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTime, messageType, pageDiv) {
   const eachMessageDiv = document.createElement('div');
   eachMessageDiv.classList.add('message_block');
   if (currentUserDetail.userId === fromUserId) {
@@ -285,35 +347,68 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
   eachMessageDiv.appendChild(messageUserInfoDiv);
   eachMessageDiv.appendChild(messageOuterDiv);
   // 這邊一定是錯的，只是先測試
-  if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
-    const newMessageMentionLine = document.createElement('div');
-    newMessageMentionLine.classList.add('new_message_mention_line');
-    const leftDecorationLine = document.createElement('div');
-    leftDecorationLine.classList.add('left_decoration_line');
-    const rightDecorationLine = document.createElement('div');
-    rightDecorationLine.classList.add('right_decoration_line');
-    const mentionP = document.createElement('p');
-    mentionP.textContent = 'New message';
-    newMessageMentionLine.appendChild(leftDecorationLine);
-    newMessageMentionLine.appendChild(mentionP);
-    newMessageMentionLine.appendChild(rightDecorationLine);
-    chatFlowContent.appendChild(newMessageMentionLine);
-  }
-  chatFlowContent.appendChild(eachMessageDiv);
-  // 自動捲動到底部
-  if (shouldAutoScrollToBottom) {
-    chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
-    let chatFlowArea = document.getElementById('message_flow_area');
-    chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
-  } else {
-    const mentionLine = document.querySelector('.new_message_mention_line');
-    if (mentionLine) {
-      // mentionLine.scrollIntoView();
-      // 如果新訊息非常多 new message 提示線會一直往上，如果非常多的話，最多就是在 chatFlowContent 的頂部
-      const mentionLineTop = mentionLine.offsetTop;
-      chatFlowContent.scrollTop = mentionLineTop;
+  // if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
+  //   const newMessageMentionLine = document.createElement('div');
+  //   newMessageMentionLine.classList.add('new_message_mention_line');
+  //   const leftDecorationLine = document.createElement('div');
+  //   leftDecorationLine.classList.add('left_decoration_line');
+  //   const rightDecorationLine = document.createElement('div');
+  //   rightDecorationLine.classList.add('right_decoration_line');
+  //   const mentionP = document.createElement('p');
+  //   mentionP.textContent = 'New message';
+  //   newMessageMentionLine.appendChild(leftDecorationLine);
+  //   newMessageMentionLine.appendChild(mentionP);
+  //   newMessageMentionLine.appendChild(rightDecorationLine);
+  //   chatFlowContent.appendChild(newMessageMentionLine, eachMessageDiv)
+  //   // chatFlowContent.appendChild(newMessageMentionLine);
+  // }
+  // 外面再把每一頁的 messages 包起來
+  // const pageMessageDiv = document.createElement('div');
+  // pageMessageDiv.id = `currentPage${currentScrollPage}`
+  // if (currentScrollPage === 0) {
+  //   pageMessageDiv.appendChild(eachMessageDiv);  
+  // } else {
+  //   pageMessageDiv.prepend(eachMessageDiv);
+  // }
+  // 有 pageDiv 代表是歷史訊息，沒有代表是新傳遞的訊息
+  if (pageDiv) {
+    if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
+      const newMessageMentionLine = document.createElement('div');
+      newMessageMentionLine.classList.add('new_message_mention_line');
+      const leftDecorationLine = document.createElement('div');
+      leftDecorationLine.classList.add('left_decoration_line');
+      const rightDecorationLine = document.createElement('div');
+      rightDecorationLine.classList.add('right_decoration_line');
+      const mentionP = document.createElement('p');
+      mentionP.textContent = 'New message';
+      newMessageMentionLine.appendChild(leftDecorationLine);
+      newMessageMentionLine.appendChild(mentionP);
+      newMessageMentionLine.appendChild(rightDecorationLine);
+      pageDiv.appendChild(newMessageMentionLine, eachMessageDiv)
+      // chatFlowContent.appendChild(newMessageMentionLine);
     }
+    pageDiv.append(eachMessageDiv);  
+  } else {
+    chatFlowContent.appendChild(eachMessageDiv);
   }
+  
+  // chatFlowContent.prepend(eachMessageDiv);
+  // 測試 
+  // 自動捲動到底部
+  // 因為要測試先註解起來
+  // if (shouldAutoScrollToBottom) {
+  //   chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+  //   let chatFlowArea = document.getElementById('message_flow_area');
+  //   chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
+  // } else {
+  //   const mentionLine = document.querySelector('.new_message_mention_line');
+  //   if (mentionLine) {
+  //     // mentionLine.scrollIntoView();
+  //     // 如果新訊息非常多 new message 提示線會一直往上，如果非常多的話，最多就是在 chatFlowContent 的頂部
+  //     const mentionLineTop = mentionLine.offsetTop;
+  //     chatFlowContent.scrollTop = mentionLineTop;
+  //   }
+  // }
 }
 
 // 捲動到特定元素

@@ -182,9 +182,12 @@ socketio.getSocketio = function (server) {
 
     // 房間歷史訊息
     socket.on('getRoomHistory', async (dataFromClient) => {
-      const { roomId, userSelectedLanguge } = dataFromClient;
-      const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge);
-      socket.emit('showHistory', messages);
+      const { roomId, userSelectedLanguge, page, changeRoomMode } = dataFromClient;
+      const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge, page);
+      socket.emit('showHistory', {
+        messages,
+        changeRoomMode
+      });
     })
 
     socket.on('draw', async (drawInfoFromClient) => {
