@@ -22,6 +22,8 @@ let roomUsersPair = {};
 let socketio = {};
 // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
 let currentSelectedRoomId = 0;
+// 用來處理要存到 redis cache 的每一筆資料
+let messageRedisCache = {};
 // 獲取io
 socketio.getSocketio = function (server) {
   const io = socket_io.listen(server);
@@ -86,26 +88,7 @@ socketio.getSocketio = function (server) {
         messageType: dataFromClient.messageType,
         fileName: dataFromClient.fileName
       }
-      if (dataFromClient.messageType === 'text') {
-        try {
-          const createMessageResult = await insertChatMessage(messageObj);
-          if (createMessageResult) {
-            dataFromClient.messageId = createMessageResult.insertId;
-            // 儲存成功發送出去，並存到 redis
-            // saveCacheMessage(dataFromClient);
-            // debug 用
-            io.sockets.emit('message', dataFromClient);
-            // io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
-            // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
-            socket.broadcast.emit('newMessageMention', {
-              newMessageRoomId: dataFromClient.roomDetail.roomId,
-              messageTime: dataFromClient.messageTime
-            })
-          }
-        } catch (error) {
-          throw error;
-        }
-      } else if (dataFromClient.messageType === 'image') {
+      if (dataFromClient.messageType === 'image') {
         const buffer = new Buffer.from(dataFromClient.messageContent.replace(/^data:image\/\w+;base64,/, ""), 'base64');
         // Getting the file type, ie: jpeg, png or gif
         const type = dataFromClient.messageContent.split(';')[0].split('/')[1];
@@ -118,65 +101,62 @@ socketio.getSocketio = function (server) {
         }
         const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
         messageObj.messageContent = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
+      }
+      try {
         const createMessageResult = await insertChatMessage(messageObj);
         if (createMessageResult) {
           dataFromClient.messageId = createMessageResult.insertId;
+          const languageArrangement = ['en', 'zh-TW', 'ja', 'es'];
+          if (dataFromClient.messageType === 'text') {
+            const englishPromise = translationPromise(dataFromClient.messageContent, 'en');
+            const chinesePromise = translationPromise(dataFromClient.messageContent, 'zh-TW');
+            const japanesePromise = translationPromise(dataFromClient.messageContent, 'ja');
+            const spanishPromise = translationPromise(dataFromClient.messageContent, 'es');
+            const transList = await Promise.all([englishPromise, chinesePromise, japanesePromise, spanishPromise]);
+            for (let i = 0; i < transList.length; i++) {
+              const eachTransResult = transList[i].translatedText;
+              const eachLanguage = languageArrangement[i];
+              await saveTranslatedContent({
+                messageId: createMessageResult.insertId,
+                language: eachLanguage,
+                translatedContent: eachTransResult
+              });
+              dataFromClient[eachLanguage] = eachTransResult;
+            }
+          } else if (dataFromClient.messageType === 'image') {
+            for (let i = 0; i < languageArrangement.length; i++) {
+              const eachLanguage = languageArrangement[i];
+              await saveTranslatedContent({
+                messageId: createMessageResult.insertId,
+                language: eachLanguage,
+                translatedContent: messageObj.messageContent
+              })
+            }
+          }
+
           // 儲存成功發送出去，並存到 redis
           // saveCacheMessage(dataFromClient);
-          // 如果下面沒更改會是一開始傳進來的 base 64 字串
-          dataFromClient.messageContent = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
+          // 組裝 redis cache 結構
+          messageRedisCache.messageContent = dataFromClient.messageContent;
+          messageRedisCache.createdTime = dataFromClient.messageTime,
+          messageRedisCache.userId = dataFromClient.userInfo.userId;
+          messageRedisCache.messageType = dataFromClient.messageType;
+          messageRedisCache.messageId = createMessageResult.insertId;
+          messageRedisCache.provider = dataFromClient.userInfo.provider;
+          messageRedisCache.name = dataFromClient.userInfo.name;
+          messageRedisCache.email = dataFromClient.userInfo.email;
+          messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
+          messageRedisCache.translatedList = [];
           // debug 用
-          io.sockets.emit('message', dataFromClient);
-          // io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+          io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
             newMessageRoomId: dataFromClient.roomDetail.roomId,
             messageTime: dataFromClient.messageTime
           })
         }
-      }
-    })
-
-    socket.on('translateMessage', async (dataFromClient) => {
-      try {
-        // 如果訊息的 type 不是 text，就不需要進到 translationPromise
-        let translatedWordObj = {};
-        if (dataFromClient.messageType === 'text') {
-          translatedWordObj = await translationPromise(dataFromClient.messageContent, dataFromClient.languageList);
-        } else if (dataFromClient.messageType === 'image') {
-          translatedWordObj = {
-            translatedText: dataFromClient.messageContent
-          }
-        }
-        const insertTranslatedMsg = await saveTranslatedContent({
-          messageId: dataFromClient.messageId,
-          language: dataFromClient.languageList,
-          translatedContent: translatedWordObj.translatedText
-        });
-        if (insertTranslatedMsg) {
-          // debug 用
-          io.to(dataFromClient.roomId).emit('saveTranslatedMessageFinish', {
-            messageFromUser: dataFromClient.fromUserId,
-            messageUserName: dataFromClient.name,
-            messageUserAvatar: dataFromClient.avatarUrl,
-            originalMessage: dataFromClient.messageContent,
-            language: dataFromClient.languageList,
-            translatedWord: translatedWordObj.translatedText,
-            messageTime: dataFromClient.createdTime,
-            messageType: dataFromClient.messageType
-          })
-          // socket.emit('saveTranslatedMessageFinish', {
-          //   messageFromUser: dataFromClient.fromUserId,
-          //   messageUserName: dataFromClient.name,
-          //   messageUserAvatar: dataFromClient.avatarUrl,
-          //   originalMessage: dataFromClient.messageContent,
-          //   translatedWord: translatedWordObj.translatedText,
-          //   messageTime: dataFromClient.createdTime,
-          //   messageType: dataFromClient.messageType
-          // })
-        }
       } catch (error) {
-        console.log(error);
+        throw error;
       }
     })
 
@@ -216,5 +196,9 @@ socketio.getSocketio = function (server) {
     })
   })
 };
+
+const clearMessageCache = (messageCache) => {
+  messageCache = {};
+}
 
 module.exports = socketio;

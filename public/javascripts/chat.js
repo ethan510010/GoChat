@@ -151,32 +151,37 @@ socket.on('message', (dataFromServer) => {
   // console.log('房間資訊', roomId, roomTitle)
   const { messageTime, messageContent, messageType, messageId } = dataFromServer;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
+
+  // 開啟自動捲動到底部
+  shouldAutoScrollToBottom = true;
+  const messageWords = Array.from(new Set([messageContent, dataFromServer[currentUserDetail.selectedLanguage]]));
+  showChatContent(avatarUrl, name, messageWords, userId, messageTime, messageType, undefined);
   // 改成 socket 觸發
-  socket.emit('translateMessage', {
-    roomId: roomId,
-    messageId: messageId,
-    avatarUrl: avatarUrl,
-    name: name,
-    messageContent: messageContent,
-    languageList: currentUserDetail.selectedLanguage,
-    fromUserId: userId,
-    createdTime: messageTime,
-    messageType: messageType
-  })
+  // socket.emit('translateMessage', {
+  //   roomId: roomId,
+  //   messageId: messageId,
+  //   avatarUrl: avatarUrl,
+  //   name: name,
+  //   messageContent: messageContent,
+  //   languageList: currentUserDetail.selectedLanguage,
+  //   fromUserId: userId,
+  //   createdTime: messageTime,
+  //   messageType: messageType
+  // })
 })
 
 // 接收翻譯訊息並顯示出來
-socket.on('saveTranslatedMessageFinish', (translatedInfo) => {
-  // 把原始訊息、跟翻譯後的丟進去
-  // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
-  const { messageFromUser, messageUserName, messageUserAvatar, originalMessage, translatedWord, messageTime, messageType } = translatedInfo;
-  const messageWords = Array.from(new Set([originalMessage, translatedWord]));
-  // 開啟自動捲動到底部
-  shouldAutoScrollToBottom = true;
-  if (translatedInfo.language === currentUserDetail.selectedLanguage) {
-    showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType, undefined);
-  }
-})
+// socket.on('saveTranslatedMessageFinish', (translatedInfo) => {
+//   // 把原始訊息、跟翻譯後的丟進去
+//   // 如果原始訊息跟翻譯後的結果完全一樣要過濾掉
+//   const { messageFromUser, messageUserName, messageUserAvatar, originalMessage, translatedWord, messageTime, messageType } = translatedInfo;
+//   const messageWords = Array.from(new Set([originalMessage, translatedWord]));
+//   // 開啟自動捲動到底部
+//   shouldAutoScrollToBottom = true;
+//   if (translatedInfo.language === currentUserDetail.selectedLanguage) {
+//     showChatContent(messageUserAvatar, messageUserName, messageWords, messageFromUser, messageTime, messageType, undefined);
+//   }
+// })
 
 // 接收有新訊息
 let newMessageAndRoomPair = {};

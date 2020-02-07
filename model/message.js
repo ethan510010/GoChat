@@ -35,7 +35,7 @@ const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge, page) => {
     on tempTable.userId=fb_info.userId) as wholeUserTable
     on message.userId=wholeUserTable.userId
     where roomId=${roomId} and language='${userSelectedLanguge}'
-    order by createdTime desc limit 15 offset ${(page) * 15}
+    order by createdTime desc limit 30 offset ${(page) * 30}
   `);
   return messages;
 }
