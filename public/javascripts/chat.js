@@ -24,7 +24,7 @@ chatFlowContent.addEventListener('scroll', function () {
     if (isTotalOutside) {
       console.log('新訊息提示完全移出外面');
       // 移除新訊息提示
-      chatFlowContent.removeChild(mentionLine);
+      mentionLine.parentNode.removeChild(mentionLine);
     }
   }
 })
@@ -346,30 +346,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
 
   eachMessageDiv.appendChild(messageUserInfoDiv);
   eachMessageDiv.appendChild(messageOuterDiv);
-  // 這邊一定是錯的，只是先測試
-  // if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
-  //   const newMessageMentionLine = document.createElement('div');
-  //   newMessageMentionLine.classList.add('new_message_mention_line');
-  //   const leftDecorationLine = document.createElement('div');
-  //   leftDecorationLine.classList.add('left_decoration_line');
-  //   const rightDecorationLine = document.createElement('div');
-  //   rightDecorationLine.classList.add('right_decoration_line');
-  //   const mentionP = document.createElement('p');
-  //   mentionP.textContent = 'New message';
-  //   newMessageMentionLine.appendChild(leftDecorationLine);
-  //   newMessageMentionLine.appendChild(mentionP);
-  //   newMessageMentionLine.appendChild(rightDecorationLine);
-  //   chatFlowContent.appendChild(newMessageMentionLine, eachMessageDiv)
-  //   // chatFlowContent.appendChild(newMessageMentionLine);
-  // }
-  // 外面再把每一頁的 messages 包起來
-  // const pageMessageDiv = document.createElement('div');
-  // pageMessageDiv.id = `currentPage${currentScrollPage}`
-  // if (currentScrollPage === 0) {
-  //   pageMessageDiv.appendChild(eachMessageDiv);  
-  // } else {
-  //   pageMessageDiv.prepend(eachMessageDiv);
-  // }
+  
   // 有 pageDiv 代表是歷史訊息，沒有代表是新傳遞的訊息
   if (pageDiv) {
     if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
@@ -390,6 +367,9 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     pageDiv.append(eachMessageDiv);  
   } else {
     chatFlowContent.appendChild(eachMessageDiv);
+    chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+    let chatFlowArea = document.getElementById('message_flow_area');
+    chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
   }
   
   // chatFlowContent.prepend(eachMessageDiv);
@@ -409,24 +389,4 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
   //     chatFlowContent.scrollTop = mentionLineTop;
   //   }
   // }
-}
-
-// 捲動到特定元素
-function scrollToElement(element, speed) {
-  let rect = element.getBoundingClientRect();
-  //获取元素相对窗口的top值，此处应加上窗口本身的偏移
-  let top = window.pageYOffset + rect.top;
-  let currentTop = 0;
-  let requestId;
-  //采用requestAnimationFrame，平滑动画
-  function step(timestamp) {
-    currentTop += speed;
-    if (currentTop <= top) {
-      window.scrollTo(0, currentTop);
-      requestId = window.requestAnimationFrame(step);
-    } else {
-      window.cancelAnimationFrame(requestId);
-    }
-  }
-  window.requestAnimationFrame(step);
 }
