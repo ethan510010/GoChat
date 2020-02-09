@@ -1,4 +1,5 @@
 const { exec, execWithParaObj } = require('../db/mysql');
+const { listEachRoomMessagesCache }= require('../db/redis');
 
 const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge, page) => {
   // const messages = await exec(`
@@ -48,7 +49,35 @@ const saveTranslatedContent = async(translateObj) => {
   return insertResult;
 }
 
+const getMessagesCache = async (roomId, language, page) => {
+  const cacheResults = await listEachRoomMessagesCache(roomId, page);
+  if (cacheResults.length > 0) {
+    let correspondedResults = [];
+    cacheResults.map((eachCacheMessage) => {
+      const eachValidMessage = JSON.parse(eachCacheMessage);
+      const responseMessage = {
+        messageContent: eachValidMessage.messageContent,
+        createdTime: eachValidMessage.createdTime,
+        userId: eachValidMessage.userId,
+        messageType: eachValidMessage.messageType,
+        id: eachValidMessage.messageId,
+        language: language,
+        translatedContent: eachValidMessage[language],
+        provider: eachValidMessage.provider,
+        name: eachValidMessage.name,
+        email: eachValidMessage.email,
+        avatarUrl: eachValidMessage.avatarUrl
+      }
+      correspondedResults.push(responseMessage);
+    })
+    return correspondedResults;
+  } else {
+    return [];
+  }
+}
+
 module.exports = {
   listSpecifiedRoomMessages,
-  saveTranslatedContent
+  saveTranslatedContent,
+  getMessagesCache
 }

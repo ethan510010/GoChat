@@ -12,25 +12,28 @@ redisClient.on('error', (err) => {
 
 const saveCacheMessage = (fullMessage) => {
   // 也把訊息存到 redis
-  const saveMessageFormat = {
-    id: fullMessage.messageId,
-    messageContent: fullMessage.messageContent,
-    createdTime: fullMessage.messageTime,
-    userId: fullMessage.userInfo.userId,
-    roomId: fullMessage.roomDetail.roomId,
-    provider: fullMessage.userInfo.provider,
-    name: fullMessage.userInfo.name,
-    email: fullMessage.userInfo.email,
-    avatarUrl: fullMessage.userInfo.avatarUrl,
-    messageType: fullMessage.messageType
-  }
-  redisClient.lpush(`roomId${fullMessage.roomDetail.roomId}`, JSON.stringify(saveMessageFormat));
-  redisClient.ltrim(`roomId${fullMessage.roomDetail.roomId}`, 0, 29);
+  // const saveMessageFormat = {
+  //   messageId: fullMessage.messageId,
+  //   messageContent: fullMessage.messageContent,
+  //   createdTime: fullMessage.createdTime,
+  //   userId: fullMessage.userId,
+  //   provider: fullMessage.provider,
+  //   name: fullMessage.name,
+  //   email: fullMessage.email,
+  //   avatarUrl: fullMessage.avatarUrl,
+  //   messageType: fullMessage.messageType,
+  //   translatedList: fullMessage.translatedList,
+  //   roomId: fullMessage.roomId
+  // }
+  redisClient.lpush(`roomId${fullMessage.roomId}`, JSON.stringify(fullMessage));
+  redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
 }
 
-const listEachRoomMessagesCache = (roomId) => {
+const listEachRoomMessagesCache = (roomId, page) => {
   return new Promise((resolve, reject) => {
-    redisClient.lrange(`roomId${roomId}`, 0, 29, function (err, result) {
+    const startIndex = page * 30;
+    const endIndex = (page + 1) * 30 - 1;
+    redisClient.lrange(`roomId${roomId}`, startIndex, endIndex, function (err, result) {
       if (!err) {
         resolve(result);
       } else {
