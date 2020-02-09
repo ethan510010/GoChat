@@ -1,7 +1,7 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
-const { handleRoomCanvasImage, getRoomCanvasImg } = require('../model/canvas');
+const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
 const { updateUserSelectedRoom } = require('../model/users');
 const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
@@ -187,6 +187,8 @@ socketio.getSocketio = function (server) {
     })
 
     socket.on('canvasClear', async (clearCanvasMsg) => {
+      // 把 DB 中該圖刪掉
+      await deleteRoomCanvas(clearCanvasMsg.roomDetail.roomId);
       io.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
     })
 

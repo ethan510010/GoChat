@@ -12,11 +12,27 @@ const getRoomCanvasImg = async (roomId) => {
   const result = await exec(`
     select * from canvas_image where roomId=${roomId}
   `);
-  return result[0].canvasUrl;
+  if (result[0]) {
+    return result[0].canvasUrl
+  } else {
+    return ''
+  }
+}
+
+const deleteRoomCanvas = async (roomId) => {
+  const deleteResult = await exec(`
+    delete from canvas_image where roomId=${roomId}
+  `);
+  if (deleteResult[0]) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 module.exports = {
   handleRoomCanvasImage,
-  getRoomCanvasImg
+  getRoomCanvasImg,
+  deleteRoomCanvas
 }
 

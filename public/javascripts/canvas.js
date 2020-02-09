@@ -58,7 +58,7 @@ canvas.addEventListener('mouseup', function (e) {
   e.preventDefault();
 
   socket.emit('eachTimeDraw', {
-    drawPathUrl: canvas.toDataURL('image/jpeg', 0.3),
+    drawPathUrl: canvas.toDataURL('image/jpeg', 0.6),
     roomDetail: currentSelectedRoom,
   });
   isDrawing = false;
