@@ -6,6 +6,8 @@ context.lineCap = 'round';
 context.lineJoin = 'round';
 context.strokeStyle = '#000000';
 context.lineWidth = 5;
+context.fillStyle = '#FFFFFF';
+context.fillRect(0, 0, canvas.width, canvas.height);
 let currentStrokeColor = '';
 
 // 紀錄 canvas 是否有動作
@@ -55,6 +57,10 @@ canvas.addEventListener('mousemove', function(e) {
 canvas.addEventListener('mouseup', function (e) {
   e.preventDefault();
 
+  socket.emit('eachTimeDraw', {
+    drawPathUrl: canvas.toDataURL('image/jpeg', 0.3),
+    roomDetail: currentSelectedRoom,
+  });
   isDrawing = false;
   eraserEnabled = false;
 })

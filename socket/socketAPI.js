@@ -1,6 +1,7 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
+const { handleRoomCanvasImage, getRoomCanvasImg } = require('../model/canvas');
 const { updateUserSelectedRoom } = require('../model/users');
 const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
@@ -139,7 +140,7 @@ socketio.getSocketio = function (server) {
           // 組裝 redis cache 結構
           messageRedisCache.messageContent = dataFromClient.messageContent;
           messageRedisCache.createdTime = dataFromClient.messageTime,
-          messageRedisCache.userId = dataFromClient.userInfo.userId;
+            messageRedisCache.userId = dataFromClient.userInfo.userId;
           messageRedisCache.messageType = dataFromClient.messageType;
           messageRedisCache.messageId = createMessageResult.insertId;
           messageRedisCache.provider = dataFromClient.userInfo.provider;
@@ -170,6 +171,13 @@ socketio.getSocketio = function (server) {
       });
     })
 
+    // canvas 歷史畫面
+    socket.on('getRoomCanvas', async (dataFromClient) => {
+      const { roomId } = dataFromClient;
+      const canvasUrl = await getRoomCanvasImg(roomId);
+      socket.emit('showCanvas', { canvasUrl, roomId });
+    })
+
     socket.on('draw', async (drawInfoFromClient) => {
       io.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
     })
@@ -180,6 +188,31 @@ socketio.getSocketio = function (server) {
 
     socket.on('canvasClear', async (clearCanvasMsg) => {
       io.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
+    })
+
+    socket.on('eachTimeDraw', async(eachTimeDrawResult) => {
+      // 結果為一個 base64 的圖片
+      const buffer = new Buffer.from(eachTimeDrawResult.drawPathUrl.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+      // Getting the file type, ie: jpeg, png or gif
+      const type = eachTimeDrawResult.drawPathUrl.split(';')[0].split('/')[1];
+      const uploadS3Paras = {
+        Key: `${Date.now()}_canvas${eachTimeDrawResult.roomDetail.roomId}`,
+        Body: buffer,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/${type}`
+      }
+      const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
+      // 存到 DB
+      const canvasImagePath = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
+      try {
+        const handleCanvas = await handleRoomCanvasImage({
+          roomId: eachTimeDrawResult.roomDetail.roomId,
+          canvasUrl: canvasImagePath
+        })  
+      } catch (error) {
+        console.log('儲存及更新 canvas 有問題') 
+      }
     })
 
     socket.on('disconnect', () => {

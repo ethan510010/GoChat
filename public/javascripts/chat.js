@@ -47,6 +47,11 @@ socket.emit('join', {
       page: currentScrollPage,
       changeRoomMode: false
     })
+    // 獲取歷史的 canvas
+    socket.emit('getRoomCanvas', {
+      roomId: roomId,
+      userId: userId,
+    })
   }
 })
 
@@ -192,6 +197,18 @@ socket.on('newMessageMention', (newMessageInfo) => {
       }
     }
   }
+})
+
+// 接收歷史的 canvas 畫面
+socket.on('showCanvas', (canvasHistory) => {
+  console.log('歷史canvas', canvasHistory)
+  // canvas context
+  let img = new Image;
+  img.crossOrigin = 'Anoymous';
+  img.addEventListener('load', () => {
+    context.drawImage(img, 0, 0);
+  })
+  img.src = canvasHistory.canvasUrl;
 })
 
 // 接收歷史訊息

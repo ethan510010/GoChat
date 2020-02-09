@@ -237,30 +237,112 @@ function updateRoomMember(updateRoomSQL, roomId, userIdList) {
         reject(err);
         return;
       }
-      for (let i = 0; i < userIdList.length; i++) {
-        const userId = userIdList[i];
-        connection.query(updateRoomSQL, [roomId, userId], (err, result) => {
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        for (let i = 0; i < userIdList.length; i++) {
+          const userId = userIdList[i];
+          connection.query(updateRoomSQL, [roomId, userId], (err, result) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                reject(err);
+              })
+            }
+          });
+        }
+        connection.commit((commitErr) => {
+          if (commitErr) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(commitErr);
+            })
+          }
+          resolve({
+            roomId: roomId,
+            userIdList: userIdList
+          });
+          connection.release();
+          console.log('更新房間用戶成功');
+        })
+      })
+    })
+  })
+}
+
+// canvasTransaction 
+function handleRoomCanvas(readQuery, insertQuery, updateQuery) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(readQuery, (err, result) => {
           if (err) {
             return connection.rollback(() => {
               connection.release();
               reject(err);
             })
           }
-        });
-      }
-      connection.commit((commitErr) => {
-        if (commitErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(commitErr);
-          })
-        }
-        resolve({
-          roomId: roomId,
-          userIdList: userIdList
-        });
-        connection.release();
-        console.log('更新房間用戶成功');
+          if (result.length === 0) {
+            connection.query(insertQuery, (err, result) => {
+              if (err) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(err);
+                })
+              }
+              connection.commit((commitErr) => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(commitErr);
+                  })
+                }
+                resolve({
+                  insertResult: result
+                })
+                connection.release();
+                console.log('儲存 canvas 成功');
+              })
+            })
+          } else {
+            connection.query(updateQuery, (err, result) => {
+              if (err) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(err);
+                })
+              }
+              connection.commit((commitErr) => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(commitErr);
+                  })
+                }
+                resolve({
+                  updateResult: result
+                })
+                connection.release();
+                console.log('更新 canvas 成功');
+              })
+            })
+          }
+        })
       })
     })
   })
@@ -274,6 +356,7 @@ module.exports = {
   escape: mySQL.escape,
   createRoomTransaction,
   createMessageRecord,
-  updateRoomMember
+  updateRoomMember,
+  handleRoomCanvas
 }
 
