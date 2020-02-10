@@ -58,7 +58,7 @@ canvas.addEventListener('mouseup', function (e) {
   e.preventDefault();
 
   socket.emit('eachTimeDraw', {
-    drawPathUrl: canvas.toDataURL('image/jpeg', 0.6),
+    drawPathUrl: canvas.toDataURL('image/png', 0.6),
     roomDetail: currentSelectedRoom,
   });
   isDrawing = false;
@@ -157,8 +157,8 @@ socket.on('clearDrawContent', (clearDrawMsg) => {
 // 可以下載 canvas
 const downloadLink = document.querySelector('.download_btn a');
 downloadLink.addEventListener('click', function() {
-  downloadLink.href = canvas.toDataURL();
-  downloadLink.download = 'canvas.png';
+  downloadLink.href = canvas.toDataURL('image/png');
+  downloadLink.download = '';
 })
 
 socket.on('showDrawData', (drawInfoFromServer) => {
