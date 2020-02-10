@@ -82,6 +82,24 @@ socket.on('leaveRoomNotification', async (leaveNotification) => {
       })
     })
   } else {
+    const notifyConfig = {
+      body: `${leaveNotification.leaveUser.name} leaves`
+    }
     // 代表是其他人收到某人的退群通知
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notification');
+    } else if (Notification.permission === 'granted') {
+      const notification = new Notification(
+        `${leaveNotification.leaveUser.name} leaves ${leaveNotification.leaveRoom.roomTitle}`, 
+        notifyConfig
+      )
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission(function(permission) {
+        if (permission === 'granted') {
+          const notification = new Notification(`${leaveNotification.leaveUser.name} leaves ${leaveNotification.leaveRoom.roomTitle}`, 
+          notifyConfig);
+        }
+      });
+    }
   }
 })
