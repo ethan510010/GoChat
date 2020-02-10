@@ -5,6 +5,7 @@ const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('.
 const { updateUserSelectedRoom } = require('../model/users');
 const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
+const { userLeaveRoom } = require('../model/rooms');
 require('dotenv').config();
 const aws = require('aws-sdk');
 aws.config.update({
@@ -243,11 +244,36 @@ socketio.getSocketio = function (server) {
         }
       }
     })
+
+    // 用戶退群 (如果全部人都退出這個房間，就把該 room 刪掉)
+    socket.on('leaveRoom', async (dataFromClient) => {
+      const leaveRoomId = dataFromClient.leaveRoom.roomId;
+      const leaveUserId = dataFromClient.leaveUser.userId;
+      const leaveResult = await userLeaveRoom(leaveRoomId, leaveUserId);
+      if (leaveResult) {
+        io.to(leaveRoomId).emit('leaveRoomNotification', {
+          leaveUser: dataFromClient.leaveUser,
+          leaveRoom: dataFromClient.leaveRoom
+        })
+        // if (roomUsersPair[leaveRoomId]) {
+        //   // 移除
+        //   io.to(leaveRoomId).emit('leaveRoomNotification', {
+        //     leaveUser: dataFromClient.leaveUser,
+        //     leaveRoom: dataFromClient.leaveRoom
+        //   })
+        //   const removeIndex = roomUsersPair[leaveRoomId].findIndex(user => {
+        //     return user.userId === leaveUserId
+        //   })
+        //   if (removeIndex !== -1) {
+        //     roomUsersPair[leaveRoomId].splice(removeIndex, 1);
+        //     socket.leave(leaveRoomId);
+        //     console.log('退群後房間剩下的', roomUsersPair);
+        //   }
+        // }
+        
+      }
+    })
   })
 };
-
-const clearMessageCache = (messageCache) => {
-  messageCache = {};
-}
 
 module.exports = socketio;

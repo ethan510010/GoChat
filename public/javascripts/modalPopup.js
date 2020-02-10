@@ -219,8 +219,10 @@ buildChannelBtn.addEventListener('click', function () {
   // 把當前用戶的 id 先放進去
   const channelName = document.querySelector('.enter_channel_name').value; 
   let userIdList = [currentUserDetail.userId];
+  let newAddedMembers = [];
   for (let i = 0; i < beInvitedMembers.length; i++) {
     userIdList.push(beInvitedMembers[i]);
+    newAddedMembers.push(beInvitedMembers[i]);
   }
   // 如果是從新增房間輸入的，才會有上面這個值，如果是直接從設定加人的就是更新
   if (updateOrCreateRoomType === 'updateRoom') {
@@ -230,7 +232,7 @@ buildChannelBtn.addEventListener('click', function () {
       method: 'PUT',
       body: JSON.stringify({
         roomId: currentSelectedRoom.roomId,
-        userIdList: userIdList.splice(0, 1)
+        userIdList: newAddedMembers
       }),
       headers: new Headers({
         'Content-type': 'application/json'

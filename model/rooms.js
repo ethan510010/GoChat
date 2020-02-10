@@ -42,9 +42,23 @@ const updateRoom = async (roomId, userIdList) => {
   return updateRoomMemberResult;
 }
 
+const userLeaveRoom = async (roomId, userId) => {
+  const leaveRoomSQL = `
+    DELETE FROM user_room_junction 
+    WHERE userId='${userId}' and roomId='${roomId}' 
+  `;
+  const deleteResult = await exec(leaveRoomSQL);
+  if (deleteResult) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports = {
   insertNewRoom,
   listExistedRooms,
   getRooms,
-  updateRoom
+  updateRoom,
+  userLeaveRoom
 }
