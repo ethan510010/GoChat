@@ -243,6 +243,10 @@ socketio.getSocketio = function (server) {
           socket.leave(currentSelectedRoomId);
         }
       }
+
+      // 配合 WebRTC
+      socket.broadcast.emit('disconnectPeer', socket.id);
+      // socket.to(broadcaster).emit('disconnectPeer', socket.id);
     })
 
     // 用戶退群 (如果全部人都退出這個房間，就把該 room 刪掉)
@@ -273,6 +277,33 @@ socketio.getSocketio = function (server) {
         
       }
     })
+
+    // WebRTC 相關 
+    // let broadCaster;
+    socket.on('broadcastVideo', () => {
+      // broadCaster = socket.id;
+      socket.broadcast.emit('videoBroadcast', socket.id)
+      // console.log('廣播者', broadCaster)
+    })
+
+    socket.on('watcher', (broadCaster) => {
+      console.log('廣播者', broadCaster)
+      socket.to(broadCaster).emit('watcher', socket.id);
+    })
+
+    socket.on('candidate', (id, message) => {
+      socket.to(id).emit('candidate', socket.id, message);
+    })
+
+    socket.on('offer', (id, message) => {
+      socket.to(id).emit('offer', socket.id, message);
+    })
+
+    socket.on('answer', (id, message) => {
+      socket.to(id).emit('answer', socket.id, message);
+    })
+
+
   })
 };
 
