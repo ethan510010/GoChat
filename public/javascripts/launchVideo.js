@@ -238,8 +238,8 @@ launchVideoBtn.addEventListener('click', function (event) {
 
 // get the video and display it with permission
 function startVideo(callbacks) {
-  navigator.getUserMedia = navigator.getUserMedia ||
-  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  // navigator.getUserMedia = navigator.getUserMedia ||
+  // navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
   const constraints = {
     video: {
       width: {
