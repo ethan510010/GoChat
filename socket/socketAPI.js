@@ -141,7 +141,7 @@ socketio.getSocketio = function (server) {
           // 組裝 redis cache 結構 (翻譯的部分在上面組裝)
           messageRedisCache.messageContent = messageObj.messageContent;
           messageRedisCache.createdTime = messageObj.createdTime,
-          messageRedisCache.userId = messageObj.userId;
+            messageRedisCache.userId = messageObj.userId;
           messageRedisCache.messageType = messageObj.messageType;
           messageRedisCache.messageId = createMessageResult.insertId;
           messageRedisCache.provider = dataFromClient.userInfo.provider;
@@ -177,12 +177,12 @@ socketio.getSocketio = function (server) {
         socket.emit('showHistory', {
           messages: messagesCache,
           changeRoomMode
-        });  
+        });
       } else {
         socket.emit('showHistory', {
           messages,
           changeRoomMode
-        }); 
+        });
       }
     })
 
@@ -207,7 +207,7 @@ socketio.getSocketio = function (server) {
       io.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
     })
 
-    socket.on('eachTimeDraw', async(eachTimeDrawResult) => {
+    socket.on('eachTimeDraw', async (eachTimeDrawResult) => {
       // 結果為一個 base64 的圖片
       const buffer = new Buffer.from(eachTimeDrawResult.drawPathUrl.replace(/^data:image\/\w+;base64,/, ""), 'base64');
       // Getting the file type, ie: jpeg, png or gif
@@ -226,9 +226,9 @@ socketio.getSocketio = function (server) {
         const handleCanvas = await handleRoomCanvasImage({
           roomId: eachTimeDrawResult.roomDetail.roomId,
           canvasUrl: canvasImagePath
-        })  
+        })
       } catch (error) {
-        console.log('儲存及更新 canvas 有問題') 
+        console.log('儲存及更新 canvas 有問題')
       }
     })
 
@@ -274,36 +274,51 @@ socketio.getSocketio = function (server) {
         //     console.log('退群後房間剩下的', roomUsersPair);
         //   }
         // }
-        
+
       }
     })
 
     // WebRTC 相關 
     // let broadCaster;
-    socket.on('broadcastVideo', () => {
-      // broadCaster = socket.id;
-      socket.broadcast.emit('videoBroadcast', socket.id)
-      // console.log('廣播者', broadCaster)
-    })
+    // socket.on('broadcastVideo', () => {
+    //   // broadCaster = socket.id;
+    //   socket.broadcast.emit('videoBroadcast', socket.id)
+    //   // console.log('廣播者', broadCaster)
+    // })
 
-    socket.on('watcher', (broadCaster) => {
-      console.log('廣播者', broadCaster)
-      socket.to(broadCaster).emit('watcher', socket.id);
-    })
+    // socket.on('watcher', (broadCaster) => {
+    //   console.log('廣播者', broadCaster)
+    //   socket.to(broadCaster).emit('watcher', socket.id);
+    // })
 
-    socket.on('candidate', (id, message) => {
-      socket.to(id).emit('candidate', socket.id, message);
-    })
+    // socket.on('candidate', (id, message) => {
+    //   socket.to(id).emit('candidate', socket.id, message);
+    // })
 
-    socket.on('offer', (id, message) => {
-      socket.to(id).emit('offer', socket.id, message);
-    })
+    // socket.on('offer', (id, message) => {
+    //   socket.to(id).emit('offer', socket.id, message);
+    // })
 
-    socket.on('answer', (id, message) => {
-      socket.to(id).emit('answer', socket.id, message);
-    })
+    // socket.on('answer', (id, message) => {
+    //   socket.to(id).emit('answer', socket.id, message);
+    // })
 
-
+    // 測試2
+    // socket.on('offer', function (data) {
+    //   socket.broadcast.emit('offer', { sdp: data.sdp, remotePC: data.remotePeerConnection });
+    // });
+    // // 如果有接收到answer 訊息，立即傳送廣播封包，發送answer 訊息給client 端
+    // socket.on('answer', function (data) {
+    //   socket.broadcast.emit('answer', { sdp: data.sdp });
+    // });
+    // // 如果有接收到ice 訊息，立即傳送廣播封包，發送ice 訊息給client 端
+    // socket.on('ice', function (data) {
+    //   socket.broadcast.emit('ice', { candidate: data.candidate });
+    // });
+    // // 如果有接收到hangup 訊息，立即傳送廣播封包，發送hangup訊息給client 端
+    // socket.on('hangup', function () {
+    //   socket.broadcast.emit('hangup', {});
+    // });
   })
 };
 

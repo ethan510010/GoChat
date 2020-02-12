@@ -20,6 +20,8 @@
     "multer-s3": "^2.9.0",
     "mysql": "^2.17.1",
     "nodemon": "^2.0.2",
+    "peer": "^0.2.10",
+    "peerjs": "^1.2.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",

@@ -41,7 +41,11 @@
         </div>
       </div>
       <div class="lower_section">
-        <input class="launchVideo" type="button" value="play">
+        <span id="displayId"></span>
+        <input id="connId" type="text">
+        <input class="launchVideo" type="button" value="start">
+        <input id="conn_button" type="button" value="connect">
+        <input id="callVideo" type="button" value="call">
         <video playsinline autoplay id="launchVideo"></video>
         <video playsinline autoplay id="receiverVideo"></video>
       </div>
@@ -132,6 +136,7 @@
   <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/canvas.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.js"></script> -->
+  <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
   <script src="/javascripts/startVideo.js"></script>
   <script src="/javascripts/launchVideo.js"></script>
   <script src="/javascripts/receiveVideo.js"></script>
