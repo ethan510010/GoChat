@@ -24,6 +24,8 @@ let roomUsersPair = {};
 let socketio = {};
 // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
 let currentSelectedRoomId = 0;
+// 用來記錄當前 room 跟 peerId 的 list
+let roomPeerIdList = {};
 // 獲取io
 socketio.getSocketio = function (server) {
   const io = socket_io.listen(server);
@@ -38,6 +40,10 @@ socketio.getSocketio = function (server) {
         // 如果該房間都還沒有會員進入
         if (!roomUsersPair[roomId]) {
           roomUsersPair[roomId] = [];
+        }
+        // 配合 webRTC 生成
+        if (!roomPeerIdList[roomId]) {
+          roomPeerIdList[roomId] = [];
         }
         // console.log(`切換房間加入房間${roomId}的人`, roomDetailInfo.userInfo);
         roomDetailInfo.userInfo.socketId = socket.id;
@@ -71,6 +77,12 @@ socketio.getSocketio = function (server) {
       if (!roomUsersPair[roomId]) {
         roomUsersPair[roomId] = [];
       }
+
+      // 配合 WebRTC
+      if (!roomPeerIdList[roomId]) {
+        roomPeerIdList[roomId] = [];
+      }
+
       console.log(`加入房間${roomId}的人`, joinInfo.userInfo);
       roomUsersPair[roomId].push(joinInfo.userInfo);
 
@@ -243,10 +255,6 @@ socketio.getSocketio = function (server) {
           socket.leave(currentSelectedRoomId);
         }
       }
-
-      // 配合 WebRTC
-      socket.broadcast.emit('disconnectPeer', socket.id);
-      // socket.to(broadcaster).emit('disconnectPeer', socket.id);
     })
 
     // 用戶退群 (如果全部人都退出這個房間，就把該 room 刪掉)
@@ -278,6 +286,15 @@ socketio.getSocketio = function (server) {
       }
     })
 
+    // WebRTC
+    socket.on('sendPeerId', (peerInfo) => {
+      const { peerId, userId, roomId } = peerInfo;
+      roomPeerIdList[roomId].push(peerId);
+      io.to(roomId).emit('allPeersForRoom', {
+        roomId: roomId,
+        allPeersForRoom: roomPeerIdList[roomId]
+      })
+    })
     // WebRTC 相關 
     // let broadCaster;
     // socket.on('broadcastVideo', () => {
