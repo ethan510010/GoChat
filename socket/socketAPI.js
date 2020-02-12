@@ -71,6 +71,7 @@ socketio.getSocketio = function (server) {
 
     socket.on('join', (joinInfo, callback) => {
       const { roomId } = joinInfo.roomInfo;
+      const peerId = joinInfo.peerId;
       currentSelectedRoomId = roomId;
       joinInfo.userInfo.socketId = socket.id;
       // 如果該房間都還沒有會員進入
@@ -87,6 +88,13 @@ socketio.getSocketio = function (server) {
       roomUsersPair[roomId].push(joinInfo.userInfo);
 
       socket.join(roomId);
+
+      // WebRTC 事件
+      roomPeerIdList[roomId].push(peerId);
+      io.to(roomId).emit('allPeersForRoom', {
+        roomId: roomId,
+        allPeersForRoom: roomPeerIdList[roomId]
+      })
       callback(joinInfo);
     })
 
@@ -287,14 +295,14 @@ socketio.getSocketio = function (server) {
     })
 
     // WebRTC
-    socket.on('sendPeerId', (peerInfo) => {
-      const { peerId, userId, roomId } = peerInfo;
-      roomPeerIdList[roomId].push(peerId);
-      io.to(roomId).emit('allPeersForRoom', {
-        roomId: roomId,
-        allPeersForRoom: roomPeerIdList[roomId]
-      })
-    })
+    // socket.on('sendPeerId', (peerInfo) => {
+    //   const { peerId, userId, roomId } = peerInfo;
+    //   roomPeerIdList[roomId].push(peerId);
+    //   io.to(roomId).emit('allPeersForRoom', {
+    //     roomId: roomId,
+    //     allPeersForRoom: roomPeerIdList[roomId]
+    //   })
+    // })
     // WebRTC 相關 
     // let broadCaster;
     // socket.on('broadcastVideo', () => {
