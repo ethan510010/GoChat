@@ -124,10 +124,17 @@ peer.on('open', function() {
 
 let otherConnectionPeers = [];
 socket.on('allPeersForRoom', (peersInfoFromServer) => {
+  // 如果有重整就清空
+  // otherConnectionPeers = [];
   const { roomId, allPeersForRoom }  = peersInfoFromServer;
   console.log(`房間${roomId}中有${allPeersForRoom}`);
   for (let i = 0; i < allPeersForRoom.length; i++) {
-    const eachPeerId = allPeersForRoom[i];
+    const eachPeerId = allPeersForRoom[i].peerId;
+    console.log('每一個被加進去的用戶', allPeersForRoom[i].user);
+    // otherConnectionPeers.push({
+    //   userSocketId: allPeersForRoom[i].user,
+    //   userPeerId: eachPeerId,
+    // })
     if (eachPeerId !== currentUserPeerId) {
       otherConnectionPeers.push(eachPeerId);
     }
@@ -175,22 +182,22 @@ callBtn.addEventListener('click', function () {
 
 // click call (offer and answer is exchanged) 
 peer.on('call', function (call) {
-  let acceptCall = confirm('Do you want to accept')
-  if (acceptCall) {
+  // let acceptCall = confirm('Do you want to accept')
+  // if (acceptCall) {
     call.answer(window.localstream);
 
     call.on('stream', function (stream) {
       window.peer_stream = stream
-
       recStream(stream, 'remoteVideo')
     })
 
     call.on('close', function () {
-      alert('The call has behind');
+      // 這邊把全部的 call 都關掉
+      alert('The call has removed');
     })
-  } else {
-    console.log('call denied')
-  }
+  // } else {
+  //   console.log('call denied')
+  // }
 })
 // socket.emit('join', {
 //   roomInfo: currentSelectedRoom,

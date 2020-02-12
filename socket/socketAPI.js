@@ -19,7 +19,6 @@ const s3Bucket = new aws.S3({
   }
 })
 
-
 let roomUsersPair = {};
 let socketio = {};
 // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
@@ -90,7 +89,11 @@ socketio.getSocketio = function (server) {
       socket.join(roomId);
 
       // WebRTC 事件
-      roomPeerIdList[roomId].push(peerId);
+      roomPeerIdList[roomId].push({
+        peerId: peerId,
+        user: joinInfo.userInfo
+      });
+      console.log('現有的allPeers', roomPeerIdList);
       io.to(roomId).emit('allPeersForRoom', {
         roomId: roomId,
         allPeersForRoom: roomPeerIdList[roomId]
@@ -190,7 +193,7 @@ socketio.getSocketio = function (server) {
       const { roomId, userSelectedLanguge, page, changeRoomMode } = dataFromClient;
       // 先從 redis 取，如果 redis 沒有再從 mySQL 取
       const messagesCache = await getMessagesCache(roomId, userSelectedLanguge, page);
-      console.log('快取歷史訊息', messagesCache);
+      // console.log('快取歷史訊息', messagesCache);
       const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge, page);
       if (messagesCache.length > 0) {
         console.log('從快取取值');
@@ -261,6 +264,20 @@ socketio.getSocketio = function (server) {
           roomUsersPair[currentSelectedRoomId].splice(removeIndex, 1);
           console.log('斷線後房間剩下的', roomUsersPair[currentSelectedRoomId])
           socket.leave(currentSelectedRoomId);
+        }
+      }
+      // 移除 WebRTC 裡面的配對 peerId
+      if (roomPeerIdList[currentSelectedRoomId]) {
+        for (let i = 0; i < roomPeerIdList[currentSelectedRoomId].length; i++) {
+          const element = roomPeerIdList[currentSelectedRoomId][i];
+          console.log('element' ,element.user.socketId)
+        }
+        const removeIndex = roomPeerIdList[currentSelectedRoomId].findIndex(eachPeerDetailInfo => {
+          return eachPeerDetailInfo.user.socketId === socket.id;
+        });
+        if (removeIndex !== -1) {
+          roomPeerIdList[currentSelectedRoomId].splice(removeIndex, 1);
+          console.log('斷線後剩下的 peer', roomPeerIdList)
         }
       }
     })
