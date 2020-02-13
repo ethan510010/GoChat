@@ -191,7 +191,7 @@ header {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100vh;
+  height: calc(100% - 50px);
 }
 
 .videoPopup .main_area .video_button_area {
@@ -204,15 +204,37 @@ header {
 }
 
 #localVideo, #remoteVideo {
-  width: 100vw;
-  height: calc((100vh - 40px)/2);
+  width: 100%;
+  height: calc((100% - 40px)/2);
   background-color: #000000;
+}
+
+.shrink {
+  width: 100%;
+  height: 50px;
+  background-color: #000000;
+  position: relative;
+}
+
+#shrink_video_screen {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  right: 20px;
+  top: 0;
 }
 
 .videoPopup .main_area .video_button_area input {
   width: 40px;
   height: 40px;
   margin: 0 10px;
+}
+
+.shrinkMode {
+  width: 400px;
+  height: 300px;
+  top: 20px;
+  left: 20px;
 }
 
 /* 彈出式視窗 (create channel) */

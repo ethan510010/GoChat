@@ -31,7 +31,7 @@ chatFlowContent.addEventListener('scroll', function () {
 // 紀錄捲動到的位置
 let currentScrollPage = 0;
 // 紀錄捲動是否結束
-let scrollFinished = false; 
+let scrollFinished = false;
 // 加入房間
 // 配合 WebRTC
 // const localVideo = document.getElementById('localVideo');
@@ -105,7 +105,7 @@ let connectionList = [];
 //   window.peer_stream = stream;
 // }
 
-peer.on('open', function() {
+peer.on('open', function () {
   document.getElementById('displayId').textContent = peer.id;
   // 每一個人專屬的 peerId
   currentUserPeerId = peer.id;
@@ -140,21 +140,37 @@ peer.on('open', function() {
   })
 })
 
-let otherConnectionPeers = [];
+let allConnectionPeersOfCurrentRoom = [];
 socket.on('allPeersForRoom', (peersInfoFromServer) => {
   // 如果有重整就清空
-  otherConnectionPeers = [];
-  const { roomId, allPeersForRoom }  = peersInfoFromServer;
-  console.log(`房間${roomId}中有${allPeersForRoom}`);
-  for (let i = 0; i < allPeersForRoom.length; i++) {
-    const eachPeerId = allPeersForRoom[i].peerId;
-    console.log('每一個被加進去的用戶', allPeersForRoom[i].user);
-    if (eachPeerId !== currentUserPeerId) {
-      otherConnectionPeers.push(eachPeerId);
-    }
+  allConnectionPeersOfCurrentRoom = [];
+  const { peersRoomPair } = peersInfoFromServer;
+  console.log('總配對情形', peersRoomPair);
+  console.log('當前用戶準備視訊所在房間', currentSelectedRoom)
+  const currentRoomPeerPairs = peersRoomPair[currentSelectedRoom.roomId];
+  for (let i = 0; i < currentRoomPeerPairs.length; i++) {
+    const eachPeerOfCurrentRoom = currentRoomPeerPairs[i];
+    allConnectionPeersOfCurrentRoom.push(eachPeerOfCurrentRoom.peerId);
   }
-  otherConnectionPeers = Array.from(new Set(otherConnectionPeers));
-  console.log('最終其他人的 PeerIds', otherConnectionPeers);
+  console.log(`現在在房間${currentSelectedRoom.roomId}中其他的${allConnectionPeersOfCurrentRoom}`);
+  // const { roomId, allPeersForRoom }  = peersInfoFromServer;
+
+  // // debug 用
+  // for (let i = 0; i < allPeersForRoom.length; i++) {
+  //   const eachPeer = allPeersForRoom[i];
+  //   console.log('每一個peer', eachPeer);
+  // }
+
+  // for (let i = 0; i < allPeersForRoom.length; i++) {
+  //   const eachPeerId = allPeersForRoom[i].peerId;
+  //   console.log('每一個被加進去的用戶', allPeersForRoom[i].user);
+  //   if (eachPeerId !== currentUserPeerId) {
+  //     otherConnectionPeers.push(eachPeerId);
+  //   }
+  // }
+  // otherConnectionPeers = Array.from(new Set(otherConnectionPeers));
+  // console.log('最終其他人的 PeerIds', otherConnectionPeers);
+
 })
 
 // socket.on('remainingPeersConnection', (remainingPeersInfo) => {
@@ -162,7 +178,7 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
 //   const remainingPeerIds = roomPeerIdList[roomId].map((eachPeerUserPair) => {
 //     return eachPeerUserPair.peerId;
 //   });
-  
+
 //   const currentPeerIdIndex = remainingPeerIds.findIndex((peerId) => {
 //     return currentUserPeerId === peerId;
 //   })
@@ -170,35 +186,41 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
 //   console.log('剩餘peerIds', otherConnectionPeers);
 // })
 
-peer.on('connection', function(connection) {
+peer.on('connection', function (connection) {
   conn = connection;
   // 另外一段傳過來的
   peer_id = connection.peer;
   document.getElementById('connId').value = peer_id;
 })
 
-peer.on('error', function(error) {
+peer.on('error', function (error) {
   console.log(error);
   alert('an error occurred')
 })
 
 callBtn.addEventListener('click', function () {
   // 依序進行連線
-  console.log('全部連線PeerId', otherConnectionPeers);
-  for (let i = 0; i < otherConnectionPeers.length; i++) {
-    const otherPeerId = otherConnectionPeers[i];
+  console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
+  for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+    const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
     // 相當於按下 connect 按鈕
-    if (otherPeerId) {
-      conn = peer.connect(otherPeerId)
-      const currentConnection = peer.connect(otherPeerId);
+    if (eachPeerIdOfCurrentRoom) {
+      if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
+        console.log('目前用戶 peerId', currentUserPeerId);
+        conn = peer.connect(eachPeerIdOfCurrentRoom)
+        const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
+        // 要 call 誰
+        console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
+        // 我要 call 誰
+        const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);  
+      } else {
+        console.log('自己跟自己不用連')
+      }
       // connectionList.push(currentConnection);
     } else {
       alert('error')
     }
-    // 要 call 誰
-    console.log('calling a peer ' + otherPeerId);
-    // 我要 call 誰
-    const call = peer.call(otherPeerId, window.localstream);
+    
     // 監聽到對方的影像回來 (我們暫時發起視訊者不需要看得到對方的畫面這個功能)
     // call.on('stream', function (stream) {
     //   // window.peer_stream = stream;
@@ -212,25 +234,25 @@ callBtn.addEventListener('click', function () {
 peer.on('call', function (call) {
   // let acceptCall = confirm('Do you want to accept')
   // if (acceptCall) {
-    call.answer(window.localstream);
+  call.answer(window.localstream);
 
-    call.on('stream', function (stream) {
-      // 收到遠端 stream 的人，要把自己原本的 localVideoTag 移掉，並調整 remote Video tag 的高度
-      // const localVideoTag = document.getElementById('localVideo');
-      // const remoteVideoTag = document.getElementById('remoteVideo');
-      // const mainAreaTag = document.querySelector('.videoPopup .main_area');
-      // if (localVideoTag) {
-      //   mainAreaTag.removeChild(localVideoTag);
-      //   remoteVideoTag.style.height = 'calc(100vh - 40px)';
-      // }
-      window.peer_stream = stream
-      recStream(stream, 'remoteVideo')
-    })
+  call.on('stream', function (stream) {
+    // 收到遠端 stream 的人，要把自己原本的 localVideoTag 移掉，並調整 remote Video tag 的高度
+    // const localVideoTag = document.getElementById('localVideo');
+    // const remoteVideoTag = document.getElementById('remoteVideo');
+    // const mainAreaTag = document.querySelector('.videoPopup .main_area');
+    // if (localVideoTag) {
+    //   mainAreaTag.removeChild(localVideoTag);
+    //   remoteVideoTag.style.height = 'calc(100vh - 40px)';
+    // }
+    window.peer_stream = stream
+    recStream(stream, 'remoteVideo')
+  })
 
-    call.on('close', function () {
-      // 這邊把全部的 call 都關掉
-      alert('The call has removed');
-    })
+  call.on('close', function () {
+    // 這邊把全部的 call 都關掉
+    alert('The call has removed');
+  })
   // } else {
   //   console.log('call denied')
   // }
@@ -279,10 +301,14 @@ roomsAreaSection.addEventListener('click', function (event) {
     roomId: validRoomId,
     roomTitle: roomTitle
   }
+  // 如果看影片的人播放中或是播放影片的人播放中，不能讓他切換
+  if ((isWatchingRemoteVideo || isPlayingLocalVideo) && (currentSelectedRoom.roomId !== lastChooseRoom.roomId)) {
+    alert('Please turn off video before change channel');
+    return;
+  }
   // 改變上方 header UI
   const roomTitleTag = document.querySelector('#room_title h1');
   roomTitleTag.textContent = currentSelectedRoom.roomTitle;
-
   // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
   // defect 一樣是 非同步造成的
   console.log('currentRoomDetail', currentSelectedRoom.roomId, lastChooseRoom.roomTitle)
@@ -295,35 +321,47 @@ roomsAreaSection.addEventListener('click', function (event) {
     socket.emit('changeRoom', {
       joinRoomInfo: currentSelectedRoom,
       userInfo: currentUserDetail,
-      lastChooseRoom: lastChooseRoom
+      lastChooseRoom: lastChooseRoom,
+      peerId: currentUserPeerId // 當前用戶的 peerId
     }, function (finishedInfo) {
-      lastChooseRoom.roomId = currentSelectedRoom.roomId;
-      lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
-      // 把提示新訊息的 UI 刪除掉
-      const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
-      const beRemovedNewMsgMentionTag = channelIdDiv.lastChild;
-      if (beRemovedNewMsgMentionTag.nodeName.toUpperCase() === 'DIV' && beRemovedNewMsgMentionTag.className === 'messageMention') {
-        channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
+      if (finishedInfo.acknowledged) {
+        lastChooseRoom.roomId = currentSelectedRoom.roomId;
+        lastChooseRoom.roomTitle = currentSelectedRoom.roomTitle;
+        // 把提示新訊息的 UI 刪除掉
+        const channelIdDiv = document.getElementById(`channelId_${currentSelectedRoom.roomId}`);
+        const beRemovedNewMsgMentionTag = channelIdDiv.lastChild;
+        if (beRemovedNewMsgMentionTag.nodeName.toUpperCase() === 'DIV' && beRemovedNewMsgMentionTag.className === 'messageMention') {
+          channelIdDiv.removeChild(beRemovedNewMsgMentionTag);
+        }
+        // 切換完成後去抓取歷史訊息 ( 這時要把 currentScrollPage 歸 0)
+        currentScrollPage = 0;
+        scrollFinished = false;
+        socket.emit('getRoomHistory', {
+          roomId: validRoomId,
+          userId: currentUserDetail.userId,
+          userSelectedLanguge: currentUserDetail.selectedLanguage,
+          page: currentScrollPage,
+          changeRoomMode: true
+        })
+        // 切頁完成後去抓取 canvas 結果
+        socket.emit('getRoomCanvas', {
+          roomId: validRoomId,
+          userId: currentUserDetail.userId,
+        })
       }
-      // 切換完成後去抓取歷史訊息 ( 這時要把 currentScrollPage 歸 0)
-      currentScrollPage = 0;
-      scrollFinished = false;
-      socket.emit('getRoomHistory', {
-        roomId: validRoomId,
-        userId: currentUserDetail.userId,
-        userSelectedLanguge: currentUserDetail.selectedLanguage,
-        page: currentScrollPage,
-        changeRoomMode: true
-      })
-      // 切頁完成後去抓取 canvas 結果
-      socket.emit('getRoomCanvas', {
-        roomId: validRoomId,
-        userId: currentUserDetail.userId,
-      })
     })
   }
 })
 
+socket.on('changeRoomPeersList', (peersInfoFromServer) => {
+  // 切頁完成後，要重新處理每個房間的 peerIdList
+  const { roomPeerIdList } = peersInfoFromServer;
+  console.log('切換房間傳回來的 peer 配對', roomPeerIdList);
+  allConnectionPeersOfCurrentRoom = roomPeerIdList[currentSelectedRoom.roomId].map((currentRoomEachPeer) => {
+    return currentRoomEachPeer.peerId;
+  })
+  console.log('切換房間後重新取得的 peer 配對', allConnectionPeersOfCurrentRoom);
+})
 // 發送簡單訊息
 const enterMessageInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
@@ -417,7 +455,7 @@ socket.on('showCanvas', (canvasHistory) => {
     img.addEventListener('load', () => {
       context.drawImage(img, 0, 0);
     })
-    img.src = canvasHistory.canvasUrl;  
+    img.src = canvasHistory.canvasUrl;
   }
 })
 
@@ -537,7 +575,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
 
   eachMessageDiv.appendChild(messageUserInfoDiv);
   eachMessageDiv.appendChild(messageOuterDiv);
-  
+
   // 有 pageDiv 代表是歷史訊息，沒有代表是新傳遞的訊息
   if (pageDiv) {
     if (newMessageTimeAndRoomPair[currentSelectedRoom.roomId] === messageTime) {
@@ -555,7 +593,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
       pageDiv.appendChild(newMessageMentionLine, eachMessageDiv)
       // chatFlowContent.appendChild(newMessageMentionLine);
     }
-    pageDiv.append(eachMessageDiv);  
+    pageDiv.append(eachMessageDiv);
   } else {
     chatFlowContent.appendChild(eachMessageDiv);
     chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();

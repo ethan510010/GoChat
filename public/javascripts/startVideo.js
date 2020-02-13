@@ -90,6 +90,11 @@ function gotMediaStream(stream) {
   recStream(stream, 'localVideo')
 }
 // 處理 stream
+// 播放者是否仍在播放中
+let isPlayingLocalVideo = false;
+// 接收者是否正在看影片中
+let isWatchingRemoteVideo = false;
+
 function recStream(stream, elemid) {
   const mainAreaTag = document.querySelector('.videoPopup .main_area');
   const localVideoTag = document.getElementById('localVideo');
@@ -98,47 +103,20 @@ function recStream(stream, elemid) {
     case 'localVideo':
       if (remoteVideoTag) {
         mainAreaTag.removeChild(remoteVideoTag);
-        localVideoTag.style.height = 'calc(100vh - 40px)';
+        localVideoTag.style.height = 'calc(100% - 40px)';
         localVideoTag.srcObject = stream;
+        // 代表廣播者已經開啟視訊了
+        isPlayingLocalVideo = true;
       }
       break;
     case 'remoteVideo':
       if (localVideoTag) {
-        remoteVideoTag.style.height = 'calc(100vh - 40px)';
+        remoteVideoTag.style.height = 'calc(100% - 40px)';
         mainAreaTag.removeChild(localVideoTag);
         remoteVideoTag.srcObject = stream;  
+        isWatchingRemoteVideo = true;
       }
       break;
   }
-  // const video = document.getElementById(elemid);
-  // video.srcObject = stream;
-
   window.peer_stream = stream;
 }
-
-// video 區塊可以移動
-// let offset = [0, 0];
-// let isDown = false;
-// videoDisplayDiv.addEventListener('mousedown', function (e) {
-//   isDown = true;
-//   offset = [
-//     videoDisplayDiv.offsetLeft - e.clientX,
-//     videoDisplayDiv.offsetTop - e.clientY
-//   ];
-// }, true);
-
-// document.addEventListener('mouseup', function () {
-//   isDown = false;
-// }, true);
-
-// document.addEventListener('mousemove', function (event) {
-//   event.preventDefault();
-//   if (isDown) {
-//     mousePosition = {
-//       x: event.clientX,
-//       y: event.clientY
-//     };
-//     videoDisplayDiv.style.left = (mousePosition.x + offset[0]) + 'px';
-//     videoDisplayDiv.style.top = (mousePosition.y + offset[1]) + 'px';
-//   }
-// }, true);

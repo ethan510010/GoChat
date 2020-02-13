@@ -41,11 +41,10 @@
         </div>
       </div>
       <div class="lower_section">
+        <!-- debug 用 -->
         <span id="displayId" style="color: #FFFFFF"></span>
         <input id="connId" type="text">
         <input class="launchVideo" type="button" value="Open video">
-        <!-- <video playsinline autoplay id="localVideo"></video>
-        <video playsinline autoplay id="remoteVideo"></video> -->
       </div>
     </div>
     <div class="chat_content">
@@ -119,6 +118,9 @@
   </div>
   <!-- video popup -->
   <div class="videoPopup">
+    <div class="shrink">
+      <input type="image" id="shrink_video_screen" src="/images/shrinkScreen.jpg">
+    </div>
     <div class="main_area">
       <video playsinline autoplay id="localVideo"></video>
       <video playsinline autoplay id="remoteVideo"></video>
@@ -127,7 +129,7 @@
         <!-- <input class="changeMode" type="image" src="/images/changeMode.png"> -->
         <input class="call" type="image" src="/images/videoCall.png">
         <input class="hangup" type="image" src="/images/closeVideo.png">
-        <input id="callVideo" type="button" value="call">
+        <input id="callVideo" type="image" src="/images/call.png">
       </div>
     </div>
   </div>
@@ -144,6 +146,7 @@
   <script src="/javascripts/common.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="/javascripts/startVideo.js"></script>
+  <script src="/javascripts/videoSetting.js"></script>
   <script src="/javascripts/chat.js"></script>
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
@@ -151,6 +154,5 @@
   <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/canvas.js"></script>
   <script src="/javascripts/launchVideo.js"></script>
-  <script src="/javascripts/receiveVideo.js"></script>
 </body>
 </html>

@@ -32,6 +32,7 @@ socketio.getSocketio = function (server) {
     // 有人連線進該房間
     socket.on('changeRoom', async (roomDetailInfo, callback) => {
       const { roomId } = roomDetailInfo.joinRoomInfo;
+      const { userInfo, peerId } = roomDetailInfo;
       // 更新使用者最後選到的房間
       const updateRoomResult = await updateUserSelectedRoom(roomDetailInfo.userInfo.userId, roomId);
       if (updateRoomResult) {
@@ -46,7 +47,12 @@ socketio.getSocketio = function (server) {
         }
         // console.log(`切換房間加入房間${roomId}的人`, roomDetailInfo.userInfo);
         roomDetailInfo.userInfo.socketId = socket.id;
+        // 房間加入切換到的人
         roomUsersPair[roomId].push(roomDetailInfo.userInfo);
+        roomPeerIdList[roomId].push({
+          peerId: peerId,
+          user: userInfo
+        })
         socket.join(roomId);
         // console.log('離開前房間跟用戶的狀況', roomUsersPair)
         // 2. 離開舊房間的處理
@@ -61,10 +67,28 @@ socketio.getSocketio = function (server) {
             console.log('剛剛移除後房間剩下的', roomUsersPair[roomId])
             socket.leave(leaveRoomId);
           }
+
+          // 移除 WebRTC 裡面的配對 peerId
+          if (roomPeerIdList[leaveRoomId]) {
+            const removeIndex = roomPeerIdList[leaveRoomId].findIndex(eachPeerDetailInfo => {
+              console.log('element', eachPeerDetailInfo.user.userId)
+              return eachPeerDetailInfo.user.userId === roomDetailInfo.userInfo.userId;
+            });
+            if (removeIndex !== -1) {
+              roomPeerIdList[leaveRoomId].splice(removeIndex, 1);
+            }
+          }
         }
         console.log('離開後房間跟用戶的狀況', roomUsersPair);
+        console.log('離開房間後剩下的 peer', roomPeerIdList);
         // 代表都完成了
-        callback('finished');
+        callback({ 
+          acknowledged: true
+        });
+        io.emit('changeRoomPeersList', {
+          roomUsersPair,
+          roomPeerIdList
+        })
       }
     });
 
@@ -94,9 +118,11 @@ socketio.getSocketio = function (server) {
         user: joinInfo.userInfo
       });
       console.log('現有的allPeers', roomPeerIdList);
-      io.to(roomId).emit('allPeersForRoom', {
+      // 全部廣播
+      io.emit('allPeersForRoom', {
         roomId: roomId,
-        allPeersForRoom: roomPeerIdList[roomId]
+        // allPeersForRoom: roomPeerIdList[roomId]
+        peersRoomPair: roomPeerIdList
       })
       callback(joinInfo);
     })
@@ -272,20 +298,13 @@ socketio.getSocketio = function (server) {
       }
       // 移除 WebRTC 裡面的配對 peerId
       if (roomPeerIdList[currentSelectedRoomId]) {
-        for (let i = 0; i < roomPeerIdList[currentSelectedRoomId].length; i++) {
-          const element = roomPeerIdList[currentSelectedRoomId][i];
-          console.log('element' ,element.user.socketId)
-        }
         const removeIndex = roomPeerIdList[currentSelectedRoomId].findIndex(eachPeerDetailInfo => {
+          console.log('element', eachPeerDetailInfo.user.socketId)
           return eachPeerDetailInfo.user.socketId === socket.id;
         });
         if (removeIndex !== -1) {
           roomPeerIdList[currentSelectedRoomId].splice(removeIndex, 1);
           console.log('斷線後剩下的 peer', roomPeerIdList)
-          // io.to(currentSelectedRoomId).emit('remainingPeersConnection', {
-          //   roomId: currentSelectedRoomId,
-          //   roomPeerIdList: roomPeerIdList
-          // });
         }
       }
     })
