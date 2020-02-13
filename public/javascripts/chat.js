@@ -34,9 +34,9 @@ let currentScrollPage = 0;
 let scrollFinished = false; 
 // 加入房間
 // 配合 WebRTC
-const localVideo = document.getElementById('localVideo');
-const remoteVideo = document.getElementById('remoteVideo');
-const launchVideoBtn = document.querySelector('.lower_section .launchVideo');
+// const localVideo = document.getElementById('localVideo');
+// const remoteVideo = document.getElementById('remoteVideo');
+// const launchVideoBtn = document.querySelector('.lower_section .launchVideo');
 const callBtn = document.getElementById('callVideo');
 
 // create a peer connection with peer obj
@@ -44,66 +44,66 @@ let currentUserPeerId;
 let peer = new Peer();
 let connectionList = [];
 
-launchVideoBtn.addEventListener('click', async function () {
-  startVideo();
-  // try {
-  //   // 等待啟動 video
-  //   startVideo()
-  //   // startVideo({
-  //   //   success: function(stream) {
-  //   //     window.localstream = stream;
-  //   //     recStream(stream, 'localVideo')
-  //   //   },
-  //   //   error: function(err) {
-  //   //     alert('cannot access')
-  //   //   }
-  //   // });
+// launchVideoBtn.addEventListener('click', async function () {
+//   startVideo();
+//   // try {
+//   //   // 等待啟動 video
+//   //   startVideo()
+//   //   // startVideo({
+//   //   //   success: function(stream) {
+//   //   //     window.localstream = stream;
+//   //   //     recStream(stream, 'localVideo')
+//   //   //   },
+//   //   //   error: function(err) {
+//   //   //     alert('cannot access')
+//   //   //   }
+//   //   // });
 
-  // } catch (err) {
-  //   console.log(err);
-  // }
-})
+//   // } catch (err) {
+//   //   console.log(err);
+//   // }
+// })
 
-// get the video and display it with permission
-function startVideo() {
-  if(!navigator.mediaDevices ||
-		!navigator.mediaDevices.getUserMedia){
+// // get the video and display it with permission
+// function startVideo() {
+//   if(!navigator.mediaDevices ||
+// 		!navigator.mediaDevices.getUserMedia){
 
-		console.log('getUserMedia is not supported!');
-		return;
-	}else{
-		var constraints = {
-			video : {
-				width: 320,	
-				height: 240,
-			}, 
-			audio : {
-        echocancellation: true,
-      } 
-		}
+// 		console.log('getUserMedia is not supported!');
+// 		return;
+// 	}else{
+// 		var constraints = {
+// 			video : {
+// 				width: 320,	
+// 				height: 240,
+// 			}, 
+// 			audio : {
+//         echocancellation: true,
+//       } 
+// 		}
 
-		// 獲取本機視訊
-		navigator.mediaDevices.getDisplayMedia(constraints)
-			.then(gotMediaStream)
-			.catch(handleError);
-	}
-}
+// 		// 獲取本機視訊
+// 		navigator.mediaDevices.getDisplayMedia(constraints)
+// 			.then(gotMediaStream)
+// 			.catch(handleError);
+// 	}
+// }
 
-function handleError(err) {
-  console.log('getUserMedia error:', err);
-}
+// function handleError(err) {
+//   console.log('getUserMedia error:', err);
+// }
 
-function gotMediaStream(stream) {
-  window.localstream = stream;
-  recStream(stream, 'localVideo')
-}
-// 處理 stream
-function recStream(stream, elemid) {
-  const video = document.getElementById(elemid);
-  video.srcObject = stream;
+// function gotMediaStream(stream) {
+//   window.localstream = stream;
+//   recStream(stream, 'localVideo')
+// }
+// // 處理 stream
+// function recStream(stream, elemid) {
+//   const video = document.getElementById(elemid);
+//   video.srcObject = stream;
 
-  window.peer_stream = stream;
-}
+//   window.peer_stream = stream;
+// }
 
 peer.on('open', function() {
   document.getElementById('displayId').textContent = peer.id;
@@ -149,10 +149,6 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
   for (let i = 0; i < allPeersForRoom.length; i++) {
     const eachPeerId = allPeersForRoom[i].peerId;
     console.log('每一個被加進去的用戶', allPeersForRoom[i].user);
-    // otherConnectionPeers.push({
-    //   userSocketId: allPeersForRoom[i].user,
-    //   userPeerId: eachPeerId,
-    // })
     if (eachPeerId !== currentUserPeerId) {
       otherConnectionPeers.push(eachPeerId);
     }
@@ -203,11 +199,11 @@ callBtn.addEventListener('click', function () {
     console.log('calling a peer ' + otherPeerId);
     // 我要 call 誰
     const call = peer.call(otherPeerId, window.localstream);
-    // 監聽到對方的影像回來
-    call.on('stream', function (stream) {
-      // window.peer_stream = stream;
-      recStream(stream, 'remoteVideo')
-    })
+    // 監聽到對方的影像回來 (我們暫時發起視訊者不需要看得到對方的畫面這個功能)
+    // call.on('stream', function (stream) {
+    //   // window.peer_stream = stream;
+    //   recStream(stream, 'remoteVideo')
+    // })
   }
   // console.log('全部連線', connectionList);
 })
@@ -219,6 +215,14 @@ peer.on('call', function (call) {
     call.answer(window.localstream);
 
     call.on('stream', function (stream) {
+      // 收到遠端 stream 的人，要把自己原本的 localVideoTag 移掉，並調整 remote Video tag 的高度
+      // const localVideoTag = document.getElementById('localVideo');
+      // const remoteVideoTag = document.getElementById('remoteVideo');
+      // const mainAreaTag = document.querySelector('.videoPopup .main_area');
+      // if (localVideoTag) {
+      //   mainAreaTag.removeChild(localVideoTag);
+      //   remoteVideoTag.style.height = 'calc(100vh - 40px)';
+      // }
       window.peer_stream = stream
       recStream(stream, 'remoteVideo')
     })

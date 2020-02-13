@@ -43,10 +43,9 @@
       <div class="lower_section">
         <span id="displayId" style="color: #FFFFFF"></span>
         <input id="connId" type="text">
-        <input class="launchVideo" type="button" value="start">
-        <input id="callVideo" type="button" value="call">
-        <video playsinline autoplay id="localVideo"></video>
-        <video playsinline autoplay id="remoteVideo"></video>
+        <input class="launchVideo" type="button" value="Open video">
+        <!-- <video playsinline autoplay id="localVideo"></video>
+        <video playsinline autoplay id="remoteVideo"></video> -->
       </div>
     </div>
     <div class="chat_content">
@@ -118,6 +117,20 @@
       <input class="confirm_button" type="button" value="confirm">
     </div>
   </div>
+  <!-- video popup -->
+  <div class="videoPopup">
+    <div class="main_area">
+      <video playsinline autoplay id="localVideo"></video>
+      <video playsinline autoplay id="remoteVideo"></video>
+      <div class="video_button_area">
+        <!-- 可以切換先不做 -->
+        <!-- <input class="changeMode" type="image" src="/images/changeMode.png"> -->
+        <input class="call" type="image" src="/images/videoCall.png">
+        <input class="hangup" type="image" src="/images/closeVideo.png">
+        <input id="callVideo" type="button" value="call">
+      </div>
+    </div>
+  </div>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
   <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
   <script type="text/javascript">
@@ -130,13 +143,13 @@
   </script>
   <script src="/javascripts/common.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="/javascripts/startVideo.js"></script>
   <script src="/javascripts/chat.js"></script>
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
   <!-- 使用者按下左上方的設定相關的 js -->
   <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/canvas.js"></script>
-  <script src="/javascripts/startVideo.js"></script>
   <script src="/javascripts/launchVideo.js"></script>
   <script src="/javascripts/receiveVideo.js"></script>
 </body>
