@@ -45,40 +45,58 @@ let peer = new Peer();
 let connectionList = [];
 
 launchVideoBtn.addEventListener('click', async function () {
-  try {
-    // 等待啟動 video
-    startVideo({
-      success: function(stream) {
-        window.localstream = stream;
-        recStream(stream, 'localVideo')
-      },
-      error: function(err) {
-        alert('cannot access')
-      }
-    });
+  startVideo();
+  // try {
+  //   // 等待啟動 video
+  //   startVideo()
+  //   // startVideo({
+  //   //   success: function(stream) {
+  //   //     window.localstream = stream;
+  //   //     recStream(stream, 'localVideo')
+  //   //   },
+  //   //   error: function(err) {
+  //   //     alert('cannot access')
+  //   //   }
+  //   // });
 
-  } catch (err) {
-    console.log(err);
-  }
+  // } catch (err) {
+  //   console.log(err);
+  // }
 })
 
 // get the video and display it with permission
-function startVideo(callbacks) {
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-  const constraints = {
-    video: {
-      width: {
-        max: 320
-      },
-      height: {
-        max: 240
-      }
-    },
-    audio: false
-  }
-  navigator.getUserMedia(constraints, callbacks.success, callbacks.error);
+function startVideo() {
+  if(!navigator.mediaDevices ||
+		!navigator.mediaDevices.getUserMedia){
+
+		console.log('getUserMedia is not supported!');
+		return;
+	}else{
+		var constraints = {
+			video : {
+				width: 320,	
+				height: 240,
+			}, 
+			audio : {
+        echocancellation: true,
+      } 
+		}
+
+		// 獲取本機視訊
+		navigator.mediaDevices.getDisplayMedia(constraints)
+			.then(gotMediaStream)
+			.catch(handleError);
+	}
 }
 
+function handleError(err) {
+  console.log('getUserMedia error:', err);
+}
+
+function gotMediaStream(stream) {
+  window.localstream = stream;
+  recStream(stream, 'localVideo')
+}
 // 處理 stream
 function recStream(stream, elemid) {
   const video = document.getElementById(elemid);
@@ -125,7 +143,7 @@ peer.on('open', function() {
 let otherConnectionPeers = [];
 socket.on('allPeersForRoom', (peersInfoFromServer) => {
   // 如果有重整就清空
-  // otherConnectionPeers = [];
+  otherConnectionPeers = [];
   const { roomId, allPeersForRoom }  = peersInfoFromServer;
   console.log(`房間${roomId}中有${allPeersForRoom}`);
   for (let i = 0; i < allPeersForRoom.length; i++) {
@@ -143,6 +161,19 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
   console.log('最終其他人的 PeerIds', otherConnectionPeers);
 })
 
+// socket.on('remainingPeersConnection', (remainingPeersInfo) => {
+//   const { roomId, roomPeerIdList } = remainingPeersInfo;
+//   const remainingPeerIds = roomPeerIdList[roomId].map((eachPeerUserPair) => {
+//     return eachPeerUserPair.peerId;
+//   });
+  
+//   const currentPeerIdIndex = remainingPeerIds.findIndex((peerId) => {
+//     return currentUserPeerId === peerId;
+//   })
+//   otherConnectionPeers = remainingPeerIds.splice(currentPeerIdIndex, 1);
+//   console.log('剩餘peerIds', otherConnectionPeers);
+// })
+
 peer.on('connection', function(connection) {
   conn = connection;
   // 另外一段傳過來的
@@ -151,6 +182,7 @@ peer.on('connection', function(connection) {
 })
 
 peer.on('error', function(error) {
+  console.log(error);
   alert('an error occurred')
 })
 
@@ -163,7 +195,7 @@ callBtn.addEventListener('click', function () {
     if (otherPeerId) {
       conn = peer.connect(otherPeerId)
       const currentConnection = peer.connect(otherPeerId);
-      connectionList.push(currentConnection);
+      // connectionList.push(currentConnection);
     } else {
       alert('error')
     }
@@ -177,7 +209,7 @@ callBtn.addEventListener('click', function () {
       recStream(stream, 'remoteVideo')
     })
   }
-  console.log('全部連線', connectionList);
+  // console.log('全部連線', connectionList);
 })
 
 // click call (offer and answer is exchanged) 

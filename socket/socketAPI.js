@@ -1,9 +1,9 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
-const { saveTranslatedContent, listSpecifiedRoomMessages, getMessagesCache } = require('../model/message');
+const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
 const { updateUserSelectedRoom } = require('../model/users');
-const { saveCacheMessage } = require('../db/redis');
+// const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom } = require('../model/rooms');
 require('dotenv').config();
@@ -103,7 +103,7 @@ socketio.getSocketio = function (server) {
 
     socket.on('clientMessage', async (dataFromClient) => {
       // 用來處理要存到 redis cache 的每一筆資料
-      let messageRedisCache = {};
+      // let messageRedisCache = {};
       // 儲存訊息到 mySQL
       let messageObj = {
         createdTime: dataFromClient.messageTime,
@@ -147,7 +147,7 @@ socketio.getSocketio = function (server) {
                 translatedContent: eachTransResult
               });
               dataFromClient[eachLanguage] = eachTransResult;
-              messageRedisCache[eachLanguage] = eachTransResult;
+              // messageRedisCache[eachLanguage] = eachTransResult;
             }
           } else if (dataFromClient.messageType === 'image') {
             for (let i = 0; i < languageArrangement.length; i++) {
@@ -157,24 +157,24 @@ socketio.getSocketio = function (server) {
                 language: eachLanguage,
                 translatedContent: messageObj.messageContent
               });
-              messageRedisCache[eachLanguage] = messageObj.messageContent;
+              // messageRedisCache[eachLanguage] = messageObj.messageContent;
             }
           }
 
           // 組裝 redis cache 結構 (翻譯的部分在上面組裝)
-          messageRedisCache.messageContent = messageObj.messageContent;
-          messageRedisCache.createdTime = messageObj.createdTime,
-            messageRedisCache.userId = messageObj.userId;
-          messageRedisCache.messageType = messageObj.messageType;
-          messageRedisCache.messageId = createMessageResult.insertId;
-          messageRedisCache.provider = dataFromClient.userInfo.provider;
-          messageRedisCache.name = dataFromClient.userInfo.name;
-          messageRedisCache.email = dataFromClient.userInfo.email;
-          messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
-          messageRedisCache.roomId = dataFromClient.roomDetail.roomId;
-          console.log('組裝的 cache 訊息', messageRedisCache);
-          // 儲存成功發送出去，並存到 redis
-          saveCacheMessage(messageRedisCache);
+          // messageRedisCache.messageContent = messageObj.messageContent;
+          // messageRedisCache.createdTime = messageObj.createdTime,
+          //   messageRedisCache.userId = messageObj.userId;
+          // messageRedisCache.messageType = messageObj.messageType;
+          // messageRedisCache.messageId = createMessageResult.insertId;
+          // messageRedisCache.provider = dataFromClient.userInfo.provider;
+          // messageRedisCache.name = dataFromClient.userInfo.name;
+          // messageRedisCache.email = dataFromClient.userInfo.email;
+          // messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
+          // messageRedisCache.roomId = dataFromClient.roomDetail.roomId;
+          // console.log('組裝的 cache 訊息', messageRedisCache);
+          // // 儲存成功發送出去，並存到 redis
+          // saveCacheMessage(messageRedisCache);
           // debug 用
           io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
@@ -192,21 +192,25 @@ socketio.getSocketio = function (server) {
     socket.on('getRoomHistory', async (dataFromClient) => {
       const { roomId, userSelectedLanguge, page, changeRoomMode } = dataFromClient;
       // 先從 redis 取，如果 redis 沒有再從 mySQL 取
-      const messagesCache = await getMessagesCache(roomId, userSelectedLanguge, page);
+      // const messagesCache = await getMessagesCache(roomId, userSelectedLanguge, page);
       // console.log('快取歷史訊息', messagesCache);
       const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge, page);
-      if (messagesCache.length > 0) {
-        console.log('從快取取值');
-        socket.emit('showHistory', {
-          messages: messagesCache,
-          changeRoomMode
-        });
-      } else {
-        socket.emit('showHistory', {
-          messages,
-          changeRoomMode
-        });
-      }
+      socket.emit('showHistory', {
+        messages,
+        changeRoomMode
+      });
+      // if (messagesCache.length > 0) {
+      //   console.log('從快取取值');
+      //   socket.emit('showHistory', {
+      //     messages: messagesCache,
+      //     changeRoomMode
+      //   });
+      // } else {
+      //   socket.emit('showHistory', {
+      //     messages,
+      //     changeRoomMode
+      //   });
+      // }
     })
 
     // canvas 歷史畫面
@@ -278,6 +282,10 @@ socketio.getSocketio = function (server) {
         if (removeIndex !== -1) {
           roomPeerIdList[currentSelectedRoomId].splice(removeIndex, 1);
           console.log('斷線後剩下的 peer', roomPeerIdList)
+          // io.to(currentSelectedRoomId).emit('remainingPeersConnection', {
+          //   roomId: currentSelectedRoomId,
+          //   roomPeerIdList: roomPeerIdList
+          // });
         }
       }
     })
