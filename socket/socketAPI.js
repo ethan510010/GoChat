@@ -85,6 +85,7 @@ socketio.getSocketio = function (server) {
         callback({ 
           acknowledged: true
         });
+        // 全部的人都廣播
         io.emit('changeRoomPeersList', {
           roomUsersPair,
           roomPeerIdList
@@ -309,6 +310,34 @@ socketio.getSocketio = function (server) {
       }
     })
 
+    socket.on('broadcastVideo', (videoLauncherInfo, callback) => {
+      const { videoLauncherRoomId, launchVideoUser, launchPeerId } = videoLauncherInfo;
+      io.to(videoLauncherRoomId).emit('shouldOpenCallAlert', {
+        videoLauncherRoomId: videoLauncherRoomId,
+        videoLauncher: launchVideoUser,
+        launchVideoPeerId: launchPeerId
+      })
+      callback({
+        launchVideoPeerId: launchPeerId
+      })
+    })
+
+    socket.on('shouldBeConnectedPeerId', (shouldConnectPeerInfo, callback) => {
+      const { launchVideoPeerId, shouldConnectedPeerId, videoLauncherRoomId } = shouldConnectPeerInfo;
+      io.to(videoLauncherRoomId).emit('shouldBeConnectedPeerId', {
+        launchVideoPeerId,
+        shouldConnectedPeerId,
+        videoLauncherRoomId
+      })
+    })
+    // socket.on('shouldRemovePeerId', (removePeerIdInfo) => {
+    //   const { beRemovedPeerId, correspondingRoomId } = removePeerIdInfo;
+    //   io.to(correspondingRoomId).emit('startCallAcceptPeers', {
+    //     correspondingRoomId,
+    //     beRemovedPeerId
+    //   });
+    // })
+
     // 用戶退群 (如果全部人都退出這個房間，就把該 room 刪掉)
     socket.on('leaveRoom', async (dataFromClient) => {
       const leaveRoomId = dataFromClient.leaveRoom.roomId;
@@ -337,57 +366,6 @@ socketio.getSocketio = function (server) {
 
       }
     })
-
-    // WebRTC
-    // socket.on('sendPeerId', (peerInfo) => {
-    //   const { peerId, userId, roomId } = peerInfo;
-    //   roomPeerIdList[roomId].push(peerId);
-    //   io.to(roomId).emit('allPeersForRoom', {
-    //     roomId: roomId,
-    //     allPeersForRoom: roomPeerIdList[roomId]
-    //   })
-    // })
-    // WebRTC 相關 
-    // let broadCaster;
-    // socket.on('broadcastVideo', () => {
-    //   // broadCaster = socket.id;
-    //   socket.broadcast.emit('videoBroadcast', socket.id)
-    //   // console.log('廣播者', broadCaster)
-    // })
-
-    // socket.on('watcher', (broadCaster) => {
-    //   console.log('廣播者', broadCaster)
-    //   socket.to(broadCaster).emit('watcher', socket.id);
-    // })
-
-    // socket.on('candidate', (id, message) => {
-    //   socket.to(id).emit('candidate', socket.id, message);
-    // })
-
-    // socket.on('offer', (id, message) => {
-    //   socket.to(id).emit('offer', socket.id, message);
-    // })
-
-    // socket.on('answer', (id, message) => {
-    //   socket.to(id).emit('answer', socket.id, message);
-    // })
-
-    // 測試2
-    // socket.on('offer', function (data) {
-    //   socket.broadcast.emit('offer', { sdp: data.sdp, remotePC: data.remotePeerConnection });
-    // });
-    // // 如果有接收到answer 訊息，立即傳送廣播封包，發送answer 訊息給client 端
-    // socket.on('answer', function (data) {
-    //   socket.broadcast.emit('answer', { sdp: data.sdp });
-    // });
-    // // 如果有接收到ice 訊息，立即傳送廣播封包，發送ice 訊息給client 端
-    // socket.on('ice', function (data) {
-    //   socket.broadcast.emit('ice', { candidate: data.candidate });
-    // });
-    // // 如果有接收到hangup 訊息，立即傳送廣播封包，發送hangup訊息給client 端
-    // socket.on('hangup', function () {
-    //   socket.broadcast.emit('hangup', {});
-    // });
   })
 };
 

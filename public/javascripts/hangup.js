@@ -11,11 +11,14 @@ hangupCallBtn.addEventListener('click', function() {
     callConnections = {};
     // 代表現在發起端沒有在播放影片了
     isPlayingLocalVideo = false;
+    // 把視訊畫面關掉
+    videoDisplayDiv.style.display = 'none';
   } else {
     // 代表是看到視訊的觸發掛斷的
     callConnections[receiveCallId].close();
     delete callConnections[receiveCallId];
     // 代表已經沒有在看遠端視訊了
     isWatchingRemoteVideo = false;
+    videoDisplayDiv.style.display = 'none';
   }
 })

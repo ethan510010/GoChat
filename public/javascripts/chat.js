@@ -3,7 +3,6 @@ const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.addEventListener('scroll', function () {
   // Get parent element properties
   const chatFlowContentTop = chatFlowContent.scrollTop;
-  console.log('聊天內容捲動位置', chatFlowContentTop);
   // 180 大約是三筆訊息的大小
   if (chatFlowContentTop <= 180 && !scrollFinished) {
     currentScrollPage += 1;
@@ -43,67 +42,6 @@ const callBtn = document.getElementById('callVideo');
 let currentUserPeerId;
 let peer = new Peer();
 let connectionList = [];
-
-// launchVideoBtn.addEventListener('click', async function () {
-//   startVideo();
-//   // try {
-//   //   // 等待啟動 video
-//   //   startVideo()
-//   //   // startVideo({
-//   //   //   success: function(stream) {
-//   //   //     window.localstream = stream;
-//   //   //     recStream(stream, 'localVideo')
-//   //   //   },
-//   //   //   error: function(err) {
-//   //   //     alert('cannot access')
-//   //   //   }
-//   //   // });
-
-//   // } catch (err) {
-//   //   console.log(err);
-//   // }
-// })
-
-// // get the video and display it with permission
-// function startVideo() {
-//   if(!navigator.mediaDevices ||
-// 		!navigator.mediaDevices.getUserMedia){
-
-// 		console.log('getUserMedia is not supported!');
-// 		return;
-// 	}else{
-// 		var constraints = {
-// 			video : {
-// 				width: 320,	
-// 				height: 240,
-// 			}, 
-// 			audio : {
-//         echocancellation: true,
-//       } 
-// 		}
-
-// 		// 獲取本機視訊
-// 		navigator.mediaDevices.getDisplayMedia(constraints)
-// 			.then(gotMediaStream)
-// 			.catch(handleError);
-// 	}
-// }
-
-// function handleError(err) {
-//   console.log('getUserMedia error:', err);
-// }
-
-// function gotMediaStream(stream) {
-//   window.localstream = stream;
-//   recStream(stream, 'localVideo')
-// }
-// // 處理 stream
-// function recStream(stream, elemid) {
-//   const video = document.getElementById(elemid);
-//   video.srcObject = stream;
-
-//   window.peer_stream = stream;
-// }
 
 peer.on('open', function () {
   document.getElementById('displayId').textContent = peer.id;
@@ -152,7 +90,7 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
     const eachPeerOfCurrentRoom = currentRoomPeerPairs[i];
     allConnectionPeersOfCurrentRoom.push(eachPeerOfCurrentRoom.peerId);
   }
-  console.log(`現在在房間${currentSelectedRoom.roomId}中其他的${allConnectionPeersOfCurrentRoom}`);
+  console.log(`現在在房間${currentSelectedRoom.roomId}中所有的${allConnectionPeersOfCurrentRoom}`);
 })
 
 peer.on('connection', function (connection) {
@@ -164,56 +102,153 @@ peer.on('connection', function (connection) {
 
 peer.on('error', function (error) {
   console.log(error);
-  alert('an error occurred')
+  alert('an error occurred');
 })
 
 // 紀錄與發起者有建立 call 的
 let callConnections = {};
+// 要發起視訊
 callBtn.addEventListener('click', function () {
-  // 接收端如果正在看 remote 端的影片是不可以按下連線的
+  // 接收端如果正在看 remote 端的影片或是該房間的廣播影片還在播放是不可以按下連線的
   if (isWatchingRemoteVideo) {
     alert('You can not call before hanging up current call');
     return;
   }
   // 依序進行連線
   console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
-  for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-    const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
-    // 相當於按下 connect 按鈕
-    if (eachPeerIdOfCurrentRoom) {
-      if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
-        console.log('目前用戶 peerId', currentUserPeerId);
-        conn = peer.connect(eachPeerIdOfCurrentRoom)
-        const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
-        // 要 call 誰
-        console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
-        // 我要 call 誰
-        const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);  
-        console.log('the call', call);
-        callConnections[call.connectionId] = call;
-      } else {
-        console.log('自己跟自己不用連')
-      }
-      // connectionList.push(currentConnection);
-    } else {
-      alert('error')
-    }
-    
-    // 監聽到對方的影像回來 (我們暫時發起視訊者不需要看得到對方的畫面這個功能)
-    // call.on('stream', function (stream) {
-    //   // window.peer_stream = stream;
-    //   recStream(stream, 'remoteVideo')
-    // })
+  socket.emit('broadcastVideo', {
+    videoLauncherRoomId: currentSelectedRoom.roomId,
+    launchVideoUser: currentUserDetail,
+    launchPeerId: currentUserPeerId
+  }, (getBroadCastVideo) => {
+    // 這段註解的 code 很重要，只是 debug 先祝解掉
+    // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+    //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
+    //   // 相當於按下 connect 按鈕
+    //   if (eachPeerIdOfCurrentRoom) {
+    //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
+    //       console.log('目前用戶 peerId', currentUserPeerId);
+    //       conn = peer.connect(eachPeerIdOfCurrentRoom)
+    //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
+    //       // 要 call 誰
+    //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
+    //       // 我要 call 誰
+    //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
+    //       console.log('the call', call);
+    //       callConnections[call.connectionId] = call;
+    //     } else {
+    //       console.log('自己跟自己不用連')
+    //     }
+    //     // connectionList.push(currentConnection);
+    //   } else {
+    //     alert('error')
+    //   }
+    // }
+  })
+  // // 這段註解的 code 很重要，只是 debug 先祝解掉
+  // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+  //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
+  //   // 相當於按下 connect 按鈕
+  //   if (eachPeerIdOfCurrentRoom) {
+  //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
+  //       console.log('目前用戶 peerId', currentUserPeerId);
+  //       conn = peer.connect(eachPeerIdOfCurrentRoom)
+  //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
+  //       // 要 call 誰
+  //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
+  //       // 我要 call 誰
+  //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
+  //       console.log('the call', call);
+  //       callConnections[call.connectionId] = call;
+  //     } else {
+  //       console.log('自己跟自己不用連')
+  //     }
+  //     // connectionList.push(currentConnection);
+  //   } else {
+  //     alert('error')
+  //   }
+  // }
+})
+
+// 這邊是接收端的處理
+
+socket.on('shouldOpenCallAlert', (dataFromServer) => {
+  const { videoLauncher, launchVideoPeerId, videoLauncherRoomId } = dataFromServer;
+  if (currentUserPeerId !== launchVideoPeerId) {
+    videoDisplayDiv.style.display = 'block';
+    // const acceptCall = confirm(`Do you want to accept the call From ${videoLauncher.name}?`);
+    showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
+    customDialogConfirmClicked(function() {
+      console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
+      console.log('該 Peer Id 需要進行連線', currentUserPeerId);
+      socket.emit('shouldBeConnectedPeerId', {
+        launchVideoPeerId: launchVideoPeerId,
+        shouldConnectedPeerId: currentUserPeerId,
+        videoLauncherRoomId: videoLauncherRoomId
+      });
+    })
+    customDialogCancelClicked(function() {
+      // 把視訊視窗關掉
+      videoDisplayDiv.style.display = 'none';
+    });
+    // const customDlg = document.getElementById('dialogCont');
+    // customDlg.style.top = '30%';
+    // customDlg.style.opacity = 1;
+    // const diaMessage = `Do you want to accept the call From ${videoLauncher.name}?`
+    // const dialogBody = document.getElementById('dlogBody');
+    // dialogBody.textContent = diaMessage;
+
+
+    // 下面很重要只是先註解掉
+    // if (acceptCall) {
+    //   console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
+    //   console.log('該 Peer Id 需要進行連線', currentUserPeerId);
+    //   socket.emit('shouldBeConnectedPeerId', {
+    //     launchVideoPeerId: launchVideoPeerId,
+    //     shouldConnectedPeerId: currentUserPeerId,
+    //     videoLauncherRoomId: videoLauncherRoomId
+    //   });
+    // }
+
+
+    // else {
+    // 掛斷電話的話，就把該 peer Id 從本次連線移除 (並把這個要被移除的 peer 的 roomId 也傳回去)
+    // socket.emit('shouldRemovePeerId', {
+    //   beRemovedPeerId: currentUserPeerId,
+    //   correspondingRoomId: videoLauncherRoomId
+    // });
+    // }
   }
 })
+
+// 發起視訊端接收到的
+socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
+  const { launchVideoPeerId, shouldConnectedPeerId, videoLauncherRoomId } = dataFromServer;
+  // 代表是視訊發起者
+  if (launchVideoPeerId === currentUserPeerId) {
+    console.log('視訊發起者', peer);
+    conn = peer.connect(shouldConnectedPeerId)
+    const currentConnection = peer.connect(shouldConnectedPeerId);
+    // 要 call 誰
+    console.log('calling a peer ' + shouldConnectedPeerId);
+    // 我要 call 誰
+    const call = peer.call(shouldConnectedPeerId, window.localstream);
+    console.log('the call', call);
+    callConnections[call.connectionId] = call;
+  }
+})
+// 接收端處理哪些是需要實際連線的
+// socket.on('startCallAcceptPeers', (checkFinalCallPeers) => {
+//   console.log('最終檢查 peerIds', checkFinalCallPeers)
+// })
 
 // click call (offer and answer is exchanged) 
 let receiveCallId;
 peer.on('call', function (call) {
-  // let acceptCall = confirm('Do you want to accept')
+  // let acceptCall = confirm('Do you want to accept the call?');
   // if (acceptCall) {
   call.answer(window.localstream);
-
+  console.log('接收到 call')
   call.on('stream', function (stream) {
     window.peer_stream = stream
     // 接收 call 的人要存自己拿到的 call 的 id

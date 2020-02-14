@@ -22,48 +22,6 @@ startVideoBtn.addEventListener('click', function () {
   startVideo();
 })
 
-// 轉換視窗按鈕
-let cameraMode = 'screen';
-// const changeModeBtn = document.querySelector('.video_button_area .changeMode');
-// changeModeBtn.addEventListener('click', function () {
-//   if (!navigator.mediaDevices ||
-//     !navigator.mediaDevices.getUserMedia) {
-
-//     console.log('getUserMedia is not supported!');
-//     return;
-//   } else {
-//     const constraints = {
-//       video: {
-//         width: 320,
-//         height: 240,
-//       },
-//       // audio : {
-//       //   echocancellation: true,
-//       // } 
-//       audio: false
-//     }
-
-//     // switch (cameraMode) {
-//     //   case 'screen':
-//     //     cameraMode = 'user';
-//     //     navigator.mediaDevices.getDisplayMedia(constraints)
-//     // 	  .then(gotMediaStream)
-//     //     .catch(handleError);
-//     //     break;
-//     //   case 'user':
-//     //     cameraMode = 'screen';
-//     //     avigator.mediaDevices.getUserMedia(constraints)
-//     // 	  .then(gotMediaStream)
-//     //     .catch(handleError);
-//     //     break
-//     // }
-//     // // 獲取本機視訊
-//     navigator.mediaDevices.getUserMedia(constraints)
-//       .then(gotMediaStream)
-//       .catch(handleError);
-//   }
-// })
-
 // get the video and display it with permission
 function startVideo() {
   if (!navigator.mediaDevices ||
@@ -112,6 +70,7 @@ function recStream(stream, elemid) {
         localVideoTag.srcObject = stream;
         // 代表廣播者已經開啟視訊了
         isPlayingLocalVideo = true;
+        // socket.emit('theRoomIsPlaying', theRoomIsPlaying);
       }
       break;
     case 'remoteVideo':
