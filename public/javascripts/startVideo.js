@@ -14,6 +14,11 @@ launchVideoBtn.addEventListener('click', async function () {
 // 啟動視訊按鈕
 const startVideoBtn = document.querySelector('.video_button_area .call');
 startVideoBtn.addEventListener('click', function () {
+  // 正在看遠端影片按下 startVideo 會跳 alert
+  if (isWatchingRemoteVideo) {
+    alert('The remote video is playing. Please hang up the call before');
+    return;
+  }
   startVideo();
 })
 
@@ -87,7 +92,7 @@ function handleError(err) {
 
 function gotMediaStream(stream) {
   window.localstream = stream;
-  recStream(stream, 'localVideo')
+  recStream(stream, 'localVideo');
 }
 // 處理 stream
 // 播放者是否仍在播放中

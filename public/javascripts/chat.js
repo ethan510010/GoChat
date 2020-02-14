@@ -109,7 +109,7 @@ peer.on('open', function () {
   document.getElementById('displayId').textContent = peer.id;
   // 每一個人專屬的 peerId
   currentUserPeerId = peer.id;
-  console.log('peerId', peer.id);
+  console.log('my peerId', peer.id);
   // 藉由 socket 傳送過來
   // socket.emit('sendPeerId', {
   //   peerId: peer.id,
@@ -170,6 +170,11 @@ peer.on('error', function (error) {
 // 紀錄與發起者有建立 call 的
 let callConnections = {};
 callBtn.addEventListener('click', function () {
+  // 接收端如果正在看 remote 端的影片是不可以按下連線的
+  if (isWatchingRemoteVideo) {
+    alert('You can not call before hanging up current call');
+    return;
+  }
   // 依序進行連線
   console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
   for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
