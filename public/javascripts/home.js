@@ -43,7 +43,7 @@ signupBtn.addEventListener('click', (e) => {
     .then((response) => {
       console.log(response)
       if (typeof(response.data) === 'string') {
-        alert('The email has already been registered.')
+        showCustomAlert('The email has already registerd');
       } else {
         // 註冊成功進到主聊天界面
         document.cookie = `access_token=${response.data.accessToken}`;
@@ -51,7 +51,7 @@ signupBtn.addEventListener('click', (e) => {
       }
     })
   } else {
-    alert('You have the wrong email format');
+    showCustomAlert('You have the wrong email format');
   }
 })
 
@@ -77,7 +77,7 @@ signinBtn.addEventListener('click', function(event) {
   .then((response) => {
     console.log(response)
     if (typeof(response.data) === 'string') {
-      alert('請確定帳號密碼輸入正確')
+      showCustomAlert('請確定帳號密碼輸入正確');
     } else {
       // 登入成功，切換到主頁
       console.log('登入成功', response.data);

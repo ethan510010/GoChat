@@ -84,10 +84,8 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
 })
 
 peer.on('connection', function (connection) {
-  conn = connection;
   // 另外一段傳過來的
-  peer_id = connection.peer;
-  document.getElementById('connId').value = peer_id;
+  document.getElementById('connId').value = connection.peer;
 })
 
 peer.on('error', function (error) {
@@ -178,7 +176,6 @@ socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
   // 代表是視訊發起者
   if (launchVideoPeerId === currentUserPeerId) {
     console.log('視訊發起者', peer);
-    conn = peer.connect(shouldConnectedPeerId)
     const currentConnection = peer.connect(shouldConnectedPeerId);
     // 要 call 誰
     console.log('calling a peer ' + shouldConnectedPeerId);
