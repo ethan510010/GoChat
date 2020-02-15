@@ -33,11 +33,7 @@ let currentScrollPage = 0;
 let scrollFinished = false;
 // 加入房間
 // 配合 WebRTC
-// const localVideo = document.getElementById('localVideo');
-// const remoteVideo = document.getElementById('remoteVideo');
-// const launchVideoBtn = document.querySelector('.lower_section .launchVideo');
 const callBtn = document.getElementById('callVideo');
-
 // create a peer connection with peer obj
 let currentUserPeerId;
 let peer = new Peer();
@@ -48,12 +44,6 @@ peer.on('open', function () {
   // 每一個人專屬的 peerId
   currentUserPeerId = peer.id;
   console.log('my peerId', peer.id);
-  // 藉由 socket 傳送過來
-  // socket.emit('sendPeerId', {
-  //   peerId: peer.id,
-  //   userId: currentUserDetail.userId,
-  //   roomId: currentSelectedRoom.roomId
-  // });
   socket.emit('join', {
     peerId: peer.id,
     roomInfo: currentSelectedRoom,
@@ -107,11 +97,15 @@ peer.on('error', function (error) {
 
 // 紀錄與發起者有建立 call 的
 let callConnections = {};
-// 要發起視訊
+// 視訊發起者要發起視訊
 callBtn.addEventListener('click', function () {
   // 接收端如果正在看 remote 端的影片或是該房間的廣播影片還在播放是不可以按下連線的
   if (isWatchingRemoteVideo) {
     alert('You can not call before hanging up current call');
+    return;
+  }
+  if (roomPlayingVideo) {
+    alert('The rooms is still playing a video, Please try again after the current room call finished');
     return;
   }
   // 依序進行連線
@@ -121,37 +115,39 @@ callBtn.addEventListener('click', function () {
     launchVideoUser: currentUserDetail,
     launchPeerId: currentUserPeerId
   }, (getBroadCastVideo) => {
-    // 這段註解的 code 很重要，只是 debug 先祝解掉
-    for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-      const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
-      // 相當於按下 connect 按鈕
-      if (eachPeerIdOfCurrentRoom) {
-        if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
-          console.log('目前用戶 peerId', currentUserPeerId);
-          conn = peer.connect(eachPeerIdOfCurrentRoom)
-          const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
-          // 要 call 誰
-          console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
-          // 我要 call 誰
-          const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
-          console.log('the call', call);
-          callConnections[call.connectionId] = call;
-        } else {
-          console.log('自己跟自己不用連')
-        }
-        // connectionList.push(currentConnection);
-      } else {
-        alert('error')
-      }
-    }
+    // 這段 code 很重要
+    // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+    //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
+    //   // 相當於按下 connect 按鈕
+    //   if (eachPeerIdOfCurrentRoom) {
+    //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
+    //       console.log('目前用戶 peerId', currentUserPeerId);
+    //       conn = peer.connect(eachPeerIdOfCurrentRoom)
+    //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
+    //       // 要 call 誰
+    //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
+    //       // 我要 call 誰
+    //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
+    //       console.log('the call', call);
+    //       callConnections[call.connectionId] = call;
+    //     } else {
+    //       console.log('自己跟自己不用連')
+    //     }
+    //     // connectionList.push(currentConnection);
+    //   } else {
+    //     alert('error')
+    //   }
+    // }
   })
-  
 })
-
+// 紀錄房間正在播放中，只有當視訊發起人關閉時這個開關才會變成 false，其他人才可以在該房間發起視訊
+let roomPlayingVideo = false;
 // 這邊是接收端的處理
-
 socket.on('shouldOpenCallAlert', (dataFromServer) => {
   const { videoLauncher, launchVideoPeerId, videoLauncherRoomId } = dataFromServer;
+  // 所有在房間的人都必須紀錄現在該房間正有視訊在播放
+  roomPlayingVideo = true;
+  // 視訊發起者本身不需要看到 alert 跳出
   if (currentUserPeerId !== launchVideoPeerId) {
     videoDisplayDiv.style.display = 'block';
     // const acceptCall = confirm(`Do you want to accept the call From ${videoLauncher.name}?`);
@@ -169,33 +165,6 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
       // 把視訊視窗關掉
       videoDisplayDiv.style.display = 'none';
     });
-    // const customDlg = document.getElementById('dialogCont');
-    // customDlg.style.top = '30%';
-    // customDlg.style.opacity = 1;
-    // const diaMessage = `Do you want to accept the call From ${videoLauncher.name}?`
-    // const dialogBody = document.getElementById('dlogBody');
-    // dialogBody.textContent = diaMessage;
-
-
-    // 下面很重要只是先註解掉
-    // if (acceptCall) {
-    //   console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
-    //   console.log('該 Peer Id 需要進行連線', currentUserPeerId);
-    //   socket.emit('shouldBeConnectedPeerId', {
-    //     launchVideoPeerId: launchVideoPeerId,
-    //     shouldConnectedPeerId: currentUserPeerId,
-    //     videoLauncherRoomId: videoLauncherRoomId
-    //   });
-    // }
-
-
-    // else {
-    // 掛斷電話的話，就把該 peer Id 從本次連線移除 (並把這個要被移除的 peer 的 roomId 也傳回去)
-    // socket.emit('shouldRemovePeerId', {
-    //   beRemovedPeerId: currentUserPeerId,
-    //   correspondingRoomId: videoLauncherRoomId
-    // });
-    // }
   }
 })
 
@@ -216,10 +185,6 @@ socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
   }
 })
 // 接收端處理哪些是需要實際連線的
-// socket.on('startCallAcceptPeers', (checkFinalCallPeers) => {
-//   console.log('最終檢查 peerIds', checkFinalCallPeers)
-// })
-
 // click call (offer and answer is exchanged) 
 let receiveCallId;
 peer.on('call', function (call) {
@@ -239,11 +204,9 @@ peer.on('call', function (call) {
   call.on('close', function () {
     // 這邊把全部的 call 都關掉
     console.log('call被移掉了');
-    // alert('The call has removed');
+    // 關閉視窗
+    videoDisplayDiv.style.display = 'none';
   })
-  // } else {
-  //   console.log('call denied')
-  // }
 })
 // socket.emit('join', {
 //   roomInfo: currentSelectedRoom,

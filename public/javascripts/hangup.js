@@ -1,5 +1,5 @@
 const hangupCallBtn = document.getElementById('hangup');
-hangupCallBtn.addEventListener('click', function() {
+hangupCallBtn.addEventListener('click', function () {
   // 代表是由發起視訊的人 (視訊發起者) 掛斷
   if (!receiveCallId) {
     const allCalls = Object.values(callConnections);
@@ -13,18 +13,31 @@ hangupCallBtn.addEventListener('click', function() {
     isPlayingLocalVideo = false;
     // 把視訊畫面關掉
     videoDisplayDiv.style.display = 'none';
+    // 通知在房間的所有人此房間的視訊已經結束
+    roomPlayingVideo = false;
+    socket.emit('roomPlayingVideoOver', {
+      roomId: currentSelectedRoom.roomId,
+      roomPlayingVideo: roomPlayingVideo
+    });
     // 移除
   } else {
     // 代表是看到視訊 (視訊接收者) 的觸發掛斷的
     if (callConnections[receiveCallId]) {
       callConnections[receiveCallId].close();
-      delete callConnections[receiveCallId];  
+      delete callConnections[receiveCallId];
     }
     // 代表已經沒有在看遠端視訊了
     isWatchingRemoteVideo = false;
     videoDisplayDiv.style.display = 'none';
   }
   resetVideo();
+})
+
+// 因為視訊發起方掛斷電話，才會得到 roomPlayingVideo over 的結果，所以 socket.on 寫在這邊
+socket.on('getRoomPlayingVideoOver', (overInfo) => {
+  if (overInfo.roomPlayingVideo) {
+    roomPlayingVideo = roomPlayingVideo
+  }
 })
 
 function resetVideo() {

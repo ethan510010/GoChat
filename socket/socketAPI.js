@@ -330,13 +330,13 @@ socketio.getSocketio = function (server) {
         videoLauncherRoomId
       })
     })
-    // socket.on('shouldRemovePeerId', (removePeerIdInfo) => {
-    //   const { beRemovedPeerId, correspondingRoomId } = removePeerIdInfo;
-    //   io.to(correspondingRoomId).emit('startCallAcceptPeers', {
-    //     correspondingRoomId,
-    //     beRemovedPeerId
-    //   });
-    // })
+
+    socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {
+      const { roomId, roomPlayingVideo } = roomPlayingOverInfo;
+      io.to(roomId).emit('getRoomPlayingVideoOver', {
+        roomPlayingVideo: roomPlayingVideo
+      })
+    })
 
     // 用戶退群 (如果全部人都退出這個房間，就把該 room 刪掉)
     socket.on('leaveRoom', async (dataFromClient) => {
