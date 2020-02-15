@@ -90,7 +90,7 @@ peer.on('connection', function (connection) {
 
 peer.on('error', function (error) {
   console.log(error);
-  alert('an error occurred');
+  showCustomAlert('an error occurred');
 })
 
 // 紀錄與發起者有建立 call 的
@@ -99,15 +99,11 @@ let callConnections = {};
 callBtn.addEventListener('click', function () {
   // 接收端如果正在看 remote 端的影片或是該房間的廣播影片還在播放是不可以按下連線的
   if (isWatchingRemoteVideo) {
-    alert('You can not call before hanging up current call');
+    showCustomAlert('You can not call before hanging up current call');
     return;
   }
-  // if (roomPlayingVideo) {
-  //   alert('The rooms is still playing a video, Please try again after the current room call finished');
-  //   return;
-  // }
   if (roomPlayingVideoRecords[currentSelectedRoom.roomId]) {
-    alert('The rooms is still playing a video, Please try again after the current room call finished');
+    showCustomAlert('The rooms is still playing a video, Please try again after the current room call finished');
     return;
   }
   // 依序進行連線
@@ -232,7 +228,7 @@ roomsAreaSection.addEventListener('click', function (event) {
   }
   // 如果看影片的人播放中或是播放影片的人播放中，不能讓他切換
   if ((isWatchingRemoteVideo || isPlayingLocalVideo) && (currentSelectedRoom.roomId !== lastChooseRoom.roomId)) {
-    alert('Please turn off video before change channel');
+    showCustomAlert('Please turn off video before change channel');
     return;
   }
   // 改變上方 header UI

@@ -249,11 +249,11 @@ buildChannelBtn.addEventListener('click', function () {
     // 打 api 創建 Room
     // 先確定有沒有 room 的名稱重複了
     if (allRooms.includes(channelName)) {
-      alert(`${channelName}已經存在了，請輸入其他的`);
+      showCustomAlert(`${channelName}已經存在了，請輸入其他的`);
       return;
     }
     if (channelName === '') {
-      alert('請輸入 Channel 名字');
+      showCustomAlert(`請輸入 Channel 名字`)
       return;
     }
     fetch('/rooms/createRoom', {
@@ -269,7 +269,7 @@ buildChannelBtn.addEventListener('click', function () {
       .catch((error) => console.log(error))
       .then((validResponse) => {
         if (typeof validResponse.data === 'string') {
-          alert('新增房間失敗，請稍後再試');
+          showCustomAlert('新增房間失敗，請稍後再試');
         } else {
           // 新增成功這邊要讓前端顯示房間
           const modal = document.getElementById('addRoomModal');

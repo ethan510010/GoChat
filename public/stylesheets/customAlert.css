@@ -32,7 +32,7 @@ body {
   border-radius: 5px;
 }
 
-#freezeLayer{
+#freezeBlock{
   position: fixed;
   top: 0;
   left: 0;

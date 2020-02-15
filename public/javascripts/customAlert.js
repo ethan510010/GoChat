@@ -4,7 +4,7 @@ function showCustomAlert(title) {
   alertBox.style.opacity = 1;
   const alertTitleTag = document.querySelector('#box h3');
   alertTitleTag.textContent = title;
-  const freezeLayer = document.getElementById('freezeLayer');
+  const freezeLayer = document.getElementById('freezeBlock');
   freezeLayer.style.display = '';
 
   const closeAlertTag = document.querySelector('#box a');

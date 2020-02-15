@@ -11,7 +11,7 @@ const startVideoBtn = document.querySelector('.video_button_area .call');
 startVideoBtn.addEventListener('click', function () {
   // 正在看遠端影片按下 startVideo 會跳 alert
   if (isWatchingRemoteVideo) {
-    alert('The remote video is playing. Please hang up the call before');
+    showCustomAlert('The remote video is playing. Please hang up the call before');
     return;
   }
   startVideo();
@@ -21,8 +21,7 @@ startVideoBtn.addEventListener('click', function () {
 function startVideo() {
   if (!navigator.mediaDevices ||
     !navigator.mediaDevices.getUserMedia) {
-
-    console.log('getUserMedia is not supported!');
+    showCustomAlert('getUserMedia is not supported');
     return;
   } else {
     const constraints = {
@@ -31,7 +30,6 @@ function startVideo() {
         echocancellation: true,
       }
     }
-
     // 獲取本機視訊
     navigator.mediaDevices.getDisplayMedia(constraints)
       .then(gotMediaStream)

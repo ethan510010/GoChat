@@ -146,8 +146,10 @@
       <a id="dlg_cancel_btn">Cancel</a>
     </div>
   </div>
+  <%- include('./customAlert.ejs'); %>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
   <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+  <script src="/javascripts/customAlert.js"></script>
   <script type="text/javascript">
     let currentUserDetail = <%- JSON.stringify(currentUserDetail) %>;
     let currentSelectedRoom = {

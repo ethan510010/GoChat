@@ -36,6 +36,8 @@ hangupCallBtn.addEventListener('click', function () {
 socket.on('getRoomPlayingVideoOver', (overInfo) => {
   if (overInfo) {
     const { finisedVideoRoomId, roomPlayingVideo } = overInfo;
+    // receiveId 重置
+    receiveCallId = null;
     roomPlayingVideoRecords[finisedVideoRoomId] = roomPlayingVideo;
   }
 })

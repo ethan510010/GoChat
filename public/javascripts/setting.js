@@ -3,7 +3,7 @@ const settingBtn = document.getElementById('room_setting');
 settingBtn.addEventListener('click', function() {
   // 如果是要對 general 這個預設的 room 做操作，會跳一個 alert 通知說無法
   if (currentSelectedRoom.roomId === 1) {
-    alert('channel general can not be set by user');
+    showCustomAlert('channel general can not be set by user');
     return;
   }
   isSettingOpen = !isSettingOpen;
