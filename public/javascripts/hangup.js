@@ -14,10 +14,9 @@ hangupCallBtn.addEventListener('click', function () {
     // 把視訊畫面關掉
     videoDisplayDiv.style.display = 'none';
     // 通知在房間的所有人此房間的視訊已經結束
-    roomPlayingVideo = false;
     socket.emit('roomPlayingVideoOver', {
       roomId: currentSelectedRoom.roomId,
-      roomPlayingVideo: roomPlayingVideo
+      roomPlayingVideo: false
     });
     // 移除
   } else {
@@ -35,8 +34,9 @@ hangupCallBtn.addEventListener('click', function () {
 
 // 因為視訊發起方掛斷電話，才會得到 roomPlayingVideo over 的結果，所以 socket.on 寫在這邊
 socket.on('getRoomPlayingVideoOver', (overInfo) => {
-  if (overInfo.roomPlayingVideo) {
-    roomPlayingVideo = roomPlayingVideo
+  if (overInfo) {
+    const { finisedVideoRoomId, roomPlayingVideo } = overInfo;
+    roomPlayingVideoRecords[finisedVideoRoomId] = roomPlayingVideo;
   }
 })
 

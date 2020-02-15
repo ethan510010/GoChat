@@ -334,6 +334,7 @@ socketio.getSocketio = function (server) {
     socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {
       const { roomId, roomPlayingVideo } = roomPlayingOverInfo;
       io.to(roomId).emit('getRoomPlayingVideoOver', {
+        finisedVideoRoomId: roomId,
         roomPlayingVideo: roomPlayingVideo
       })
     })

@@ -104,7 +104,11 @@ callBtn.addEventListener('click', function () {
     alert('You can not call before hanging up current call');
     return;
   }
-  if (roomPlayingVideo) {
+  // if (roomPlayingVideo) {
+  //   alert('The rooms is still playing a video, Please try again after the current room call finished');
+  //   return;
+  // }
+  if (roomPlayingVideoRecords[currentSelectedRoom.roomId]) {
     alert('The rooms is still playing a video, Please try again after the current room call finished');
     return;
   }
@@ -141,12 +145,12 @@ callBtn.addEventListener('click', function () {
   })
 })
 // 紀錄房間正在播放中，只有當視訊發起人關閉時這個開關才會變成 false，其他人才可以在該房間發起視訊
-let roomPlayingVideo = false;
+let roomPlayingVideoRecords = {};
 // 這邊是接收端的處理
 socket.on('shouldOpenCallAlert', (dataFromServer) => {
   const { videoLauncher, launchVideoPeerId, videoLauncherRoomId } = dataFromServer;
   // 所有在房間的人都必須紀錄現在該房間正有視訊在播放
-  roomPlayingVideo = true;
+  roomPlayingVideoRecords[videoLauncherRoomId] = true;
   // 視訊發起者本身不需要看到 alert 跳出
   if (currentUserPeerId !== launchVideoPeerId) {
     videoDisplayDiv.style.display = 'block';
@@ -188,8 +192,6 @@ socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
 // click call (offer and answer is exchanged) 
 let receiveCallId;
 peer.on('call', function (call) {
-  // let acceptCall = confirm('Do you want to accept the call?');
-  // if (acceptCall) {
   call.answer(window.localstream);
   console.log('接收到 call')
   call.on('stream', function (stream) {
@@ -208,27 +210,6 @@ peer.on('call', function (call) {
     videoDisplayDiv.style.display = 'none';
   })
 })
-// socket.emit('join', {
-//   roomInfo: currentSelectedRoom,
-//   userInfo: currentUserDetail
-// }, (joinInfo) => {
-//   if (joinInfo) {
-//     const roomId = joinInfo.roomInfo.roomId;
-//     const userId = joinInfo.userInfo.userId;
-//     socket.emit('getRoomHistory', {
-//       roomId: roomId,
-//       userId: userId,
-//       userSelectedLanguge: joinInfo.userInfo.selectedLanguage,
-//       page: currentScrollPage,
-//       changeRoomMode: false
-//     })
-//     // 獲取歷史的 canvas
-//     socket.emit('getRoomCanvas', {
-//       roomId: roomId,
-//       userId: userId,
-//     })
-//   }
-// })
 
 // 聊天內容是否需要自動捲到底部 (如果今天是新訊息通知切換過來的時候，不需要自動捲動到底部，只有正常聊天需要)
 let shouldAutoScrollToBottom = true;
