@@ -1,0 +1,64 @@
+#dialogCont {
+  font-family: 'Arial';
+  
+}
+
+.dlg-container {
+  position: absolute;
+  left: 50%;
+  /* 利用調整高度去讓這個 confirm 顯示出來 */
+  top: -30%;  
+  transform: translateX(-50%) translateY(-50%);
+  width: 400px;
+  background: #fff;
+  padding: 10px;
+  border: 2px solid #DDD;
+  box-shadow: 1px 1px 5px 1px #CCC;
+  border-radius: 10px;
+  opacity: 0;
+  transition: all 0.3s linear 0%;
+  z-index: 20;
+}
+
+.dlg-header {
+  padding: 10px;
+  font-weight: bold;
+  background: #575757;
+  color: #F6F7F8;
+}
+
+.dlg-body {
+  padding: 10px;
+  line-height: 30px;
+}
+
+.dlg-footer {
+  text-align: center;
+  background: #F5F5F2;
+  padding: 3px 0;
+}
+
+.dlg-footer a {
+  display: inline-block;
+  width: 100px;
+  padding: 5px 0;
+  border: 1px solid #CCC;
+  border-radius: 10px;
+  background: #EEE;
+  cursor: pointer;
+}
+
+.dlg-footer a:active {
+  box-shadow: inset 2px 2px 4px 0 #CCC;
+  color: #666;
+}
+
+.freeze-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 16;
+}
