@@ -1,8 +1,3 @@
-// let RTCSessionDescription = window.mozRTCSessionDescription
-//   || window.webkitRTCSessionDescription || window.RTCSessionDescription;
-// let RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate
-//   || window.RTCIceCandidate;
-
 // video 區塊
 const videoDisplayDiv = document.querySelector('.videoPopup');
 
@@ -60,26 +55,38 @@ let isWatchingRemoteVideo = false;
 
 function recStream(stream, elemid) {
   const mainAreaTag = document.querySelector('.videoPopup .main_area');
-  const localVideoTag = document.getElementById('localVideo');
-  const remoteVideoTag = document.getElementById('remoteVideo');
+  const originalLocalVideoTag = document.getElementById('localVideo');
+  const originalRemoteVideoTag = document.getElementById('remoteVideo');
   switch (elemid) {
     case 'localVideo':
-      if (remoteVideoTag) {
-        mainAreaTag.removeChild(remoteVideoTag);
-        localVideoTag.style.height = 'calc(100% - 40px)';
-        localVideoTag.srcObject = stream;
-        // 代表廣播者已經開啟視訊了
-        isPlayingLocalVideo = true;
-        // socket.emit('theRoomIsPlaying', theRoomIsPlaying);
+      if (originalRemoteVideoTag) {
+        mainAreaTag.removeChild(originalRemoteVideoTag);
       }
+      mainAreaTag.removeChild(originalLocalVideoTag);
+      const newVideoTag = document.createElement('video');
+      newVideoTag.setAttribute('id', 'localVideo');
+      newVideoTag.style.height = 'calc(100% - 40px)';
+      newVideoTag.srcObject = stream;
+      newVideoTag.autoplay = true;
+      newVideoTag.playsinline = true;
+      mainAreaTag.prepend(newVideoTag);
+      // 代表廣播者已經開啟視訊了
+      isPlayingLocalVideo = true;
+      // socket.emit('theRoomIsPlaying', theRoomIsPlaying);
       break;
     case 'remoteVideo':
-      if (localVideoTag) {
-        remoteVideoTag.style.height = 'calc(100% - 40px)';
-        mainAreaTag.removeChild(localVideoTag);
-        remoteVideoTag.srcObject = stream;  
-        isWatchingRemoteVideo = true;
+      if (originalLocalVideoTag) {
+        mainAreaTag.removeChild(originalLocalVideoTag);
       }
+      mainAreaTag.removeChild(originalRemoteVideoTag);
+      const newRemoteVideoTag = document.createElement('video');
+      newRemoteVideoTag.setAttribute('id', 'remoteVideo');
+      newRemoteVideoTag.style.height = 'calc(100% - 40px)';
+      newRemoteVideoTag.srcObject = stream;
+      newRemoteVideoTag.autoplay = true;
+      newRemoteVideoTag.playsinline = true;
+      mainAreaTag.prepend(newRemoteVideoTag);
+      isWatchingRemoteVideo = true;
       break;
   }
   window.peer_stream = stream;

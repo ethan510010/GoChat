@@ -122,52 +122,30 @@ callBtn.addEventListener('click', function () {
     launchPeerId: currentUserPeerId
   }, (getBroadCastVideo) => {
     // 這段註解的 code 很重要，只是 debug 先祝解掉
-    // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-    //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
-    //   // 相當於按下 connect 按鈕
-    //   if (eachPeerIdOfCurrentRoom) {
-    //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
-    //       console.log('目前用戶 peerId', currentUserPeerId);
-    //       conn = peer.connect(eachPeerIdOfCurrentRoom)
-    //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
-    //       // 要 call 誰
-    //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
-    //       // 我要 call 誰
-    //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
-    //       console.log('the call', call);
-    //       callConnections[call.connectionId] = call;
-    //     } else {
-    //       console.log('自己跟自己不用連')
-    //     }
-    //     // connectionList.push(currentConnection);
-    //   } else {
-    //     alert('error')
-    //   }
-    // }
+    for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+      const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
+      // 相當於按下 connect 按鈕
+      if (eachPeerIdOfCurrentRoom) {
+        if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
+          console.log('目前用戶 peerId', currentUserPeerId);
+          conn = peer.connect(eachPeerIdOfCurrentRoom)
+          const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
+          // 要 call 誰
+          console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
+          // 我要 call 誰
+          const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
+          console.log('the call', call);
+          callConnections[call.connectionId] = call;
+        } else {
+          console.log('自己跟自己不用連')
+        }
+        // connectionList.push(currentConnection);
+      } else {
+        alert('error')
+      }
+    }
   })
-  // // 這段註解的 code 很重要，只是 debug 先祝解掉
-  // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-  //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
-  //   // 相當於按下 connect 按鈕
-  //   if (eachPeerIdOfCurrentRoom) {
-  //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
-  //       console.log('目前用戶 peerId', currentUserPeerId);
-  //       conn = peer.connect(eachPeerIdOfCurrentRoom)
-  //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
-  //       // 要 call 誰
-  //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
-  //       // 我要 call 誰
-  //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
-  //       console.log('the call', call);
-  //       callConnections[call.connectionId] = call;
-  //     } else {
-  //       console.log('自己跟自己不用連')
-  //     }
-  //     // connectionList.push(currentConnection);
-  //   } else {
-  //     alert('error')
-  //   }
-  // }
+  
 })
 
 // 這邊是接收端的處理
