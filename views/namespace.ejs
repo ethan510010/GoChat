@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="/stylesheets/normalize.css">
+  <link rel="stylesheet" href="/stylesheets/namespace.css">
+</head>
+<body>
+  <header>
+    <h3>Choose your namespace</h3>
+  </header>
+  <div class="namespaces_area">
+    <% if (namespaces.length > 0) { %>
+      <% for (let i = 0; i < namespaces.length; i++) { %>
+        <div class="namespaceBlock" id=namespaceId_<%= namespaces[i].namespaceId%>>
+          <p><%= namespaces[i].namespaceName %></p>
+          <input type="button" value="invite people to namespace">
+          <input type="button" value="enter this namespace">
+        </div>
+      <% } %>
+    <% } else { %> <h2>There is no namespace of you, you can create a new one and invite person with their email</h2> <%} %>
+  </div>
+  <div id="float_button">
+    <img src="/images/addNamespace.png" alt="">
+  </div>
+  <!-- email 輸入彈窗 -->
+  <div id="emailInputModal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="namespace_input">
+        <input type="text" placeholder="create a namespace">
+      </div>
+      <div class="function_area">
+        <input class="enter_email" type="text" placeholder="person's email">
+        <input class="confirmBtn" type="button" value="confirm">
+      </div>
+      <div class="invite_email_area"></div>
+      <input id="invite_btn" type="button" value="invite">
+    </div>
+  </div>
+  <script src="/javascripts/emailInputModal.js"></script>
+  <script src="/javascripts/namespace.js"></script>
+</body>
+</html>

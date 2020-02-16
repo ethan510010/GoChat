@@ -92,7 +92,8 @@ uploadAvatarTag.addEventListener('change', function(e) {
 // 進入房間
 const enterChatRoomBtn = document.querySelector('#user_basic .enter_button');
 enterChatRoomBtn.addEventListener('click', function(e) {
-  // window.location = '/chatPage.html'
-  window.location = `/chat?userId=${userId}`
+  // window.location = `/chat?userId=${userId}`
+  // 測試先進到 namespace 頁
+  window.location = `/namespace?userId=${userId}`
 })
 

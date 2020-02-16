@@ -13,6 +13,7 @@ var roomsRouter = require('./routes/rooms');
 var messageRouter = require('./routes/message');
 var languageRouter = require('./routes/language');
 var userLanguageRouter = require('./routes/userLanguage');
+var namespaceRouter = require('./routes/namespace');
 var chatPageRouter = require('./routes/chat');
 
 var app = express();
@@ -63,6 +64,7 @@ app.use('/rooms', roomsRouter);
 app.use('/messages', messageRouter);
 app.use('/language', languageRouter);
 app.use('/userLanguage', userLanguageRouter);
+app.use('/namespace', namespaceRouter);
 app.use('/chat', chatPageRouter);
 
 // catch 404 and forward to error handler

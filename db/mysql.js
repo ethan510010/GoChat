@@ -141,17 +141,30 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
                   reject(insertRoomErr);
                 })
               }
-              connection.commit((commitErr) => {
-                if (commitErr) {
+              // 每個新創建的用戶也都會綁一個 systemDefault 這個 namespace，這個 namespace 的 id 都是 1
+              connection.query(`
+                insert into user_namespace_junction
+                set namespaceId=1,
+                userId=${userId}
+              `, (insertNamespaceErr, result) => {
+                if (insertNamespaceErr) {
                   return connection.rollback(() => {
                     connection.release();
-                    reject(commitErr);
+                    reject(insertNamespaceErr);
                   })
                 }
-                console.log('新增用戶成功')
-                resolve(userId);
-                connection.release();
-              })
+                connection.commit((commitErr) => {
+                  if (commitErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(commitErr);
+                    })
+                  }
+                  console.log('新增用戶成功')
+                  resolve(userId);
+                  connection.release();
+                })
+              }) 
             })
           })
         })
@@ -348,6 +361,93 @@ function handleRoomCanvas(readQuery, insertQuery, updateQuery) {
   })
 }
 
+// create a namespace and binding general room transaction
+function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNamespaceUserId) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(createNamespaceSQL, [namespaceName], (err, result) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(err);
+            })
+          }
+          const newNamespaceId = result.insertId;
+          connection.query(`
+            insert into room 
+            set name='general', 
+            namespaceId=${newNamespaceId}
+            `, (insertRoomErr, result) => {
+              if (insertRoomErr) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(insertNamespaceErr);
+                })
+              }
+              // 新的 namespace 預設的 general room 的 id
+              const newNamespaceGeneralRoomId = result.insertId;
+              connection.query(`
+                insert into user_namespace_junction
+                set userId=${createNamespaceUserId},
+                namespaceId=${newNamespaceId}
+              `, (insertJunctionTableErr, result) => {
+                if (insertJunctionTableErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(insertJunctionTableErr);
+                  })
+                }
+                connection.query(`update user set 
+                  last_selected_room_id=${newNamespaceGeneralRoomId} 
+                  where id=${createNamespaceUserId}`, (updateErr, result) => {
+                  if (updateErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(updateErr);
+                    })
+                  }
+                  connection.query(`insert into user_room_junction 
+                    set roomId=${newNamespaceGeneralRoomId}, userId=${createNamespaceUserId}`, 
+                    (insertErr, result) => {
+                      if (insertErr) {
+                        return connection.rollback(() => {
+                          connection.release();
+                          reject(insertErr);
+                        })
+                      }
+                      connection.commit((commitErr) => {
+                        if (commitErr) {
+                          return connection.rollback(() => {
+                            connection.release();
+                            reject(commitErr);
+                          })
+                        }
+                        console.log('新增 namespace 及綁定預設房間成功')
+                        resolve(newNamespaceId);
+                        connection.release();
+                      })
+                    })
+                })
+              })
+            })
+        })
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
@@ -357,6 +457,7 @@ module.exports = {
   createRoomTransaction,
   createMessageRecord,
   updateRoomMember,
-  handleRoomCanvas
+  handleRoomCanvas,
+  createNameSpaceTransaction
 }
 
