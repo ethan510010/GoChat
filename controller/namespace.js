@@ -21,10 +21,12 @@ const listNamespaces = async (req, res) => {
 const createNamespace = async (req, res) => {
   const { namespaceName, createNamespaceUserId } = req.body;
   try {
-    const insertNamespaceId = await createNamespaceAndBindingGeneralRoom(namespaceName, createNamespaceUserId);
+    const { newNamespaceId, newDefaultRoomId, newNamespaceName } = await createNamespaceAndBindingGeneralRoom(namespaceName, createNamespaceUserId);
     res.status(200).send({
       data: {
-        namespaceId: insertNamespaceId
+        namespaceId: newNamespaceId,
+        newDefaultRoomId: newDefaultRoomId,
+        newNamespaceName: newNamespaceName
       }
     })  
   } catch (error) {
@@ -35,7 +37,7 @@ const createNamespace = async (req, res) => {
 }
 
 const invitePeopleToNamespace = async (req, res) => {
-  const { emailList, namespaceId } = req.body;
+  const { emailList, namespaceId, newDefaultRoomId } = req.body;
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -49,7 +51,7 @@ const invitePeopleToNamespace = async (req, res) => {
   let sendEmailPromiseList = [];
   for (let i = 0; i < emailList.length; i++) {
     const email = emailList[i];
-    const inviteUrl = `http://localhost:3000?inviteNamespaceId=${namespaceId}`;
+    const inviteUrl = `http://localhost:3000?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,

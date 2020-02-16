@@ -104,7 +104,7 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
         connection.query(userBasicSQL, [userInfoObj.accessToken,
         userInfoObj.fbAccessToken,
         userInfoObj.provider,
-        userInfoObj.expiredDate], (insertBasicErr, result) => {
+        userInfoObj.expiredDate, userInfoObj.beInvitedRoomId], (insertBasicErr, result) => {
           if (insertBasicErr) {
             return connection.rollback(() => {
               connection.release();
@@ -130,9 +130,11 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
               })
             }
             // 每個新創建的用戶都會被綁定到 general 這個 room，這個 room 的 id 都是 1
+            // 但如果是被邀請的人，下面的 roomId 就不是1，而是被邀請的 roomId
+            let userRoomJunctionRoomId = userInfoObj.beInvitedRoomId ? userInfoObj.beInvitedRoomId : 1;
             connection.query(`
               insert into user_room_junction 
-              set roomId=1,
+              set roomId=${userRoomJunctionRoomId},
               userId=${userId}
             `, (insertRoomErr, result) => {
               if (insertRoomErr) {
@@ -141,30 +143,17 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
                   reject(insertRoomErr);
                 })
               }
-              // 每個新創建的用戶也都會綁一個 systemDefault 這個 namespace，這個 namespace 的 id 都是 1
-              connection.query(`
-                insert into user_namespace_junction
-                set namespaceId=1,
-                userId=${userId}
-              `, (insertNamespaceErr, result) => {
-                if (insertNamespaceErr) {
+              connection.commit((commitErr) => {
+                if (commitErr) {
                   return connection.rollback(() => {
                     connection.release();
-                    reject(insertNamespaceErr);
+                    reject(commitErr);
                   })
                 }
-                connection.commit((commitErr) => {
-                  if (commitErr) {
-                    return connection.rollback(() => {
-                      connection.release();
-                      reject(commitErr);
-                    })
-                  }
-                  console.log('新增用戶成功')
-                  resolve(userId);
-                  connection.release();
-                })
-              }) 
+                console.log('新增用戶成功')
+                resolve(userId);
+                connection.release();
+              })
             })
           })
         })
@@ -398,18 +387,7 @@ function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNam
               }
               // 新的 namespace 預設的 general room 的 id
               const newNamespaceGeneralRoomId = result.insertId;
-              connection.query(`
-                insert into user_namespace_junction
-                set userId=${createNamespaceUserId},
-                namespaceId=${newNamespaceId}
-              `, (insertJunctionTableErr, result) => {
-                if (insertJunctionTableErr) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(insertJunctionTableErr);
-                  })
-                }
-                connection.query(`update user set 
+              connection.query(`update user set 
                   last_selected_room_id=${newNamespaceGeneralRoomId} 
                   where id=${createNamespaceUserId}`, (updateErr, result) => {
                   if (updateErr) {
@@ -435,12 +413,15 @@ function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNam
                           })
                         }
                         console.log('新增 namespace 及綁定預設房間成功')
-                        resolve(newNamespaceId);
+                        resolve({
+                          newNamespaceId: newNamespaceId,
+                          newDefaultRoomId: newNamespaceGeneralRoomId,
+                          newNamespaceName: namespaceName
+                        })
                         connection.release();
                       })
                     })
                 })
-              })
             })
         })
       })

@@ -2,16 +2,18 @@ const { exec, createNameSpaceTransaction } = require('../db/mysql');
 
 const getNamespacesForUser = async (userId) => {
   const namespacesOfUser = await exec(`
-    select namespace.id as namespaceId, 
-    namespace.namespaceName as namespaceName
-    from user_namespace_junction 
-    inner join namespace 
-    on user_namespace_junction.namespaceId=namespace.id where userId=${userId} order by namespaceId
+    select user_room_junction.roomId as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName as namespaceName from user_room_junction inner join room
+    on user_room_junction.roomId=room.id
+    inner join namespace
+    on room.namespaceId=namespace.id where userId=${userId} order by namespaceId
   `);
   // 列出該用戶底下全部的 namespace，但 systemDefault 預設的過濾掉
   if (namespacesOfUser.length > 0) {
+    // 為系統預設的
     console.log(namespacesOfUser)
-    namespacesOfUser.splice(0, 1);
+    if (namespacesOfUser[0].namespaceId === 1) {
+      namespacesOfUser.splice(0, 1);  
+    }
     return namespacesOfUser; 
   } else {
     return [];

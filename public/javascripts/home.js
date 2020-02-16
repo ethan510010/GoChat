@@ -26,14 +26,28 @@ const signupUserPasswordTag = document.querySelector('.enter_password_for_signup
 const signupBtn = document.querySelector('.signup_btn');
 
 signupBtn.addEventListener('click', (e) => {
+  // 只有被邀請信邀請的才會有這個 defaultRoomId
+  const currentUrl = new URL(window.location)
+  const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+  let bodyParas;
+  if (defaultRoomId) {
+    bodyParas = {
+      username: signupUserNameInputTag.value,
+      email: signupUserEmailTag.value,
+      password: signupUserPasswordTag.value,
+      beInvitedRoomId: defaultRoomId
+    }
+  } else {
+    bodyParas = {
+      username: signupUserNameInputTag.value,
+      email: signupUserEmailTag.value,
+      password: signupUserPasswordTag.value
+    }
+  }
   if (validateEmail(signupUserEmailTag.value)) {
     fetch('/users/signup', {
       method: 'POST',
-      body: JSON.stringify({
-        username: signupUserNameInputTag.value,
-        email: signupUserEmailTag.value,
-        password: signupUserPasswordTag.value
-      }),
+      body: JSON.stringify(bodyParas),
       headers: new Headers({
         'Content-Type': 'application/json',
       })

@@ -8,7 +8,8 @@ const insertUser = async (
   avatarUrl,
   email,
   password,
-  name) => {
+  name, 
+  beInvitedRoomId) => {
   const userInfoObj = {
     accessToken,
     fbAccessToken,
@@ -17,15 +18,26 @@ const insertUser = async (
     avatarUrl,
     email,
     password,
-    name
+    name,
+    beInvitedRoomId
   }
-  const insertUserBasicSQL = `
+  let insertUserBasicSQL = '';
+  if (beInvitedRoomId) {
+    insertUserBasicSQL = `
+      INSERT INTO user SET 
+      access_token=?,
+      fb_access_token=?,
+      provider=?,
+      expired_date=?,
+      last_selected_room_id=?`;
+  } else {
+    insertUserBasicSQL = `
       INSERT INTO user SET 
       access_token=?,
       fb_access_token=?,
       provider=?,
       expired_date=?`;
-
+  }
   let insertUserDetailSQL = '';
   if (provider === 'native') {
     insertUserDetailSQL = `

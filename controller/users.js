@@ -101,10 +101,11 @@ const userSignin = async (req, res) => {
 
 // 註冊
 const signupUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  // 只有被邀請的用戶才會有 beInvitedRoomId
+  const { username, email, password, beInvitedRoomId } = req.body;
   const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
   try {
-    const valiudUserId = await insertUser(accessToken, '', 'native', tokenExpiredDate, '', email, hashedUserPassword, username);
+    const valiudUserId = await insertUser(accessToken, '', 'native', tokenExpiredDate, '', email, hashedUserPassword, username, beInvitedRoomId);
     // 剛註冊時沒有大頭貼網址，所以 avatar 直接給 ''
     res.status(200).json({
       data: {

@@ -67,6 +67,8 @@ inviteButton.addEventListener('click', async function() {
     createNamespaceUserId: userId
   }, 'POST');
   const newNamespaceId = createNamespaceResult.namespaceId;
+  const newNamespaceName = createNamespaceResult.newNamespaceName;
+  const newDefaultRoomId = createNamespaceResult.newDefaultRoomId;
   // 顯示在畫面上
   const namespacesArea = document.querySelector('.namespaces_area');
   if (namespacesArea.contains(document.querySelector('.namespaces_area h2'))) {
@@ -76,7 +78,7 @@ inviteButton.addEventListener('click', async function() {
   namespaceBlock.classList.add('namespaceBlock');
   namespaceBlock.setAttribute('id', `namespaceId_${newNamespaceId}`);
   const namespaceNameTag = document.createElement('p');
-  namespaceNameTag.textContent = namespaceInput;
+  namespaceNameTag.textContent = newNamespaceName;
   const inviteButton = document.createElement('input');
   inviteButton.type = 'button';
   inviteButton.value = 'invite people to namespace';
@@ -95,7 +97,8 @@ inviteButton.addEventListener('click', async function() {
   }
   const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
     emailList: emailList,
-    namespaceId: newNamespaceId
+    namespaceId: newNamespaceId,
+    newDefaultRoomId: newDefaultRoomId
   }, 'POST')
   if (sendEmailResult) {
     alert('邀請信送出成功');
