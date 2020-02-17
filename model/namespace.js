@@ -5,7 +5,7 @@ const getNamespacesForUser = async (userId) => {
     select DISTINCT namespaceId, namespace.namespaceName from user_room_junction inner join room
     on user_room_junction.roomId=room.id
     inner join namespace
-    on room.namespaceId=namespace.id where userId=128 order by namespaceId
+    on room.namespaceId=namespace.id where userId=${userId} order by namespaceId
   `);
   // 列出該用戶底下全部的 namespace，但 systemDefault 預設的過濾掉 (systemDefault 的 namespaceId 為 1)
   if (namespacesOfUser.length > 0) {
