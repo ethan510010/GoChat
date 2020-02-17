@@ -1,9 +1,11 @@
+let isEditNamespaceMode = true;
 // 彈出視窗
 const addNamespaceBtn = document.getElementById('float_button');
 const emailArea = document.querySelector('.invite_email_area');
 const namespacesArea = document.querySelector('.namespaces_area');
 addNamespaceBtn.addEventListener('click', function() { 
-  inputModal.style.display = 'block';
+  isEditNamespaceMode = false;
+  inputModalAppearance(isEditNamespaceMode, true, '');
 })
 // email 確認
 const confirmEmailBtn = document.querySelector('.confirmBtn');
@@ -59,60 +61,93 @@ const currentUrl = new URL(window.location)
 const userId = currentUrl.searchParams.get('userId');
 inviteButton.addEventListener('click', async function() {
   const namespaceInput = document.querySelector('.namespace_input input').value;
-  if (namespaceInput === '') {
-    alert('沒有輸入 namespace')
-    return;
-  }
-  const createNamespaceResult = await encapsulateFetch('/namespace/createNamespace', {
-    namespaceName: namespaceInput,
-    createNamespaceUserId: userId
-  }, 'POST');
-  const newNamespaceId = createNamespaceResult.namespaceId;
-  const newNamespaceName = createNamespaceResult.newNamespaceName;
-  const newDefaultRoomId = createNamespaceResult.newDefaultRoomId;
-  // 顯示在畫面上
-  if (namespacesArea.contains(document.querySelector('.namespaces_area h2'))) {
-    namespacesArea.innerHTML = '';  
-  }
-  const namespaceBlock = document.createElement('div');
-  namespaceBlock.classList.add('namespaceBlock');
-  namespaceBlock.setAttribute('id', `namespaceId_${newNamespaceId}`);
-  const namespaceNameTag = document.createElement('p');
-  namespaceNameTag.textContent = newNamespaceName;
-  const inviteButton = document.createElement('input');
-  inviteButton.type = 'button';
-  inviteButton.value = 'invite people to namespace';
-  const enterNamespaceBtn = document.createElement('input');
-  enterNamespaceBtn.type = 'button';
-  enterNamespaceBtn.classList.add('enter_namespace_btn');
-  enterNamespaceBtn.value = 'enter this namespace';
-  namespaceBlock.appendChild(namespaceNameTag);
-  namespaceBlock.appendChild(inviteButton);
-  namespaceBlock.appendChild(enterNamespaceBtn);
-  namespacesArea.appendChild(namespaceBlock);
-  // 發送驗證信
-  let emailList = [];  
-  for (let i = 0; i < emailArea.children.length; i++) {
-    const email = emailArea.children[i].id;
-    emailList.push(email);
-  }
-  const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
-    emailList: emailList,
-    namespaceId: newNamespaceId,
-    newDefaultRoomId: newDefaultRoomId
-  }, 'POST')
-  if (sendEmailResult) {
-    alert('邀請信送出成功');
+  if (!isEditNamespaceMode) {
+    if (namespaceInput === '') {
+      alert('沒有輸入 namespace')
+      return;
+    }  
+    const createNamespaceResult = await encapsulateFetch('/namespace/createNamespace', {
+      namespaceName: namespaceInput,
+      createNamespaceUserId: userId
+    }, 'POST');
+    const newNamespaceId = createNamespaceResult.namespaceId;
+    const newNamespaceName = createNamespaceResult.newNamespaceName;
+    const newDefaultRoomId = createNamespaceResult.newDefaultRoomId;
+    // 顯示在畫面上
+    if (namespacesArea.contains(document.querySelector('.namespaces_area h2'))) {
+      namespacesArea.innerHTML = '';  
+    }
+    const namespaceBlock = document.createElement('div');
+    namespaceBlock.classList.add('namespaceBlock');
+    namespaceBlock.setAttribute('id', `namespaceId_${newNamespaceId}`);
+    const namespaceNameTag = document.createElement('p');
+    namespaceNameTag.textContent = newNamespaceName;
+    const inviteButton = document.createElement('input');
+    inviteButton.type = 'button';
+    inviteButton.value = 'invite people to namespace';
+    const enterNamespaceBtn = document.createElement('input');
+    enterNamespaceBtn.type = 'button';
+    enterNamespaceBtn.classList.add('enter_namespace_btn');
+    enterNamespaceBtn.value = 'enter this namespace';
+    namespaceBlock.appendChild(namespaceNameTag);
+    namespaceBlock.appendChild(inviteButton);
+    namespaceBlock.appendChild(enterNamespaceBtn);
+    namespacesArea.appendChild(namespaceBlock);
+    // 發送驗證信
+    let emailList = [];  
+    for (let i = 0; i < emailArea.children.length; i++) {
+      const email = emailArea.children[i].id;
+      emailList.push(email);
+    }
+    const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
+      emailList: emailList,
+      namespaceId: newNamespaceId,
+      newDefaultRoomId: newDefaultRoomId
+    }, 'POST')
+    if (sendEmailResult) {
+      alert('邀請信送出成功');
+    }
+    // 代表是編輯 namespace，打 updateNamespace
+  } else {
+    let emailList = [];  
+    for (let i = 0; i < emailArea.children.length; i++) {
+      const email = emailArea.children[i].id;
+      emailList.push(email);
+    }
+    console.log(emailList);
+    console.log('編輯')
   }
 })
 
 // 點擊 namespace 區塊
 namespacesArea.addEventListener('click', function (e) {
-  if (e.target.nodeName.toUpperCase() === 'INPUT' && e.target.className === 'enter_namespace_btn') {
+  if (e.target.nodeName.toUpperCase() === 'INPUT') {
     const beSelectedNamespaceBlock = e.target.parentNode;
+    const namespaceTitle = beSelectedNamespaceBlock.children[0].textContent;
     const namespaceIdStr = beSelectedNamespaceBlock.id;
     // 獲取被點擊的 namespaceId
     const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
-    window.location = `/chat?userId=${userId}&namespaceId=${beTappedNamespaceId}`;
+    switch (e.target.className) {
+      case 'enter_namespace_btn':
+        // const beSelectedNamespaceBlock = e.target.parentNode;
+        // const namespaceIdStr = beSelectedNamespaceBlock.id;
+        // 獲取被點擊的 namespaceId
+        // const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
+        window.location = `/chat?userId=${userId}&namespaceId=${beTappedNamespaceId}`;    
+        break;
+      case 'invite_from_namespace_block_btn':
+        console.log(beTappedNamespaceId)
+        isEditNamespaceMode = true;
+        inputModalAppearance(isEditNamespaceMode, true, namespaceTitle);
+        break;
+    }
   }
 }) 
+
+function inputModalAppearance(isEditNamespaceMode, shouldShow, namespaceTitle) {
+  const placeholder = isEditNamespaceMode ? 'Edit namespace' : 'create a namespace';
+  document.querySelector('.namespace_input input').placeholder = placeholder;
+  document.querySelector('.namespace_input input').value = namespaceTitle;
+  const displayType = shouldShow ? 'block' : 'none';
+  inputModal.style.display = displayType;
+}
