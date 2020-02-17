@@ -28,13 +28,11 @@ let currentSelectedRoomId = 0;
 let roomPeerIdList = {};
 
 socketio.getSocketio = async function (server) {
-  // 測試撈出所有的 namespace
-  // const allNamespaces = await listAllNamespaces(); 
   const io = socket_io.listen(server);
   // 註冊 socket io for eachNamespace
   io.of(/^\/namespaceId=\d+$/).on('connect', function (socket) {
     // 有人連線進來
-    console.log('有人連線進來', socket.nsp);
+    const subNamespace = socket.nsp;
     socket.on('changeRoom', async (roomDetailInfo, callback) => {
       const { roomId } = roomDetailInfo.joinRoomInfo;
       const { userInfo, peerId } = roomDetailInfo;
@@ -91,7 +89,7 @@ socketio.getSocketio = async function (server) {
           acknowledged: true
         });
         // 全部的人都廣播
-        io.emit('changeRoomPeersList', {
+        subNamespace.emit('changeRoomPeersList', {
           roomUsersPair,
           roomPeerIdList
         })
@@ -125,7 +123,7 @@ socketio.getSocketio = async function (server) {
       });
       console.log('現有的allPeers', roomPeerIdList);
       // 全部廣播
-      io.emit('allPeersForRoom', {
+      subNamespace.emit('allPeersForRoom', {
         roomId: roomId,
         // allPeersForRoom: roomPeerIdList[roomId]
         peersRoomPair: roomPeerIdList
@@ -207,8 +205,7 @@ socketio.getSocketio = async function (server) {
           // console.log('組裝的 cache 訊息', messageRedisCache);
           // // 儲存成功發送出去，並存到 redis
           // saveCacheMessage(messageRedisCache);
-          // debug 用
-          io.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
+          subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
             newMessageRoomId: dataFromClient.roomDetail.roomId,
@@ -253,17 +250,17 @@ socketio.getSocketio = async function (server) {
     })
 
     socket.on('draw', async (drawInfoFromClient) => {
-      io.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
+      subNamespace.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
     })
 
     socket.on('erase', (eraseInfo) => {
-      io.to(eraseInfo.roomDetail.roomId).emit('eraseDrawData', eraseInfo);
+      subNamespace.to(eraseInfo.roomDetail.roomId).emit('eraseDrawData', eraseInfo);
     })
 
     socket.on('canvasClear', async (clearCanvasMsg) => {
       // 把 DB 中該圖刪掉
       await deleteRoomCanvas(clearCanvasMsg.roomDetail.roomId);
-      io.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
+      subNamespace.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
     })
 
     socket.on('eachTimeDraw', async (eachTimeDrawResult) => {
@@ -317,7 +314,7 @@ socketio.getSocketio = async function (server) {
 
     socket.on('broadcastVideo', (videoLauncherInfo, callback) => {
       const { videoLauncherRoomId, launchVideoUser, launchPeerId } = videoLauncherInfo;
-      io.to(videoLauncherRoomId).emit('shouldOpenCallAlert', {
+      subNamespace.to(videoLauncherRoomId).emit('shouldOpenCallAlert', {
         videoLauncherRoomId: videoLauncherRoomId,
         videoLauncher: launchVideoUser,
         launchVideoPeerId: launchPeerId
@@ -329,7 +326,7 @@ socketio.getSocketio = async function (server) {
 
     socket.on('shouldBeConnectedPeerId', (shouldConnectPeerInfo, callback) => {
       const { launchVideoPeerId, shouldConnectedPeerId, videoLauncherRoomId } = shouldConnectPeerInfo;
-      io.to(videoLauncherRoomId).emit('shouldBeConnectedPeerId', {
+      subNamespace.to(videoLauncherRoomId).emit('shouldBeConnectedPeerId', {
         launchVideoPeerId,
         shouldConnectedPeerId,
         videoLauncherRoomId
@@ -338,7 +335,7 @@ socketio.getSocketio = async function (server) {
 
     socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {
       const { roomId, roomPlayingVideo } = roomPlayingOverInfo;
-      io.emit('getRoomPlayingVideoOver', {
+      subNamespace.emit('getRoomPlayingVideoOver', {
         finisedVideoRoomId: roomId,
         roomPlayingVideo: roomPlayingVideo
       })
@@ -350,7 +347,7 @@ socketio.getSocketio = async function (server) {
       const leaveUserId = dataFromClient.leaveUser.userId;
       const leaveResult = await userLeaveRoom(leaveRoomId, leaveUserId);
       if (leaveResult) {
-        io.to(leaveRoomId).emit('leaveRoomNotification', {
+        subNamespace.to(leaveRoomId).emit('leaveRoomNotification', {
           leaveUser: dataFromClient.leaveUser,
           leaveRoom: dataFromClient.leaveRoom
         })
@@ -369,7 +366,6 @@ socketio.getSocketio = async function (server) {
         //     console.log('退群後房間剩下的', roomUsersPair);
         //   }
         // }
-
       }
     })
   })

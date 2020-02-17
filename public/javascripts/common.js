@@ -1,4 +1,4 @@
-let socket = io('/namespaceId=6');
+const socket = io(`/namespaceId=${currentNamespaceId}`);
 // restful api 拿取必要資訊
 // 1. userProfile
 // 取得 cookie 裡面的 token
