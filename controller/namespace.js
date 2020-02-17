@@ -10,14 +10,6 @@ const namespacePage = async (req, res) => {
   })  
 }
 
-const listNamespaces = async (req, res) => {
-  const { userId } = req.query;
-  const validNamespaces = await getNamespacesForUser(userId);
-  res.status(200).send({
-    data: validNamespaces
-  })
-}
-
 const createNamespace = async (req, res) => {
   const { namespaceName, createNamespaceUserId } = req.body;
   try {
@@ -87,6 +79,5 @@ const sendEmail = (transporter, mailOptions) => {
 module.exports = {
   namespacePage,
   createNamespace,
-  invitePeopleToNamespace,
-  listNamespaces
+  invitePeopleToNamespace
 }

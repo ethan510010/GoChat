@@ -1,12 +1,13 @@
 const { insertNewRoom, getRooms, updateRoom } = require('../model/rooms')
 
 const createNewRoom = async (req, res) => {
-  const { channelName, userIdList } = req.body;
+  const { channelName, namespaceId, userIdList } = req.body;
   try {
-    const { channelId, allUsers } = await insertNewRoom(channelName, userIdList);
+    const { channelId, allUsers, bindingNamespaceId } = await insertNewRoom(channelName, namespaceId, userIdList);
     res.status(200).json({
       data: {
         channelId,
+        bindingNamespaceId,
         allUsers
       }
     })

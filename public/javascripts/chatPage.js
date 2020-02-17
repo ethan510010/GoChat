@@ -101,6 +101,7 @@ buildChannelBtn.addEventListener('click', function () {
     method: 'POST',
     body: JSON.stringify({
       channelName: channelName,
+      namespaceId: currentNamespaceId,
       userIdList: userIdList
     }),
     headers: new Headers({

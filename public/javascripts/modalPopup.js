@@ -260,6 +260,7 @@ buildChannelBtn.addEventListener('click', function () {
       method: 'POST',
       body: JSON.stringify({
         channelName: channelName,
+        namespaceId: currentNamespaceId,
         userIdList: userIdList
       }),
       headers: new Headers({
@@ -277,9 +278,11 @@ buildChannelBtn.addEventListener('click', function () {
           // 新增 Room 到畫面上
           const roomListArea = document.querySelector('.side_pad .upper_section');
           const newCreatedRoomTag = document.createElement('div');
-          newCreatedRoomTag.textContent = channelName;
+          const newCreatedRoomTitleTag = document.createElement('p');
+          newCreatedRoomTitleTag.textContent = channelName;
           newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
           newCreatedRoomTag.classList.add('room_title');
+          newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
           roomListArea.appendChild(newCreatedRoomTag);
         }
       })

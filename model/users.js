@@ -8,7 +8,7 @@ const insertUser = async (
   avatarUrl,
   email,
   password,
-  name, 
+  name,
   beInvitedRoomId) => {
   const userInfoObj = {
     accessToken,
@@ -222,7 +222,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.selectedLanguage = selectedLanguage;
             userProfile.lastSelectedRoomId = lastSelectedRoomId;
             userProfile.lastSelectedRoomTitle = roomTitle;
-          } 
+          }
           break;
       }
       return userProfile;
@@ -265,6 +265,40 @@ const getAllUsers = async () => {
   return users;
 }
 
+const getAllUsersOfNamespace = async (namespaceId) => {
+  const namespaceUsers = await exec(`
+    select 
+    wholeUsersTable.userId, 
+    wholeUsersTable.provider, 
+    wholeUsersTable.name as userName, 
+    wholeUsersTable.email,
+    wholeUsersTable.avatarUrl, 
+    user_room_junction.roomId as roomId, 
+    room.name as roomName, namespace.id as namespaceId, 
+    namespace.namespaceName
+    from 
+    (select 
+      tempTable.userId, 
+      tempTable.provider, 
+      IFNULL(tempTable.name, fb_info.fb_name) as name, 
+      IFNULL(tempTable.email, fb_info.fb_email) as email, 
+      IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from 
+      (select user.id as userId, provider, name, avatarUrl, email from user 
+      left join general_user_info 
+      on user.id=general_user_info.userId) as tempTable
+      left join fb_info
+      on tempTable.userId=fb_info.userId) as wholeUsersTable
+      inner join user_room_junction
+      on wholeUsersTable.userId=user_room_junction.userId
+      inner join room
+      on user_room_junction.roomId=room.id
+      inner join namespace
+      on namespace.id=room.namespaceId
+      where namespaceId=${namespaceId}
+  `);
+  return namespaceUsers;
+}
+
 const updateUserAvatar = async (userId, avatarUrl) => {
   const updateAvatarResult = await exec(`
     update general_user_info set
@@ -301,5 +335,6 @@ module.exports = {
   updateUserToken,
   getAllUsers,
   updateUserAvatar,
-  updateUserSelectedRoom
+  updateUserSelectedRoom,
+  getAllUsersOfNamespace
 }

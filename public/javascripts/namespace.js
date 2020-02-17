@@ -1,6 +1,7 @@
 // 彈出視窗
 const addNamespaceBtn = document.getElementById('float_button');
 const emailArea = document.querySelector('.invite_email_area');
+const namespacesArea = document.querySelector('.namespaces_area');
 addNamespaceBtn.addEventListener('click', function() { 
   inputModal.style.display = 'block';
 })
@@ -70,7 +71,6 @@ inviteButton.addEventListener('click', async function() {
   const newNamespaceName = createNamespaceResult.newNamespaceName;
   const newDefaultRoomId = createNamespaceResult.newDefaultRoomId;
   // 顯示在畫面上
-  const namespacesArea = document.querySelector('.namespaces_area');
   if (namespacesArea.contains(document.querySelector('.namespaces_area h2'))) {
     namespacesArea.innerHTML = '';  
   }
@@ -84,6 +84,7 @@ inviteButton.addEventListener('click', async function() {
   inviteButton.value = 'invite people to namespace';
   const enterNamespaceBtn = document.createElement('input');
   enterNamespaceBtn.type = 'button';
+  enterNamespaceBtn.classList.add('enter_namespace_btn');
   enterNamespaceBtn.value = 'enter this namespace';
   namespaceBlock.appendChild(namespaceNameTag);
   namespaceBlock.appendChild(inviteButton);
@@ -104,3 +105,14 @@ inviteButton.addEventListener('click', async function() {
     alert('邀請信送出成功');
   }
 })
+
+// 點擊 namespace 區塊
+namespacesArea.addEventListener('click', function (e) {
+  if (e.target.nodeName.toUpperCase() === 'INPUT' && e.target.className === 'enter_namespace_btn') {
+    const beSelectedNamespaceBlock = e.target.parentNode;
+    const namespaceIdStr = beSelectedNamespaceBlock.id;
+    // 獲取被點擊的 namespaceId
+    const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
+    window.location = `/chat?userId=${userId}&namespaceId=${beTappedNamespaceId}`;
+  }
+}) 

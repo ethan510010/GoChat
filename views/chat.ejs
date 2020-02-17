@@ -35,7 +35,7 @@
         </div>
         <div class="rooms">
           <% for (let i = 0; i < rooms.length; i++) { %>
-            <div class="room_title" id=channelId_<%= rooms[i].id%>>
+            <div class="room_title" id=channelId_<%= rooms[i].roomId%>>
               <p><%= rooms[i].name %></p>
             </div>
           <% } %>
@@ -103,7 +103,7 @@
           <% for (let i = 0; i < allUsers.length; i++) { %>
             <div class="option">
               <input type="radio" class="radio" name="user" id=userId_<%= allUsers[i].userId%>>
-              <label for=userId_<%= allUsers[i].userId%>><%= allUsers[i].name%></label>
+              <label for=userId_<%= allUsers[i].userId%>><%= allUsers[i].userName%></label>
             </div>
           <% } %>
         </div>
@@ -151,6 +151,7 @@
   <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
   <script src="/javascripts/customAlert.js"></script>
   <script type="text/javascript">
+    let currentNamespaceId = <%- currentNamespaceId %>;
     let currentUserDetail = <%- JSON.stringify(currentUserDetail) %>;
     let currentSelectedRoom = {
       roomId: currentUserDetail.lastSelectedRoomId,
