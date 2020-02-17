@@ -103,7 +103,8 @@ inviteButton.addEventListener('click', async function() {
     const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
       emailList: emailList,
       namespaceId: newNamespaceId,
-      newDefaultRoomId: newDefaultRoomId
+      newDefaultRoomId: newDefaultRoomId,
+      invitor: currentUser.name,
     }, 'POST')
     if (sendEmailResult) {
       alert('邀請信送出成功');
@@ -127,7 +128,8 @@ inviteButton.addEventListener('click', async function() {
     const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
       emailList: emailList,
       namespaceId: shouldUpdateNamespaceId,
-      newDefaultRoomId: updateNamespaceResult.thisNamespaceDefaultRoomId
+      newDefaultRoomId: updateNamespaceResult.thisNamespaceDefaultRoomId,
+      invitor: currentUser.name
     }, 'POST')
     if (sendEmailResult) {
       alert('邀請信送出成功');

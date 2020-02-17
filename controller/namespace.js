@@ -1,3 +1,4 @@
+const { getUserInfoByUserId } = require('../model/chat');
 const { getNamespacesForUser, createNamespaceAndBindingGeneralRoom, renewNamespace } = require('../model/namespace');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -5,7 +6,10 @@ require('dotenv').config();
 const namespacePage = async (req, res) => {
   const { userId } = req.query;
   const validNamespaces = await getNamespacesForUser(userId);
+  const currentUser = await getUserInfoByUserId(userId);
+  console.log(currentUser)
   res.render('namespace', { 
+    currentUser: currentUser,
     namespaces: validNamespaces
   })  
 }
@@ -47,7 +51,7 @@ const updateNamespace = async (req, res) => {
 }
 
 const invitePeopleToNamespace = async (req, res) => {
-  const { emailList, namespaceId, newDefaultRoomId } = req.body;
+  const { emailList, namespaceId, newDefaultRoomId, invitor } = req.body;
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -65,7 +69,7 @@ const invitePeopleToNamespace = async (req, res) => {
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,
-      subject: 'You are invited to join Interchatvas',
+      subject: `You are invited to join Interchatvas by ${invitor}`,
       text: `Your Interchatvas link: ${inviteUrl}`
     }
     const eachEmailPromise = sendEmail(transporter, mailOptions)

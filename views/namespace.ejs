@@ -10,7 +10,7 @@
 </head>
 <body>
   <header>
-    <h3>Choose your namespace</h3>
+    <h3>Hi <%= currentUser.name %>, Choose your namespace</h3>
   </header>
   <div class="namespaces_area">
     <% if (namespaces.length > 0) { %>
@@ -41,6 +41,9 @@
       <input id="invite_btn" type="button" value="invite">
     </div>
   </div>
+  <script type="text/javascript">
+    let currentUser = <%- JSON.stringify(currentUser) %>;
+  </script>
   <script src="/javascripts/emailInputModal.js"></script>
   <script src="/javascripts/namespace.js"></script>
 </body>
