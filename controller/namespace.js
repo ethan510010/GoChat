@@ -31,10 +31,12 @@ const createNamespace = async (req, res) => {
 const updateNamespace = async (req, res) => {
   const { updateNamespaceId, updateNamespaceName } = req.body;
   try {
-    await renewNamespace(updateNamespaceId, updateNamespaceName);
+    // 預設該 namespace 底下的 general room 的 id
+    const defaultRoomId = await renewNamespace(updateNamespaceId, updateNamespaceName);
     res.status(200).json({
       data: {
-        updateNamespaceName: updateNamespaceName
+        updateNamespaceName: updateNamespaceName,
+        thisNamespaceDefaultRoomId: defaultRoomId
       }
     })
   } catch (error) {

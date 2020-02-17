@@ -1,4 +1,4 @@
-const { exec, execWithParaObj, createNameSpaceTransaction } = require('../db/mysql');
+const { exec, execWithParaObj, createNameSpaceTransaction, updateNamespaceTransaction } = require('../db/mysql');
 
 const getNamespacesForUser = async (userId) => {
   const namespacesOfUser = await exec(`
@@ -28,10 +28,15 @@ const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespa
 
 // 更新 namespace
 const renewNamespace = async (namespaceId, namespaceName) => {
-  const updateResult = execWithParaObj(`
+  const { defaultRoomId } = await updateNamespaceTransaction(namespaceName, `
+    select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
+    inner join namespace
+    on room.namespaceId=namespace.id
+    where namespaceId=${namespaceId} order by roomId
+  `, `
     update namespace set namespaceName=? where id=${namespaceId}
-    `, namespaceName);
-  return updateResult;
+  `)
+  return defaultRoomId;
 }
 
 const listAllNamespaces = async () => {

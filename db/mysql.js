@@ -429,6 +429,59 @@ function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNam
   })
 }
 
+// update namespace transaction
+function updateNamespaceTransaction(namespaceName, selectDefaultRoomSQL, updateNamespaceSQL) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(selectDefaultRoomSQL, (err, result) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(err);
+            })
+          }
+          if (result.length > 0) {
+            const defaultRoomId = result[0].roomId;
+            connection.query(updateNamespaceSQL, [namespaceName], (err, result) => {
+              if (err) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(err);
+                })
+              }
+              connection.commit((commitErr) => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(commitErr);
+                  })
+                }
+                resolve({
+                  defaultRoomId: defaultRoomId
+                })
+                connection.release();
+                console.log('更新 namespace 成功');
+              })
+            })
+          }
+        })
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
@@ -439,6 +492,7 @@ module.exports = {
   createMessageRecord,
   updateRoomMember,
   handleRoomCanvas,
-  createNameSpaceTransaction
+  createNameSpaceTransaction,
+  updateNamespaceTransaction
 }
 

@@ -1,4 +1,5 @@
 let isEditNamespaceMode = true;
+let beSelectedNamespaceBlock;
 // 彈出視窗
 const addNamespaceBtn = document.getElementById('float_button');
 const emailArea = document.querySelector('.invite_email_area');
@@ -38,7 +39,7 @@ emailArea.addEventListener('click', function(event) {
 
 // 包裝 fetch api
 async function encapsulateFetch(url, bodyParas, method) {
-  if (method === 'POST') {
+  if (method === 'POST' || method === 'PUT') {
     const response = await fetch(url, {
       method: method,
       body: JSON.stringify(bodyParas),
@@ -109,22 +110,37 @@ inviteButton.addEventListener('click', async function() {
     }
     // 代表是編輯 namespace，打 updateNamespace
   } else {
+    const updateNamespaceTitleTag = beSelectedNamespaceBlock.children[0];
+    const shouldUpdateNamespaceId = beSelectedNamespaceBlock.id.replace('namespaceId_', '');
+    const updateNamespaceResult = await encapsulateFetch('/namespace/updateNamespace', {
+      updateNamespaceId: shouldUpdateNamespaceId,
+      updateNamespaceName: document.querySelector('.namespace_input input').value
+    }, 'PUT');
+    if (updateNamespaceResult) {
+      updateNamespaceTitleTag.textContent = updateNamespaceResult.updateNamespaceName
+    }
     let emailList = [];  
     for (let i = 0; i < emailArea.children.length; i++) {
       const email = emailArea.children[i].id;
       emailList.push(email);
     }
-    console.log(emailList);
-    console.log('編輯')
+    const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
+      emailList: emailList,
+      namespaceId: shouldUpdateNamespaceId,
+      newDefaultRoomId: updateNamespaceResult.thisNamespaceDefaultRoomId
+    }, 'POST')
+    if (sendEmailResult) {
+      alert('邀請信送出成功');
+    }
   }
 })
 
 // 點擊 namespace 區塊
 namespacesArea.addEventListener('click', function (e) {
   if (e.target.nodeName.toUpperCase() === 'INPUT') {
-    const beSelectedNamespaceBlock = e.target.parentNode;
-    const namespaceTitle = beSelectedNamespaceBlock.children[0].textContent;
-    const namespaceIdStr = beSelectedNamespaceBlock.id;
+    const selectNamespaceArea = e.target.parentNode;
+    const namespaceTitle = selectNamespaceArea.children[0].textContent;
+    const namespaceIdStr = selectNamespaceArea.id;
     // 獲取被點擊的 namespaceId
     const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
     switch (e.target.className) {
@@ -136,7 +152,7 @@ namespacesArea.addEventListener('click', function (e) {
         window.location = `/chat?userId=${userId}&namespaceId=${beTappedNamespaceId}`;    
         break;
       case 'invite_from_namespace_block_btn':
-        console.log(beTappedNamespaceId)
+        beSelectedNamespaceBlock = selectNamespaceArea
         isEditNamespaceMode = true;
         inputModalAppearance(isEditNamespaceMode, true, namespaceTitle);
         break;
