@@ -26,7 +26,15 @@ const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespa
   return insertNamespaceResult;
 }
 
+const listAllNamespaces = async () => {
+  const allNamespaces = await exec(`
+    select * from namespace;
+  `);
+  return allNamespaces;
+}
+
 module.exports = {
   getNamespacesForUser,
-  createNamespaceAndBindingGeneralRoom
+  createNamespaceAndBindingGeneralRoom,
+  listAllNamespaces
 }

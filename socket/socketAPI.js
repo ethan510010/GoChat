@@ -6,6 +6,7 @@ const { updateUserSelectedRoom } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom } = require('../model/rooms');
+const { listAllNamespaces } = require('../model/namespace');
 require('dotenv').config();
 const aws = require('aws-sdk');
 aws.config.update({
@@ -25,11 +26,15 @@ let socketio = {};
 let currentSelectedRoomId = 0;
 // 用來記錄當前 room 跟 peerId 的 list
 let roomPeerIdList = {};
-// 獲取io
-socketio.getSocketio = function (server) {
+
+socketio.getSocketio = async function (server) {
+  // 測試撈出所有的 namespace
+  // const allNamespaces = await listAllNamespaces(); 
   const io = socket_io.listen(server);
-  io.on('connection', function (socket) {
-    // 有人連線進該房間
+  // 註冊 socket io for eachNamespace
+  io.of(/^\/namespaceId=\d+$/).on('connect', function (socket) {
+    // 有人連線進來
+    console.log('有人連線進來', socket.nsp);
     socket.on('changeRoom', async (roomDetailInfo, callback) => {
       const { roomId } = roomDetailInfo.joinRoomInfo;
       const { userInfo, peerId } = roomDetailInfo;
