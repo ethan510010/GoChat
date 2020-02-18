@@ -30,43 +30,54 @@
   <body>
     <%- include('./customAlert.ejs'); %>
     <div class="scene_background"></div>
-    <div class="sign_in_block">
-        <p>Get Started</p>
-        <div class="sign_in_area">
-          <div class="enter_email">
-            <input type="text" placeholder="Email Address">
-          </div>
-          <div class="enter_password">
-            <input type="password" placeholder="Password">
-          </div>
-          <div class="sign_in_button">
-            <input class="signin_btn" type="button" value="SIGN IN">
-          </div>
-        </div>
-        <div class="signup_area">
-          <p id="not_member_hint">not a member? Just click</p>
-          <div class="signup_info">
-            <div class="enter_username">
-              <input type="text" placeholder="Username">
-            </div>
-            <div class="enter_email_for_signup">
+    <div id=title>
+      <p>Chatvas</p>
+    </div>
+    <div id="login_content">
+      <div class="decoration_area">
+        <div id="description">Change the way of transnational communication</div>
+        <video autoplay src="https://www.youtube.com/watch?v=eNFca8NmyGo"></video>
+      </div>
+      <div class="function_area">
+        <div class="sign_in_block">
+          <p>Get Started</p>
+          <div class="sign_in_area">
+            <div class="enter_email">
               <input type="text" placeholder="Email Address">
             </div>
-            <div class="enter_password_for_signup">
-              <input placeholder="Password" type="password">
+            <div class="enter_password">
+              <input type="password" placeholder="Password">
             </div>
-            <input class="signup_btn" type="button" value="SIGN UP">
+            <div class="sign_in_button">
+              <input class="signin_btn" type="button" value="SIGN IN">
+            </div>
+          </div>
+          <div class="signup_area">
+            <p id="not_member_hint">not a member? Just click</p>
+            <div class="signup_info">
+              <div class="enter_username">
+                <input type="text" placeholder="Username">
+              </div>
+              <div class="enter_email_for_signup">
+                <input type="text" placeholder="Email Address">
+              </div>
+              <div class="enter_password_for_signup">
+                <input placeholder="Password" type="password">
+              </div>
+              <input class="signup_btn" type="button" value="SIGN UP">
+            </div>
+          </div>
+          <div class="horizontal_line"></div>
+          <!-- <div class="google_login_area">
+            <img src="/images/google.png" alt="">
+            <input type="button" value="GOOGLE LOGIN">
+          </div> -->
+          <div class="facebook_login_area">
+            <img src="/images/FB.png" alt="">
+            <input type="button" value="FACEBOOK LOGIN">
           </div>
         </div>
-        <div class="horizontal_line"></div>
-        <div class="google_login_area">
-          <img src="/images/google.png" alt="">
-          <input type="button" value="GOOGLE LOGIN">
-        </div>
-        <div class="facebook_login_area">
-          <img src="/images/FB.png" alt="">
-          <input type="button" value="FACEBOOK LOGIN">
-        </div>
+      </div>
     </div>
     <script src="/javascripts/customAlert.js"></script>
     <script src="/javascripts/home.js"></script>

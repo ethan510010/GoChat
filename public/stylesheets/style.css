@@ -8,19 +8,84 @@ body, html {
 }
 
 .scene_background {
-  background-image: url('/images/sky.jpg');
+  background-image: url('/images/whiteSky.jpg');
   height: 100%;
   /* Add the blur effect */
-  filter: blur(6px);
-  -webkit-filter: blur(6px);
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
-.sign_in_block {
+#title {
   position: absolute;
+  left: 0;
+  top: 0;
+  height: 100px;
+  width: 100%;
+  z-index: 2;
+  text-align: center;
+  line-height: 100px;
+}
+
+#title p {
+  font-size: 54px;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+  font-family: cursive;
+  font-style: italic;
+  margin: 0;
+}
+
+#login_content {
+  width: 100%;
+  height: calc(100% - 100px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  top: 100px;
+}
+
+.decoration_area, 
+.function_area {
+  width: 50%;
+}
+
+
+
+.decoration_area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#description {
+  font-size: 30px;
+  font-family: cursive;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 50px;
+}
+
+.decoration_area video {
+  width: 90%;
+  max-height: 400px;
+}
+
+.function_area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign_in_block {
+  /* position: absolute;
   left: 50%;
   top: 60px;
   transform: translateX(-50%);
@@ -32,15 +97,23 @@ body, html {
   flex-direction: column;
   align-items: center;
   border-radius: 10px;
+  padding-bottom: 5px; */
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
   padding-bottom: 5px;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .sign_in_block p {
   margin: 10px 0 10px 0;
   font-size: 24px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: bold; 
-  color: #555956;
+  font-weight: normal; 
+  color: #FFFFFF;
 }
 
 .sign_in_area,
@@ -57,7 +130,7 @@ body, html {
   padding-left: 10px;
   padding-top: 5px;
   padding-bottom: 5px;
-  border: 1px solid #CCC;
+  border: 0.1px solid #CCC;
   margin-bottom: 10px;
   border-radius: 10px;
   font-family: Arial, sans-serif;
@@ -66,17 +139,18 @@ body, html {
 }
 
 .sign_in_button input {
-  background-color: #0352fc;
+  background-color: rgba(135, 206, 235, .6);
   height: 40px;
   color: #ffffff;
 }
 
 .signup_area p {
   font-size: 10px;
-  color: #bec2c4;
+  color: rgba(213, 215, 219, .8);
   text-align: center;
   font-weight: normal;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .signup_area .signup_btn {
@@ -109,8 +183,10 @@ body, html {
 }
 
 .facebook_login_area {
-  border: 1px solid #273c75; 
-  background-color: #273c75;
+  /* border: 1px solid #273c75;  */
+  /* background-color: #273c75; */
+  background-color: rgba(0, 71, 125, 0.4);
+  border: 1px solid rgba(0, 71, 125, 0.4);;
 }
 
 .google_login_area {
@@ -130,12 +206,12 @@ body, html {
   border: none;
   width: 60%;
   padding: 0;
-  font-weight: bold;
+  font-weight: 600;
   color: #FFFFFF;
 }
 
 .facebook_login_area input {
-  background-color: #273c75;
+  background-color: rgba(0, 71, 125, 0);
 }
 
 .google_login_area input {
