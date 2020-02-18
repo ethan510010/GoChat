@@ -15,7 +15,8 @@ const rp = require('request-promise');
 
 // 登入
 const userSignin = async (req, res) => {
-  const { email, password, signinway, thirdPartyAuthToken } = req.body;
+  // 被邀請到某個 namespace 底下才會有該房間
+  const { email, password, signinway, thirdPartyAuthToken, beInvitedRoomId } = req.body;
   switch (signinway) {
     case 'native':
       const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
@@ -23,7 +24,7 @@ const userSignin = async (req, res) => {
         const { userId, hasUser, name, avatarUrl } = await searchUser(email, hashedUserPassword);
         if (hasUser) {
           // 重新登入要更新 token
-          const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate);
+          const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate, beInvitedRoomId);
           if (updateResult === true) {
             res.status(200).json({
               data: {
@@ -68,13 +69,33 @@ const userSignin = async (req, res) => {
       const fbEmail = fbResponse.email;
       const { hasedThirdPartyToken, tokenExpiredTime, thirdPartyLoginCustomToken } = hashThirdPartyLoginToken(thirdPartyAuthToken);
       try {
-        // 如果該 fb user email 不存在就新增使用者 fb 資料，否則就單純更新
+        // 如果該 fb user email 不存在就新增使用者 fb 資料 (類似註冊)，否則就單純更新
         let validUserId = 0;
         const { userId, hasFBUser } = await searchFBUser(fbEmail);
         if (hasFBUser) {
-          validUserId = await updateUserFBInfo(userId, thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, fbUserName);
+          validUserId = await updateUserFBInfo(
+            userId, 
+            thirdPartyLoginCustomToken, 
+            hasedThirdPartyToken, 
+            'facebook', 
+            tokenExpiredTime, 
+            fbPicture, 
+            fbEmail, 
+            fbUserName, 
+            beInvitedRoomId
+          );
         } else {
-          validUserId = await insertUser(thirdPartyLoginCustomToken, hasedThirdPartyToken, 'facebook', tokenExpiredTime, fbPicture, fbEmail, '', fbUserName);
+          validUserId = await insertUser(
+            thirdPartyLoginCustomToken, 
+            hasedThirdPartyToken, 
+            'facebook', 
+            tokenExpiredTime, 
+            fbPicture, 
+            fbEmail, 
+            '', 
+            fbUserName, 
+            beInvitedRoomId
+          );
         }
         res.status(200).json({
           data: {

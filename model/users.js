@@ -1,4 +1,4 @@
-const { createGeneralUser, exec, escape, updateFBUserInfo } = require('../db/mysql')
+const { createGeneralUser, exec, escape, updateFBUserInfo, updateGeneralUserTransaction } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -60,7 +60,16 @@ const insertUser = async (
   return insertUserResult;
 }
 
-const updateUserFBInfo = async (userId, accessToken, fbAccessToken, provider, expiredDate, avatarUrl, fbEmail, fbUserName) => {
+const updateUserFBInfo = async (
+  userId, 
+  accessToken, 
+  fbAccessToken, 
+  provider, 
+  expiredDate, 
+  avatarUrl, 
+  fbEmail, 
+  fbUserName, 
+  beInvitedRoomId) => {
   const userInfoObj = {
     userId,
     accessToken,
@@ -69,16 +78,30 @@ const updateUserFBInfo = async (userId, accessToken, fbAccessToken, provider, ex
     expiredDate,
     avatarUrl,
     fbEmail,
-    fbUserName
+    fbUserName,
+    beInvitedRoomId
   }
-  const updateGeneralUserInfoSQL = `
-    update user set
-    access_token=?,
-    fb_access_token=?,
-    provider=?,
-    expired_date=?
-    where id=${userId}
-  `
+  let updateGeneralUserInfoSQL = '';
+  if (beInvitedRoomId) {
+    updateGeneralUserInfoSQL = `
+      update user set
+      access_token=?,
+      fb_access_token=?,
+      provider=?,
+      expired_date=?,
+      last_selected_room_id=?
+      where id=${userId}
+    `
+  } else {
+    updateGeneralUserInfoSQL = `
+      update user set
+      access_token=?,
+      fb_access_token=?,
+      provider=?,
+      expired_date=?
+      where id=${userId}
+    `
+  }
   const updateFBUserDetailsSQL = `
     update fb_info set
     fb_avatar_url=?,
@@ -147,14 +170,18 @@ const searchFBUser = async (fbEmail) => {
   }
 }
 
-const updateUserToken = async (id, token, expiredTime) => {
-  const updateSQL = `
-    UPDATE user SET
-    access_token='${token}',
-    expired_date=${expiredTime}
-    WHERE id=${id}
-  `
-  const updateResult = await exec(updateSQL);
+const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
+  let userObj = {
+    userId: id,
+    token: token,
+    expiredTime: expiredTime,
+    beInvitedRoomId: beInvitedRoomId
+  }
+  const updateResult = await updateGeneralUserTransaction(`UPDATE user SET
+  access_token=?,
+  expired_date=?
+  WHERE id=${id}`, 
+  `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
   if (updateResult) {
     return true;
   } else {

@@ -73,15 +73,29 @@ signupBtn.addEventListener('click', (e) => {
 const signinUserEmailTag = document.querySelector('.enter_email input');
 const signinUserPasswordTag = document.querySelector('.enter_password input');
 const signinBtn = document.querySelector('.sign_in_button');
-console.log(signinUserEmailTag, signinUserPasswordTag)
+// 只有被邀請的用戶才會有這個 defaultRoomId
+const currentUrl = new URL(window.location)
+const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
 signinBtn.addEventListener('click', function(event) {
-  fetch('/users/signin', { 
-    method: 'POST',
-    body: JSON.stringify({
+  let bodyParas;
+  if (defaultRoomId) {
+    bodyParas = {
+      email: signinUserEmailTag.value,
+      password: signinUserPasswordTag.value,
+      signinway: 'native',
+      beInvitedRoomId: defaultRoomId
+    }
+    console.log(bodyParas)
+  } else {
+    bodyParas = {
       email: signinUserEmailTag.value,
       password: signinUserPasswordTag.value,
       signinway: 'native'
-    }),
+    }
+  }
+  fetch('/users/signin', { 
+    method: 'POST',
+    body: JSON.stringify(bodyParas),
     headers: new Headers({
       'Content-Type': 'application/json'
     })
@@ -126,13 +140,26 @@ function statusChangeCallback(response) {
 
 // 前端打我們自己的後端 api
 function fetchUserInfo(accessToken) {
+  // 只有被邀請的用戶才會有這個 defaultRoomId
+  const currentUrl = new URL(window.location)
+  const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+  let bodyParas;
+  if (defaultRoomId) {
+    bodyParas = {
+      signinway: 'facebook',
+      thirdPartyAuthToken: accessToken,
+      beInvitedRoomId: defaultRoomId
+    }
+  } else {
+    bodyParas = {
+      signinway: 'facebook',
+      thirdPartyAuthToken: accessToken,
+    }
+  }
   // 打我們自己的api
   fetch('/users/signin', {
     method: 'POST',
-    body: JSON.stringify({
-      signinway: 'facebook',
-      thirdPartyAuthToken: accessToken
-    }),
+    body: JSON.stringify(bodyParas),
     headers: new Headers({
       'Content-Type': 'application/json',
     }),
