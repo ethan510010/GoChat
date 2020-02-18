@@ -138,7 +138,7 @@ inviteButton.addEventListener('click', async function() {
 })
 
 // 點擊 namespace 區塊
-namespacesArea.addEventListener('click', function (e) {
+namespacesArea.addEventListener('click', async function (e) {
   if (e.target.nodeName.toUpperCase() === 'INPUT') {
     const selectNamespaceArea = e.target.parentNode;
     const namespaceTitle = selectNamespaceArea.children[0].textContent;
@@ -147,10 +147,11 @@ namespacesArea.addEventListener('click', function (e) {
     const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
     switch (e.target.className) {
       case 'enter_namespace_btn':
-        // const beSelectedNamespaceBlock = e.target.parentNode;
-        // const namespaceIdStr = beSelectedNamespaceBlock.id;
-        // 獲取被點擊的 namespaceId
-        // const beTappedNamespaceId = namespaceIdStr.replace('namespaceId_', '');
+        // 打 api 更新使用者最後點擊的 namespace 及該 namespace 綁定的 default general room
+        await encapsulateFetch('/users/updateSelectedNamespace', {
+          userId: currentUser.userId,
+          newSelectedNamespaceId: beTappedNamespaceId
+        }, 'PUT');
         window.location = `/chat?userId=${userId}&namespaceId=${beTappedNamespaceId}`;    
         break;
       case 'invite_from_namespace_block_btn':

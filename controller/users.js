@@ -8,7 +8,8 @@ const {
   updateUserFBInfo, 
   getAllUsers, 
   updateUserAvatar,
-  updateUserSelectedRoom 
+  updateUserSelectedRoom,
+  updateUserLastNamespace 
 } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise');
@@ -212,11 +213,26 @@ const updateUserRoom = async (req, res) => {
   }
 }
 
+// 更新使用者選擇的 namespace
+const updateUserSelectNamespace = async (req, res) => {
+  const { userId, newSelectedNamespaceId } = req.body;
+  try {
+    await updateUserLastNamespace(userId, newSelectedNamespaceId);
+    res.status(200).send({
+      userId: userId,
+      updateNamespaceId: newSelectedNamespaceId
+    })
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
 module.exports = {
   userSignin,
   signupUser,
   getUserProfile,
   listAllUsers,
   updateAvatar,
-  updateUserRoom
+  updateUserRoom,
+  updateUserSelectNamespace
 }

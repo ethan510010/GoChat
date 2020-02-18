@@ -265,15 +265,35 @@ function updateGeneralUserTransaction(updateGeneralUserSQL, insertRoomJunctionSQ
           userObj.token,
           userObj.expiredTime
         ], (updateErr, result) => {
-            if (updateErr) {
-              return connection.rollback(() => {
-                connection.release();
-                reject(commitErr);
-              })
-            }
-            // 區分是否為被邀清進 namespace
-            // 沒有 beInvitedRoomId 代表為一般重新登入
-            if (!userObj.beInvitedRoomId) {
+          if (updateErr) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(commitErr);
+            })
+          }
+          // 區分是否為被邀清進 namespace
+          // 沒有 beInvitedRoomId 代表為一般重新登入
+          if (!userObj.beInvitedRoomId) {
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(commitErr);
+                })
+              }
+              console.log('更新一般用戶成功')
+              resolve(userObj.userId);
+              connection.release();
+            })
+            // 有 beInvitedRoomId 代表為有被邀請的重新登入
+          } else {
+            connection.query(insertRoomJunctionSQL, [userObj.userId, userObj.beInvitedRoomId], (err, result) => {
+              if (err) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(err);
+                })
+              }
               connection.commit((commitErr) => {
                 if (commitErr) {
                   return connection.rollback(() => {
@@ -285,29 +305,9 @@ function updateGeneralUserTransaction(updateGeneralUserSQL, insertRoomJunctionSQ
                 resolve(userObj.userId);
                 connection.release();
               })
-            // 有 beInvitedRoomId 代表為有被邀請的重新登入
-            } else {
-              connection.query(insertRoomJunctionSQL, [userObj.userId, userObj.beInvitedRoomId], (err, result) => {
-                if (err) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(err);
-                  })
-                }
-                connection.commit((commitErr) => {
-                  if (commitErr) {
-                    return connection.rollback(() => {
-                      connection.release();
-                      reject(commitErr);
-                    })
-                  }
-                  console.log('更新一般用戶成功')
-                  resolve(userObj.userId);
-                  connection.release();
-                })
-              })
-            }
-          })
+            })
+          }
+        })
       })
     })
   })
@@ -580,6 +580,76 @@ function updateNamespaceTransaction(namespaceName, selectDefaultRoomSQL, updateN
   })
 }
 
+function updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(`
+          SELECT 
+          room.id as roomId, 
+          room.name as roomName, 
+          namespaceId, 
+          namespaceName from namespace 
+          inner join room 
+          on namespace.id=room.namespaceId  
+          where namespaceId=${namespaceId} order by roomId`
+          , (err, result) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                reject(err);
+              })
+            }
+            if (result.length > 0) {
+              // 因為有按照 roomId 排序，所以第一個就是 general room
+              const namespaceGeneralRoomId = result[0].roomId;
+              connection.query(`
+              UPDATE user 
+              SET last_selected_room_id=${namespaceGeneralRoomId},
+              last_selected_namespace_id=${namespaceId}`, (updateErr, result) => {
+                if (updateErr) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    reject(err);
+                  })
+                }
+                connection.commit((commitErr) => {
+                  if (commitErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(commitErr);
+                    })
+                  }
+                  resolve({
+                    namespaceId: namespaceId
+                  })
+                  connection.release();
+                  console.log('更新 user 選擇的 namespace 成功');
+                })
+              })
+            } else {
+              resolve({
+                namespaceId: namespaceId
+              })
+              connection.release();
+            }
+          })
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
@@ -592,6 +662,7 @@ module.exports = {
   handleRoomCanvas,
   createNameSpaceTransaction,
   updateNamespaceTransaction,
-  updateGeneralUserTransaction
+  updateGeneralUserTransaction,
+  updateUserSelectedNamespaceAndRoomTransaction
 }
 

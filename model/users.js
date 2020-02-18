@@ -1,4 +1,10 @@
-const { createGeneralUser, exec, escape, updateFBUserInfo, updateGeneralUserTransaction } = require('../db/mysql')
+const { 
+  createGeneralUser, 
+  exec, 
+  escape, 
+  updateFBUserInfo, 
+  updateGeneralUserTransaction, 
+  updateUserSelectedNamespaceAndRoomTransaction } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -351,6 +357,29 @@ const updateUserSelectedRoom = async (userId, roomId) => {
   }
 }
 
+const updateUserLastNamespace = async (userId, namespaceId) => {
+  const userLatestSelectedNamespaceId = await exec(`
+    select 
+    last_selected_namespace_id as lastSelectedNamespaceId 
+    from user 
+    where id=${userId}
+  `);
+  // 如果新選擇的與當前的 namespaceId 不一致，就更新 user 選擇的 namespace 及 
+  // user 最後選擇的 roomId 綁定到新的 namespace 底下的 general room
+  if (userLatestSelectedNamespaceId[0] && userLatestSelectedNamespaceId[0].lastSelectedNamespaceId !== parseInt(namespaceId, 10)) {
+    const updateResult = await updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId);
+    if (updateResult) {
+      return {
+        namespaceId
+      }
+    }
+  } else {
+    return {
+      namespaceId
+    };
+  }
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -363,5 +392,6 @@ module.exports = {
   getAllUsers,
   updateUserAvatar,
   updateUserSelectedRoom,
-  getAllUsersOfNamespace
+  getAllUsersOfNamespace,
+  updateUserLastNamespace
 }

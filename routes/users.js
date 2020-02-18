@@ -6,7 +6,8 @@ const {
   getUserProfile, 
   listAllUsers, 
   updateAvatar, 
-  updateUserRoom 
+  updateUserRoom,
+  updateUserSelectNamespace 
 } = require('../controller/users');
 const { checkExistedUser } = require('../middleware/checkExistedUser');
 const { checkTokenExpired } = require('../middleware/checkTokenExpired');
@@ -22,5 +23,7 @@ router.get('/listUsers', listAllUsers);
 router.put('/renewUserAvatar', updateAvatar);
 
 router.put('/renewUserSelectedRoom', updateUserRoom);
+
+router.put('/updateSelectedNamespace', updateUserSelectNamespace);
 
 module.exports = router;
