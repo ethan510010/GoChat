@@ -65,7 +65,7 @@ const invitePeopleToNamespace = async (req, res) => {
   let sendEmailPromiseList = [];
   for (let i = 0; i < emailList.length; i++) {
     const email = emailList[i];
-    const inviteUrl = `http://localhost:3000?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
+    const inviteUrl = `https://interchatvas.com?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,
