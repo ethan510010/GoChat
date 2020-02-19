@@ -47,6 +47,21 @@ const chatPageContent = async (req, res) => {
     // const allExistedRooms = await listExistedRooms();
     // 2/17 開始
     const allExistedRoomsOfNamespace = await getAllRoomsOfNamespace(inputNamespaceId);
+    let userLanguage = '';
+    switch (userProfile.selectedLanguage) {
+      case 'en':
+        userLanguage = 'English';
+        break;
+      case 'zh-TW':
+        userLanguage = '繁體中文';
+        break;
+      case 'ja':
+        userLanguage = 'Japanese';
+        break;
+      case 'es':
+        userLanguage = 'Spanish';
+        break;
+    }
     res.render('chat', {
       roomTitle: lastSelectedRoomTitle,
       currentUserDetail: userProfile,
@@ -54,7 +69,8 @@ const chatPageContent = async (req, res) => {
       rooms: allRoomsOfCurrentUserAndNamespace,
       allUsers: exclusiveSelfUsersOfNamespace,
       allRooms: allExistedRoomsOfNamespace,
-      currentNamespaceId: inputNamespaceId
+      currentNamespaceId: inputNamespaceId,
+      userLanguage: userLanguage
     })
   } catch (error) {
     res.status(500).send(error.message);

@@ -35,6 +35,7 @@ html, body {
   width: 50px;
   height: 50px;
   margin-right: 20px;
+  cursor: pointer;
 }
 
 /* Header */
@@ -54,6 +55,60 @@ header {
   border-bottom: 0.5px solid #fff;
   color: #fff;
   position: relative;
+}
+
+#toggle_list {
+  position: fixed;
+  top: 60px;
+  right: -300px;
+  width: 300px;
+  height: calc(100% - 60px);
+  z-index: 2;
+  background-color: #FFF;
+  transition: all 0.3s ease;
+  box-shadow: -2px 0 0 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+#profile_area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#profile_area img {
+  width: 150px;
+  height: 150px;
+  border-radius: 75px;
+}
+
+/* Email 區塊 */
+#profile_area .email, 
+#profile_area .language {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#profile_area .email img,
+#profile_area .language img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+#profile_area .user_email,
+#profile_area .user_language {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+#profile_area .user_name {
+  font-size: 30px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.4);
 }
 
 #room_setting img {
@@ -174,7 +229,7 @@ header {
   padding-left: 5px;
   color: #FFFFFF;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 25px;
 }
 
 .room_header .add_room {
@@ -189,6 +244,7 @@ header {
   font-weight: 400;
   display: flex;
   align-items: center;
+  font-size: 16px;
 }
 
 .room_title {
@@ -549,6 +605,7 @@ header {
   margin: 0 10px;
   width: 30px;
   height: 30px;
+  cursor: pointer;
 }
 
 #room_title {
@@ -659,7 +716,7 @@ header {
 
 .messageReceiver .messageDetail {
   background-color: #FFF;
-  color: black;
+  color: rgba(0, 0, 0, .8);
 }
 
 .messageHost .messageDetail {
@@ -721,7 +778,7 @@ header {
 }
 
 .new_message_mention_line {
-  color: #E1E3E1;
+  color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -732,7 +789,7 @@ header {
 .new_message_mention_line .right_decoration_line {
   height: 2px;
   width: 30%;
-  background-color: #E1E3E1;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .new_message_mention_line p {

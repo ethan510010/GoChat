@@ -526,3 +526,9 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
   }
 }
+
+// 如果斷線自動重連
+socket.on('disconnect', () => {
+  console.log('socket 斷線，自動重連');
+  socket.open();
+});

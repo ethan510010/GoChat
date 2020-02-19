@@ -99,6 +99,24 @@
       </div>
     </div>
   </div>
+  <!-- toggle profile -->
+  <div id="toggle_list">
+    <div id="profile_area">
+      <img src=<%= userAvatar %> alt="">
+      <p class="user_name"><%= currentUserDetail.name %></p>
+      <div class="basic_info">
+        <div class="email">
+          <img src="/images/email.png" alt="">
+          <p class="user_email"><%= currentUserDetail.email %></p>
+        </div>
+        <div class="language">
+          <img src="/images/language.png" alt="">
+          <p class="user_language"><%= userLanguage %></p>
+        </div>
+      </div>
+    </div>
+    <div id="online_members"></div>
+  </div>
   <!-- Modal Div -->
   <div id="addRoomModal" class="modal">
     <!-- Modal content -->
@@ -183,6 +201,7 @@
   <script src="/javascripts/modalPopup.js"></script> 
   <!-- 使用者按下左上方的設定相關的 js -->
   <!-- <script src="/javascripts/setting.js"></script> -->
+  <script src="/javascripts/toggle.js"></script>
   <script src="/javascripts/canvas.js"></script>
 </body>
 </html>

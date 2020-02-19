@@ -57,7 +57,7 @@ socketio.getSocketio = async function (server) {
           user: userInfo
         })
         socket.join(roomId);
-        // console.log('離開前房間跟用戶的狀況', roomUsersPair)
+        console.log('目前房間跟用戶的狀況', roomUsersPair)
         // 2. 離開舊房間的處理
         const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
         if (roomUsersPair[leaveRoomId]) {
@@ -115,7 +115,10 @@ socketio.getSocketio = async function (server) {
       roomUsersPair[roomId].push(joinInfo.userInfo);
 
       socket.join(roomId);
-
+      console.log('目前房間跟用戶的狀況', roomUsersPair)
+      subNamespace.in(roomId).clients((err, clients) => {
+        console.log(`在 roomId ${roomId} 的用戶`, clients)
+      })
       // WebRTC 事件
       roomPeerIdList[roomId].push({
         peerId: peerId,
