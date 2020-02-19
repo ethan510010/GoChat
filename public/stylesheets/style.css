@@ -8,11 +8,11 @@ body, html {
 }
 
 .scene_background {
-  background-image: url('/images/whiteSky.jpg');
+  background-image: url('/images/beachSky.jpg');
   height: 100%;
   /* Add the blur effect */
-  filter: blur(5px);
-  -webkit-filter: blur(5px);
+  filter: blur(6px);
+  -webkit-filter: blur(6px);
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
@@ -28,9 +28,11 @@ body, html {
   z-index: 2;
   text-align: center;
   line-height: 100px;
+  padding: 20px;
 }
 
 #title p {
+
   font-size: 54px;
   color: rgba(0, 0, 0, 0.5);
   font-weight: 600;
@@ -145,7 +147,7 @@ body, html {
 }
 
 .signup_area p {
-  font-size: 10px;
+  font-size: 14px;
   color: rgba(213, 215, 219, .8);
   text-align: center;
   font-weight: normal;
