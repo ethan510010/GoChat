@@ -9,10 +9,38 @@ html, body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  background-color: #1A5276;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header span {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 40px;
+  cursor: pointer;
+  color: #FFF;
+  font-weight: 300;
+}
+
+.header img {
+  width: 50px;
+  height: 50px;
+  margin-right: 20px;
+}
+
 /* Header */
 header {
   position: fixed;
-  top: 0;
+  top: 60px;
   height: 60px;
   width: 100%;
   display: flex;
@@ -112,10 +140,11 @@ header {
 
 /* 左半邊側欄 */
 .side_pad {
-  width: 30%;
+  width: 25%;
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  background-color: #062D46;
+  /* padding: 10px; */
 }
 
 .upper_section {
@@ -125,7 +154,7 @@ header {
   justify-content: space-between;
   color: black;
   padding: 10px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   max-height: 70%;
 }
 
@@ -493,14 +522,54 @@ header {
 }
 /* 聊天視窗 */
 .chat_content {
-  width: 70%;
+  width: 75%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.roomTitleRegion {
+  background-color: rgba(204, 204, 204, 0.8);
+  min-height: 50px;
+  max-height: 50px;
+  line-height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.5px solid #B0AFAF;
+}
+
+#function_area {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 30px;
+}
+
+#function_area img {
+  margin: 0 10px;
+  width: 30px;
+  height: 30px;
+}
+
+#room_title {
+  height: 100%;
+  color: rgba(0, 0, 0, 0.7);
+  margin-left: 40px;
+}
+
+#room_title p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: normal;
 }
 
 #chat_area {
   width: 100%;
-  height: calc(95% - 3px);
-  /* background-color: #E6E6E6; */
+  height: calc(95% - 50px);
+  max-height: calc(95% - 50px);
+  background-color:#E1E1E1;
   float: left;
   display: flex;
   flex-direction: column;
@@ -514,7 +583,7 @@ header {
 
 #resize {
   width: 100%;
-  height: 3px;
+  height: 5px;
   cursor: row-resize;
   float: left;
   background-color: #E6E6E6;
@@ -523,7 +592,7 @@ header {
 #draw_area {
   width: 100%;
   float: right;
-  height: 5%;
+  height: calc(5%);
   background-color: #FFFFFF;
   position: relative;
   overflow: auto;
@@ -562,7 +631,7 @@ header {
 .message_block .userName {
   font-size: 10px;
   margin: 2px 0;
-  color: #FFF;
+  color: #858585;
 }
 
 .message_block .messageDetail p {
@@ -573,7 +642,7 @@ header {
 .message_block .messageTime {
   font-size: 10px;
   margin-top: 3px;
-  color: #FFF;
+  color: #858585;
 }
 
 .messageHost {
@@ -596,9 +665,9 @@ header {
 }
 
 .messageHost .messageDetail {
-  background-color: #549E0F;
+  background-color: #5BB65C;
   color: #FFF;
-  border: 0.5px solid #FFF;
+  /* border: 0.5px solid #FFF; */
 }
 
 .messageHost .messageOuterBox {

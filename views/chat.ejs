@@ -10,7 +10,11 @@
   <link rel="stylesheet" href="/stylesheets/customConfirm.css">
 </head>
 <body>
-  <header>
+  <div class="header">
+    <span>Chatvas</span>
+    <img src="/images/menu.png" alt="">
+  </div>
+  <!-- <header>
     <div id="room_setting">
       <img src="/images/settings.png" alt="">
     </div>
@@ -24,7 +28,7 @@
       <div class="add_people">Add people</div>
       <div class="delete_channel">Leave current channel</div>
     </div>
-  </header>
+  </header> -->
   <!-- <div class="background_img"></div> -->
   <div class="content">
     <div class="side_pad">
@@ -43,12 +47,21 @@
       </div>
       <div class="lower_section">
         <!-- debug 用 -->
-        <span id="displayId" style="color: #FFFFFF"></span>
+        <span id="displayId" style="color: orange"></span>
         <input id="connId" type="text">
         <input class="launchVideo" type="button" value="Open video">
       </div>
     </div>
     <div class="chat_content">
+      <div class="roomTitleRegion">
+        <div id="room_title">
+          <p><%= roomTitle %></p>
+        </div>
+        <div id="function_area">
+          <img class="launchVideo" src="/images/video.png" alt="">
+          <img class="room_setting" src="/images/settings.png" alt="">
+        </div>
+      </div>
       <div id="chat_area">
         <div id="message_flow_area"></div>
         <div id="message_input">
@@ -169,7 +182,7 @@
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
   <!-- 使用者按下左上方的設定相關的 js -->
-  <script src="/javascripts/setting.js"></script>
+  <!-- <script src="/javascripts/setting.js"></script> -->
   <script src="/javascripts/canvas.js"></script>
 </body>
 </html>

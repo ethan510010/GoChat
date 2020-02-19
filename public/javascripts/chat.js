@@ -232,7 +232,7 @@ roomsAreaSection.addEventListener('click', function (event) {
     return;
   }
   // 改變上方 header UI
-  const roomTitleTag = document.querySelector('#room_title h1');
+  const roomTitleTag = document.querySelector('#room_title p');
   roomTitleTag.textContent = currentSelectedRoom.roomTitle;
   // 切換房間時同時加入到 Room，同時把 userDetail 送上來，但如果切換的房間與上次不同，要變成類似離開該房間的效果
   // defect 一樣是 非同步造成的
