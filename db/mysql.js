@@ -144,16 +144,30 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
                   reject(insertRoomErr);
                 })
               }
-              connection.commit((commitErr) => {
-                if (commitErr) {
+              // 再把資料撈出來
+              connection.query(`SELECT user.selected_language as selectedLanguage 
+              from user where id=${userId}`, 
+              (searchErr, result) => {
+                if (searchErr) {
                   return connection.rollback(() => {
                     connection.release();
-                    reject(commitErr);
+                    reject(searchErr);
                   })
                 }
-                console.log('新增用戶成功')
-                resolve(userId);
-                connection.release();
+                connection.commit((commitErr) => {
+                  if (commitErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(commitErr);
+                    })
+                  }
+                  console.log('新增用戶成功')
+                  resolve({
+                    userId: userId,
+                    selectedLanguage: result[0].selectedLanguage
+                  });
+                  connection.release();
+                })
               })
             })
           })

@@ -4,6 +4,7 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="/stylesheets/normalize.css">
     <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel="stylesheet" href="/stylesheets/userLanguage.css">
   </head>
   <!-- 載入 FB SDK -->
   <script>
@@ -77,9 +78,51 @@
             <input type="button" value="FACEBOOK LOGIN">
           </div>
         </div>
+        <!-- 把選擇語言跟設定大頭貼放到首頁 -->
+      <div class="set_language_avatar_area">
+        <div id="user_basic">
+          <h3>User Setting</h3>
+          <img class="user_avatar" src="" alt="">
+          <!-- 這邊之後要再加上可以上傳使用者大頭貼的部分 -->
+          <p class="setting_user_name"></p>
+          <p class="userLanguage">User preferred language: </p>
+          <div class="select-box">
+            <div class="options-container">
+              <div class="option">
+                <input type="radio" class="radio" id="en" name="language">
+                <label for="en">English</label>
+              </div>
+              <div class="option">
+                <input type="radio" class="radio" id="zh-TW" name="language">
+                <label for="zh-TW">繁體中文</label>
+              </div>
+              <div class="option">
+                <input type="radio" class="radio" id="ja" name="language">
+                <label for="ja">Japanese</label>
+              </div>
+              <div class="option">
+                <input type="radio" class="radio" id="es" name="language">
+                <label for="es">Spanish</label>
+              </div>
+            </div>
+            <div class="selected">
+              <p>Select Language</p>
+            </div>
+          </div>
+          <div class="upload_button_box">
+            <input id="customFileInput" type="file" accept="image/*">
+            <label for="customFileInput" class="button-primary">
+              <img class="icon" src="/images/upload.png" alt="">
+              <span>Upload avatar</span>
+            </label>
+          </div>
+          <input class="enter_button" type="button" value="Enter Chat Page">
+        </div>
+      </div>
       </div>
     </div>
     <script src="/javascripts/customAlert.js"></script>
     <script src="/javascripts/home.js"></script>
+    <script src="/javascripts/userLanguage.js"></script>
   </body>
 </html>

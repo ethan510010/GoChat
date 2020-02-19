@@ -135,20 +135,31 @@ const checkExistingUserEmail = async (email) => {
 }
 
 const searchUser = async (email, password) => {
+  // const searchUserSQL = `
+  //   SELECT general_user_info.userId as userId, 
+  //   general_user_info.email as email,
+  //   general_user_info.name as name,
+  //   general_user_info.avatarUrl as avatarUrl,
+  //   general_user_info.password as password FROM
+  //   general_user_info WHERE email='${email}' and password='${password}'
+  // `
   const searchUserSQL = `
-    SELECT general_user_info.userId as userId, 
+    SELECT user.selected_language as selectedLanguage,
+    general_user_info.userId as userId,
     general_user_info.email as email,
-    general_user_info.name as name,
     general_user_info.avatarUrl as avatarUrl,
-    general_user_info.password as password FROM
-    general_user_info WHERE email='${email}' and password='${password}'
+    general_user_info.name as name
+    from user inner join general_user_info on user.id=general_user_info.userId
+    WHERE email='${email}' and password='${password}'
   `
   const searchResult = await exec(searchUserSQL);
   if (searchResult.length > 0) {
+    const validAvatarUrl = searchResult[0].avatarUrl === '' ? '/images/defaultAvatar.png' : searchResult[0].avatarUrl
     return {
       userId: searchResult[0].userId,
       name: searchResult[0].name,
-      avatarUrl: searchResult[0].avatarUrl,
+      avatarUrl: validAvatarUrl,
+      selectedLanguage: searchResult[0].selectedLanguage,
       hasUser: true,
     };
   } else {
@@ -161,11 +172,16 @@ const searchUser = async (email, password) => {
 
 const searchFBUser = async (fbEmail) => {
   const searchResult = await exec(`
-    select userId from fb_info where fb_email='${fbEmail}'
+    select 
+    user.selected_language as selectedLanguage, 
+    fb_info.userId from user inner join fb_info 
+    on user.id=fb_info.userId 
+    where fb_email='${fbEmail}'
   `)
   if (searchResult.length > 0) {
     return {
       userId: searchResult[0].userId,
+      selectedLanguage: searchResult[0].selectedLanguage,
       hasFBUser: true
     };
   } else {

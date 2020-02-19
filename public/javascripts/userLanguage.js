@@ -1,17 +1,17 @@
 // 切換語言
 const selectLanguageTag = document.querySelector('#user_basic select');
 // 取得 query String
-function getParameterByName(name, url) {
-  if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-      results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+// function getParameterByName(name, url) {
+//   if (!url) url = window.location.href;
+//   name = name.replace(/[\[\]]/g, '\\$&');
+//   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+//       results = regex.exec(url);
+//   if (!results) return null;
+//   if (!results[2]) return '';
+//   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+// }
 
-const userId = getParameterByName('userId', window.location);
+// const userId = getParameterByName('userId', window.location);
 
 // 下拉選單
 const selected = document.querySelector('.selected');

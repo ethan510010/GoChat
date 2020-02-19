@@ -22,7 +22,7 @@ const userSignin = async (req, res) => {
     case 'native':
       const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
       try {
-        const { userId, hasUser, name, avatarUrl } = await searchUser(email, hashedUserPassword);
+        const { userId, hasUser, name, avatarUrl, selectedLanguage } = await searchUser(email, hashedUserPassword);
         if (hasUser) {
           // 重新登入要更新 token
           const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate, beInvitedRoomId);
@@ -36,7 +36,8 @@ const userSignin = async (req, res) => {
                   provider: 'native',
                   email: email,
                   name: name,
-                  avatarUrl: avatarUrl
+                  avatarUrl: avatarUrl,
+                  selectedLanguage: selectedLanguage
                 }
               }
             })
@@ -72,7 +73,8 @@ const userSignin = async (req, res) => {
       try {
         // 如果該 fb user email 不存在就新增使用者 fb 資料 (類似註冊)，否則就單純更新
         let validUserId = 0;
-        const { userId, hasFBUser } = await searchFBUser(fbEmail);
+        let validSelectedLanguage = '';
+        const { userId, hasFBUser, selectedLanguage } = await searchFBUser(fbEmail);
         if (hasFBUser) {
           validUserId = await updateUserFBInfo(
             userId, 
@@ -85,8 +87,9 @@ const userSignin = async (req, res) => {
             fbUserName, 
             beInvitedRoomId
           );
+          validSelectedLanguage = selectedLanguage;
         } else {
-          validUserId = await insertUser(
+          const { userId, selectedLanguage } = await insertUser(
             thirdPartyLoginCustomToken, 
             hasedThirdPartyToken, 
             'facebook', 
@@ -97,6 +100,8 @@ const userSignin = async (req, res) => {
             fbUserName, 
             beInvitedRoomId
           );
+          validUserId = userId;
+          validSelectedLanguage = selectedLanguage;
         }
         res.status(200).json({
           data: {
@@ -107,7 +112,8 @@ const userSignin = async (req, res) => {
               provider: 'facebook',
               name: fbUserName,
               email: fbEmail,
-              avatarUrl: fbPicture
+              avatarUrl: fbPicture,
+              selectedLanguage: validSelectedLanguage
             }
           }
         })
@@ -127,18 +133,19 @@ const signupUser = async (req, res) => {
   const { username, email, password, beInvitedRoomId } = req.body;
   const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
   try {
-    const valiudUserId = await insertUser(accessToken, '', 'native', tokenExpiredDate, '', email, hashedUserPassword, username, beInvitedRoomId);
-    // 剛註冊時沒有大頭貼網址，所以 avatar 直接給 ''
+    const { userId, selectedLanguage } = await insertUser(accessToken, '', 'native', tokenExpiredDate, '', email, hashedUserPassword, username, beInvitedRoomId);
+    // 剛註冊時沒有大頭貼網址，所以 avatar 預設我們給 '/images/defaultAvatar.png'
     res.status(200).json({
       data: {
         accessToken: accessToken,
         expiredDate: tokenExpiredDate,
         user: {
-          id: valiudUserId,
+          id: userId,
           provider: 'native',
           name: username,
           email: email,
-          avatarUrl: ''
+          avatarUrl: '/images/defaultAvatar.png',
+          selectedLanguage: selectedLanguage
         }
       }
     })

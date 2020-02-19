@@ -219,3 +219,8 @@ body, html {
 .google_login_area input {
   background-color: #E84118;
 }
+
+/* 選擇語言跟大頭貼 */
+.set_language_avatar_area {
+  display: none;
+}
