@@ -57,7 +57,7 @@ optionsContainer.addEventListener('click', function(e) {
     .then((validResponse) => {
       if (validResponse.data === 'success') {
         const userLanguageTag = document.querySelector('.userLanguage');
-        userLanguageTag.textContent = `User preferred language: ${selectedUILanguage}`;
+        userLanguageTag.textContent = `preferred language: ${selectedUILanguage}`;
         selectedParaTag.innerHTML = selectedUILanguage;
         optionsContainer.classList.remove('active');
       }

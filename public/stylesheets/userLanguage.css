@@ -19,8 +19,14 @@ body, html {
   background-size: cover;
 }
 
+.set_language_avatar_area {
+  display: none;
+  width: 100%;
+  max-width: 500px;
+}
+
 #user_basic {
-  position: absolute;
+  /* position: absolute;
   left: 50%;
   top: 60px;
   transform: translateX(-50%);
@@ -32,7 +38,29 @@ body, html {
   flex-direction: column;
   align-items: center;
   padding-bottom: 20px;
+  border-radius: 10px; */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-radius: 10px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#setting_area {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+#left_avatar_area, 
+#right_language_area {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #user_basic img {
@@ -41,25 +69,36 @@ body, html {
   border-radius: 50%;
 }
 
-#user_basic p {
-  margin-bottom: 0px;
+#user_basic .setting_user_name,
+#user_basic .userLanguage {
+  margin: 5px 0;
+  font-weight: 600;
+  font-family: cursive;
+  font-style: italic;
+  color: #FFF;
+  font-size: 18px;
+}
+
+#user_basic .setting_user_name {
+  font-size: 26px;
   font-weight: bold;
 }
 
 /* 客製化下拉選單 */
 .select-box {
   display: flex;
-  width: 80%;
+  width: 100%;
   flex-direction: column;
 }
 
 .select-box p {
   margin: 0;
-  font-weight: bold;
+  font-weight: 600;
+  font-family: cursive;
 }
 
 .select-box .options-container {
-  background: #003e85;
+  background: rgba(0, 71, 125, 0.4);
   color: #FFF;
   max-height: 0;
   width: 100%;
@@ -71,7 +110,7 @@ body, html {
 }
 
 .selected {
-  background: #003e85;
+  background: rgba(71, 152, 179, 0.7);
   border-radius: 8px;
   margin: 8px 0;
   color: #FFF;
@@ -95,7 +134,6 @@ body, html {
 .select-box .options-container.active {
   max-height: 240px;
   opacity: 1;
-  /* overflow-y: auto; */
 }
 
 .select-box .options-container.active + .selected::after {
@@ -118,15 +156,19 @@ body, html {
 .selected {
   padding: 12px 24px;
   cursor: pointer;
+  font-weight: normal;
+  font-size: 18px;
 }
 
 .select-box .option:hover {
-  background: #012D5C;
+  background: rgba(70, 130, 180, 0.6);
 }
 
 .select-box label {
   cursor: pointer;
-  font-weight: bold;
+  font-weight: normal;
+  font-size: 16px;
+  font-family: cursive;
 }
 
 .select-box .option .radio {
@@ -138,12 +180,23 @@ body, html {
   display: none;
 }
 
+.upload_button_box span {
+  color: #FFF;
+  font-size: 16px;
+  font-weight: normal;
+  font-family: cursive;
+}
+
 #user_basic .upload_button_box .button-primary {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-radius: 2px;
+  border: 1px solid #FFF;
+  margin-top: 10px;
+  padding: 5px 10px;
 }
 
 #user_basic .icon {
@@ -152,10 +205,14 @@ body, html {
 }
 
 #user_basic .enter_button {
+  width: 100%;
   border-radius: 5px;
-  border: 1px solid #03A1FC;
-  background-color: #03A1FC;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  background-color: rgba(0, 255, 255, 0.4);
   padding: 10px;
   color: #fff;
-  font-weight: bold;
+  font-weight: 500;
+  font-family: cursive;
+  margin-top: 15px;
+  cursor: pointer;
 }

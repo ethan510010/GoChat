@@ -204,6 +204,6 @@ function showUserSettingBlock(userInfo) {
       preferredLanguage = 'Spanish';
       break;
   }
-  userLanguageTag.textContent = `Your preferred language is ${preferredLanguage}`;
+  userLanguageTag.textContent = `preferred language: ${preferredLanguage}`;
   setLanguageBlock.style.display = 'block';
 }
