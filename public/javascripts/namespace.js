@@ -19,8 +19,9 @@ confirmEmailBtn.addEventListener('click', function() {
     emailAddressTag.classList.add('emailName');
     emailAddressTag.textContent = email;
     emailFunctionTag.setAttribute('id', email);
-    const deleteEmailTag = document.createElement('div');
+    const deleteEmailTag = document.createElement('img');
     deleteEmailTag.classList.add('deleteEmail');
+    deleteEmailTag.src = '/images/delete.png';
     deleteEmailTag.textContent = 'x';
     emailFunctionTag.appendChild(emailAddressTag);
     emailFunctionTag.appendChild(deleteEmailTag);
@@ -31,7 +32,7 @@ confirmEmailBtn.addEventListener('click', function() {
 
 // 刪除 email 
 emailArea.addEventListener('click', function(event) {
-  if (event.target.nodeName.toUpperCase() === 'DIV' && event.target.getAttribute('class') === 'deleteEmail') {
+  if (event.target.nodeName.toUpperCase() === 'IMG' && event.target.getAttribute('class') === 'deleteEmail') {
     const deleteTarget = event.target.parentNode;
     emailArea.removeChild(deleteTarget)
   }

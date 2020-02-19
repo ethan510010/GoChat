@@ -10,15 +10,15 @@
 </head>
 <body>
   <header>
-    <h3>Hi <%= currentUser.name %>, Choose your namespace</h3>
+    <span>Chatvas</span>
   </header>
   <div class="namespaces_area">
     <% if (namespaces.length > 0) { %>
       <% for (let i = 0; i < namespaces.length; i++) { %>
         <div class="namespaceBlock" id=namespaceId_<%= namespaces[i].namespaceId%>>
           <p><%= namespaces[i].namespaceName %></p>
-          <input type="button" class="invite_from_namespace_block_btn" value="invite people to namespace">
-          <input type="button" class="enter_namespace_btn" value="enter this namespace">
+          <input type="button" class="invite_from_namespace_block_btn" value="invite people to workspace">
+          <input type="button" class="enter_namespace_btn" value="enter this workspace">
         </div>
       <% } %>
     <% } else { %> <h2>There is no namespace of you, you can create a new one and invite person with their email</h2> <%} %>
@@ -29,13 +29,18 @@
   <!-- 新增 namespace 彈窗 -->
   <div id="emailInputModal">
     <div class="modal-content">
-      <span class="close">&times;</span>
+      <div class="description">
+        <span></span>
+        <p>Set workspace</p>
+        <span class="close">&times;</p>
+      </div>
       <div class="namespace_input">
         <input type="text" placeholder="create a namespace">
       </div>
       <div class="function_area">
         <input class="enter_email" type="text" placeholder="person's email">
-        <input class="confirmBtn" type="button" value="confirm">
+        <img  class="confirmBtn" src="/images/confirm.png" alt="">
+        <!-- <input class="confirmBtn" type="button"> -->
       </div>
       <div class="invite_email_area"></div>
       <input id="invite_btn" type="button" value="invite">

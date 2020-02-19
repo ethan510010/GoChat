@@ -2,18 +2,49 @@
   box-sizing: border-box;
 }
 
-header {
-  text-align: center;
-  height: 60px;
-  line-height: 60px;
-  background-color: #024AC7;
-  color: #FFFFFF;
+body, html {
+  /* height: 100%;
+  margin: 0 */
 }
 
-header h3 {
+.scene_background {
+  /* background-image: url('/images/beachSky.jpg'); */
+  /* height: 100%; */
+  /* Add the blur effect */
+  /* filter: blur(6px);
+  -webkit-filter: blur(6px); */
+  /* Center and scale the image nicely */
+  /* background-position: center; */
+  /* background-repeat: no-repeat; */
+  /* background-size: cover; */
+  /* opacity: 0.4; */
+  /* z-index: -1; */
+}
+
+header {
+  height: 60px;
+  line-height: 60px;
+  padding-left: 20px;
+  font-family: cursive;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+  font-size: 40px;
+  background-color: rgba(135, 206, 250, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-size: 40px;
+  font-weight: 600; */
+}
+
+header span {
   margin: 0;
-  font-size: 30px;
-  font-weight: bold;
+  cursor: pointer;
 }
 
 .namespaces_area {
@@ -22,16 +53,20 @@ header h3 {
   flex-wrap: wrap;
   margin-top: 20px;
   padding: 0 20px;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  overflow: auto;
 }
 
 .namespaceBlock {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px solid #078EE8;
   border-radius: 5px;
   padding: 10px;
   margin: 10px;
+  box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2)
 }
 
 .namespaceBlock p {
@@ -41,6 +76,8 @@ header h3 {
   text-align: center;
   font-size: 25px;
   font-weight: bold;
+  font-family: cursive;
+  color: rgba(0, 0, 0, 0.7);
 } 
 
 .namespaceBlock input {
@@ -48,11 +85,11 @@ header h3 {
   height: 30px;
   margin: 10px 0 0 0;
   border-radius: 5px;
-  background-color: #3292C9;
+  background-color: rgba(0, 71, 125, 0.5);
   color: #FFFFFF;
-  border: 1px solid #3292C9;
   outline: none;
   cursor: pointer;
+  font-family: cursive;
 }
 
 /* 彈窗 */
@@ -71,10 +108,9 @@ header h3 {
 }
 
 .modal-content {
-  background-color: #FEFEFE;
+  background-color: rgba(71, 152, 179, 0.9);
   margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
+  padding: 0 10px 10px 10px;
   width: 50%;
   position: relative;
   min-height: 100px;
@@ -83,34 +119,84 @@ header h3 {
   flex-direction: column;
 }
 
+.modal-content .description {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.description p {
+  margin: 0;
+  padding-top: 10px;
+  font-family: cursive;
+  font-size: 20px;
+  font-weight: bolder;
+  color: #FFF;
+}
+
 .close {
-  position: absolute;
+  /* position: absolute;
   top: 0;
-  right: 10px;
-  color: #aaaaaa;
-  float: right;
+  right: 10px; */
+  color: #FFF;
+  /* float: right; */
   font-size: 28px;
   font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-  color: #000;
+  color: rgba(0, 0, 0, .4);
   text-decoration: none;
   cursor: pointer;
 }
 
+.namespace_input {
+  margin-bottom: 10px;
+}
+
+.namespace_input input {
+  width: 100%;
+  border-radius: 3px;
+  padding-left: 5px;
+  min-height: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  font-family: cursive;
+  font-weight: bold;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.function_area {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .enter_email {
-  width: 60%;
   height: 30px;
   padding-left: 5px;
   border-radius: 3px;
-  border: 1px solid gray;
+  width: 90%;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  font-family: cursive;
+  font-weight: 600;
+  outline: none;
+}
+
+.confirmBtn {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 }
 
 .invite_email_area {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .emailTag {
@@ -118,21 +204,37 @@ header h3 {
   flex-direction: row;
   align-items: center;
   margin: 5px 10px 5px 0;
-  border: 1px solid #469BE5;
   padding: 5px;
+  background-color: #fff;
+  font-family: cursive;
+  border-radius: 3px;
 }
 
 .deleteEmail {
-  margin-left: 10px;
+  margin-left: 5px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+#invite_btn {
+  border-radius: 5px;
+  background-color: rgba(0, 191, 255, 0.8);
+  height: 30px;
+  border: 1px solid rgba(0, 191, 255, 0.8);
+  color: #FFFFFF;
+  font-family: cursive;
+  margin-top: 10px;
 }
 
 /* 右下方按鈕 */
 #float_button img {
-  width: 100px;
-  height: 100px;
+  width: 60px;
+  height: 60px;
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
 }
 
 
