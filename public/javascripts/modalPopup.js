@@ -276,7 +276,7 @@ buildChannelBtn.addEventListener('click', function () {
           const modal = document.getElementById('addRoomModal');
           modal.style.display = 'none';
           // 新增 Room 到畫面上
-          const roomListArea = document.querySelector('.side_pad .upper_section');
+          const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
           const newCreatedRoomTag = document.createElement('div');
           const newCreatedRoomTitleTag = document.createElement('p');
           newCreatedRoomTitleTag.textContent = channelName;

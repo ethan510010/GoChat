@@ -85,7 +85,7 @@ header {
 }
 
 /* 聊天區塊 */
-.background_img {
+/* .background_img {
   background-image: url('/images/scene.jpg');
   filter: blur(5px);
   -webkit-filter: blur(5px);
@@ -96,7 +96,7 @@ header {
   position: absolute;
   top: 60px; 
   width: 100%;
-}
+} */
 
 .content {
   display: flex;
@@ -126,12 +126,17 @@ header {
   color: black;
   padding: 10px;
   border-radius: 10px;
+  max-height: 70%;
 }
 
 .upper_section .room_header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+/* 放房間的區塊 */
+.rooms {
+  overflow: auto
 }
 
 .room_header {
@@ -159,6 +164,10 @@ header {
   align-items: center;
 }
 
+.room_title {
+  cursor: pointer;
+}
+
 .upper_section .messageMention {
   color: #FFF;
   background-color: red;
@@ -172,6 +181,8 @@ header {
   position: relative;
   display: flex;
   flex-direction: column;
+  max-height: 30%;
+  overflow: auto;
 }
 
 /* Video 視窗 */
