@@ -23,9 +23,17 @@
         </div>
         <div class="rooms">
           <% for (let i = 0; i < rooms.length; i++) { %>
-            <div class="room_title" id=channelId_<%= rooms[i].roomId%>>
-              <p><%= rooms[i].name %></p>
-            </div>
+            <% if (currentUserDetail.lastSelectedRoomId === rooms[i].roomId) { %>
+              <div class="room_title selectedRoomUI" id=channelId_<%= rooms[i].roomId%>>
+                <div class="decoration_bar"></div>
+                <p><%= rooms[i].name %></p>
+              </div>  
+            <% } else { %> 
+              <div class="room_title" id=channelId_<%= rooms[i].roomId%>>
+                <div class="decoration_bar"></div>
+                <p><%= rooms[i].name %></p>
+              </div>  
+              <% } %>
           <% } %>
         </div>
       </div>

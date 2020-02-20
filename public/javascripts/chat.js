@@ -1,6 +1,6 @@
 // 動畫區塊
 const loader = document.getElementById('loader');
-// 聊天室主區塊 Div
+// 把一開始就選到的房間
 const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.addEventListener('scroll', function () {
   // Get parent element properties
@@ -218,11 +218,21 @@ roomsAreaSection.addEventListener('click', function (event) {
   let validRoomId = 0;
   let roomTitle = '';
   if (event.target.nodeName.toUpperCase() === 'DIV') {
-    validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
-    roomTitle = event.target.children[0].textContent;
+    const beSelectedRoomDiv = event.target;
+    validRoomId = parseInt(beSelectedRoomDiv.getAttribute('id').replace('channelId_', ''));
+    roomTitle = event.target.children[1].textContent;
+    // 把舊的 room 的選到的裝飾 UI class 移除，加到新選擇的 
+    const lastSelectedRoomDiv = document.getElementById(`channelId_${lastChooseRoom.roomId}`);
+    lastSelectedRoomDiv.classList.remove('selectedRoomUI');
+    beSelectedRoomDiv.classList.add('selectedRoomUI');
   } else if (event.target.nodeName.toUpperCase() === 'P') {
-    validRoomId = parseInt(event.target.parentElement.getAttribute('id').replace('channelId_', ''), 10);
+    const beSelectedRoomDiv = event.target.parentElement;
+    validRoomId = parseInt(beSelectedRoomDiv.getAttribute('id').replace('channelId_', ''), 10);
     roomTitle = event.target.textContent;
+    // 把舊的 room 的選到的裝飾 UI class 移除，加到新選擇的 
+    const lastSelectedRoomDiv = document.getElementById(`channelId_${lastChooseRoom.roomId}`);
+    lastSelectedRoomDiv.classList.remove('selectedRoomUI');
+    beSelectedRoomDiv.classList.add('selectedRoomUI');
   }
   // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
   currentSelectedRoom = {
