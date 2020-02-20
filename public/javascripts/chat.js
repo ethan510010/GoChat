@@ -299,6 +299,7 @@ const enterMessageInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
 
 sendMessageBtn.addEventListener('click', function () {
+  sendMessagageLoadingDiv();
   socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
@@ -329,6 +330,8 @@ sendImageBtn.addEventListener('change', function (e) {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
+  // 移除掉 fakeDev
+  removeFakeLoadingDiv();
   const { roomId, roomTitle } = dataFromServer.roomDetail;
   // console.log('房間資訊', roomId, roomTitle)
   const { messageTime, messageContent, messageType, messageId } = dataFromServer;
@@ -567,13 +570,9 @@ function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
   for (let i = 0; i < usersOfRoom.length; i++) {
     hashObj[usersOfRoom[i].userId] = false;
   }
-
-  
   for (let i = 0; i < roomUsersPair[currentSelectedRoom.roomId].length; i++) {
     hashObj[roomUsersPair[currentSelectedRoom.roomId][i].userId] = true;
   }
-  
-
   const membersRegionTag = document.getElementById('online_members');
   membersRegionTag.childNodes.forEach((eachNode) => {
     if (eachNode.nodeName.toUpperCase() === 'DIV') {
@@ -587,6 +586,58 @@ function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
       }
     }
   })
+}
+
+// 發送訊息時產生假的 div，作為等待動畫
+function sendMessagageLoadingDiv() {
+  const fakeDiv = document.createElement('div');
+  fakeDiv.classList.add('message_block');
+  fakeDiv.classList.add('messageHost');
+  // fakeDiv.style.background = '#FFF';
+  // 把頭像跟姓名包一起
+  const messageUserInfoDiv = document.createElement('div');
+  messageUserInfoDiv.classList.add('messageUserInfo');
+  // 頭像
+  const avatarImg = document.createElement('img');
+  avatarImg.classList.add('messageAvatar');
+  avatarImg.src = currentUserDetail.avatarUrl === '' ? '/images/defaultAvatar.png' : currentUserDetail.avatarUrl;
+  fakeDiv.appendChild(avatarImg);
+  // 名稱
+  const userNameTag = document.createElement('p');
+  userNameTag.classList.add('userName');
+  userNameTag.textContent = currentUserDetail.name;
+
+  messageUserInfoDiv.appendChild(avatarImg);
+  messageUserInfoDiv.appendChild(userNameTag);
+
+  fakeDiv.appendChild(messageUserInfoDiv);
+
+  // loading 及其動畫
+  const fakeLoading = document.createElement('div');
+  fakeLoading.classList.add('spinner');
+
+  const bounceOne = document.createElement('div');
+  bounceOne.classList.add('bounceOne');
+  const bounceTwo = document.createElement('div');
+  bounceTwo.classList.add('bounceTwo');
+  const bounceThree = document.createElement('div');
+  bounceThree.classList.add('bounceThree');
+  fakeLoading.appendChild(bounceOne);
+  fakeLoading.appendChild(bounceTwo);
+  fakeLoading.appendChild(bounceThree);
+  fakeDiv.appendChild(fakeLoading);
+
+  fakeDiv.setAttribute('id', 'loadingTranslation');
+  chatFlowContent.appendChild(fakeDiv);
+  chatFlowContent.innerHTML = chatFlowContent.innerHTML.trim();
+  chatFlowContent.scrollTo(0, chatFlowContent.scrollHeight);
+}
+
+// 等到訊息回來把假的 div 移除掉
+function removeFakeLoadingDiv() {
+  if (document.getElementById('loadingTranslation')) {
+    chatFlowContent.removeChild(document.getElementById('loadingTranslation'));
+  }
 }
 
 // 如果斷線自動重連

@@ -791,6 +791,7 @@ header {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  max-width: 50%;
 }
 
 .messageReceiver .messageOuterBox {
@@ -934,4 +935,50 @@ header {
   position: absolute;
   top: 40px;
   left: 0;
+}
+
+/* 輸入訊息時的 loading 動畫 */
+/*Huge thanks to @tobiasahlin at http://tobiasahlin.com/spinkit/ */
+.spinner {
+  background-color: #5BB65C;
+  border-radius: 3px;
+  width: 50px; 
+  text-align: center;
+  padding: 3px 0;
+}
+
+.spinner div {
+  width: 10px;
+  height: 10px;
+  background-color: #FFF;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounceOne {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounceTwo {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(0.5) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% { 
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+  }
 }
