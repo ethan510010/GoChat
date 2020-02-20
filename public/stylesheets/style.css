@@ -5,6 +5,7 @@
 body, html {
   height: 100%;
   margin: 0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .scene_background {
@@ -24,20 +25,17 @@ body, html {
   position: absolute;
   left: 0;
   top: 0;
-  height: 100px;
+  height: 70px;
   width: 100%;
   z-index: 2;
   text-align: center;
-  line-height: 100px;
-  padding: 20px;
+  line-height: 70px;
+  background-color: #051057;
 }
 
 #title p {
-  font-size: 54px;
-  color: rgba(0, 0, 0, 0.5);
-  font-weight: 600;
-  font-family: cursive;
-  font-style: italic;
+  font-size: 46px;
+  color: #FFF;
   margin: 0;
 }
 
@@ -50,7 +48,8 @@ body, html {
   z-index: 2;
   position: absolute;
   left: 0;
-  top: 100px;
+  top: 70px;
+  background-color: rgb(237, 237, 237);
 }
 
 .decoration_area, 
@@ -69,8 +68,6 @@ body, html {
 
 #description {
   font-size: 30px;
-  font-family: cursive;
-  font-style: italic;
   color: rgba(0, 0, 0, 0.5);
   margin-bottom: 50px;
 }
