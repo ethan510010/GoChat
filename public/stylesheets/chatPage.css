@@ -257,7 +257,27 @@ header {
   display: flex;
   flex-direction: column;
   background-color: #062D46;
-  /* padding: 10px; */
+  padding-top: 10px;
+}
+
+.back_Namespace_btn {
+  display: none;
+  color: #FFF;
+  font-size: 14px;
+  padding: 0 5px;
+  cursor: pointer;
+}
+
+.back_Namespace_btn img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.side_pad:hover .back_Namespace_btn {
+  display: flex;
+  align-items: center;
+  justify-content: row;
 }
 
 .upper_section {
