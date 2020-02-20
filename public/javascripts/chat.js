@@ -576,6 +576,10 @@ function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
       const userId = eachNode.id.replace('roomMember_', '');
       if (hashObj[userId]) {
         eachNode.classList.add('online_member_status');
+      } else {
+        if (eachNode.classList.contains('online_member_status')) {
+          eachNode.classList.remove('online_member_status');
+        }
       }
     }
   })
