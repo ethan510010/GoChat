@@ -2,7 +2,7 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom } = require('../model/users');
+const { updateUserSelectedRoom, getUsersOfRoom } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom } = require('../model/rooms');
@@ -57,7 +57,6 @@ socketio.getSocketio = async function (server) {
           user: userInfo
         })
         socket.join(roomId);
-        console.log('目前房間跟用戶的狀況', roomUsersPair)
         // 2. 離開舊房間的處理
         const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
         if (roomUsersPair[leaveRoomId]) {
@@ -116,19 +115,16 @@ socketio.getSocketio = async function (server) {
 
       socket.join(roomId);
       console.log('目前房間跟用戶的狀況', roomUsersPair)
-      subNamespace.in(roomId).clients((err, clients) => {
-        console.log(`在 roomId ${roomId} 的用戶`, clients)
-      })
       // WebRTC 事件
       roomPeerIdList[roomId].push({
         peerId: peerId,
         user: joinInfo.userInfo
       });
       console.log('現有的allPeers', roomPeerIdList);
-      // 全部廣播
+      // 全部廣播 (包含誰在線上的功能，利用 roomUsersPair 實現)
       subNamespace.emit('allPeersForRoom', {
         roomId: roomId,
-        // allPeersForRoom: roomPeerIdList[roomId]
+        roomUsersPair: roomUsersPair,
         peersRoomPair: roomPeerIdList
       })
       callback(joinInfo);
@@ -243,6 +239,16 @@ socketio.getSocketio = async function (server) {
       //     changeRoomMode
       //   });
       // }
+    })
+
+    // 獲取房間的用戶
+    socket.on('getUsersOfRoom', async (validRoomId) => {
+      // 拿到切換到的房間全部的用戶
+      const usersOfRoom = await getUsersOfRoom(validRoomId);
+      socket.emit('showUsersOfRoom', {
+        usersOfRoom,
+        roomUsersPair
+      });
     })
 
     // canvas 歷史畫面

@@ -72,7 +72,7 @@ let allConnectionPeersOfCurrentRoom = [];
 socket.on('allPeersForRoom', (peersInfoFromServer) => {
   // 如果有重整就清空
   allConnectionPeersOfCurrentRoom = [];
-  const { peersRoomPair } = peersInfoFromServer;
+  const { peersRoomPair, roomUsersPair } = peersInfoFromServer;
   console.log('總配對情形', peersRoomPair);
   console.log('當前用戶準備視訊所在房間', currentSelectedRoom)
   const currentRoomPeerPairs = peersRoomPair[currentSelectedRoom.roomId];
@@ -81,6 +81,7 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
     allConnectionPeersOfCurrentRoom.push(eachPeerOfCurrentRoom.peerId);
   }
   console.log(`現在在房間${currentSelectedRoom.roomId}中所有的${allConnectionPeersOfCurrentRoom}`);
+  showOnlineMemberUI(roomUsersPair, usersOfRoom);
 })
 
 peer.on('connection', function (connection) {
@@ -150,7 +151,7 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
     videoDisplayDiv.style.display = 'block';
     // const acceptCall = confirm(`Do you want to accept the call From ${videoLauncher.name}?`);
     showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
-    customDialogConfirmClicked(function() {
+    customDialogConfirmClicked(function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
       console.log('該 Peer Id 需要進行連線', currentUserPeerId);
       socket.emit('shouldBeConnectedPeerId', {
@@ -159,7 +160,7 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
         videoLauncherRoomId: videoLauncherRoomId
       });
     })
-    customDialogCancelClicked(function() {
+    customDialogCancelClicked(function () {
       // 把視訊視窗關掉
       videoDisplayDiv.style.display = 'none';
     });
@@ -273,6 +274,7 @@ roomsAreaSection.addEventListener('click', function (event) {
           roomId: validRoomId,
           userId: currentUserDetail.userId,
         })
+        socket.emit('getUsersOfRoom', validRoomId);
       }
     })
   }
@@ -280,12 +282,14 @@ roomsAreaSection.addEventListener('click', function (event) {
 
 socket.on('changeRoomPeersList', (peersInfoFromServer) => {
   // 切頁完成後，要重新處理每個房間的 peerIdList
-  const { roomPeerIdList } = peersInfoFromServer;
+  const { roomPeerIdList, roomUsersPair } = peersInfoFromServer;
   console.log('切換房間傳回來的 peer 配對', roomPeerIdList);
   allConnectionPeersOfCurrentRoom = roomPeerIdList[currentSelectedRoom.roomId].map((currentRoomEachPeer) => {
     return currentRoomEachPeer.peerId;
   })
   console.log('切換房間後重新取得的 peer 配對', allConnectionPeersOfCurrentRoom);
+  // 切頁完成後比對在線上的用戶
+  showOnlineMemberUI(roomUsersPair, usersOfRoom);
 })
 // 發送簡單訊息
 const enterMessageInput = document.querySelector('#message_window');
@@ -382,6 +386,13 @@ socket.on('showCanvas', (canvasHistory) => {
     })
     img.src = canvasHistory.canvasUrl;
   }
+})
+
+// 接收現有房間有哪些用戶
+socket.on('showUsersOfRoom', (usersInRoomDetail) => {
+  const { usersOfRoom, roomUsersPair } = usersInRoomDetail;
+  showMembersOfCurrentRoom(usersOfRoom);
+  showOnlineMemberUI(roomUsersPair, usersOfRoom);
 })
 
 // 接收歷史訊息
@@ -525,6 +536,49 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     let chatFlowArea = document.getElementById('message_flow_area');
     chatFlowArea.scrollTo(0, chatFlowContent.scrollHeight);
   }
+}
+
+// clear members in roomUI and show users of currentSelectedRoom 
+function showMembersOfCurrentRoom(usersInRoom) {
+  usersOfRoom = usersInRoom;
+  const onlineMembersArea = document.getElementById('online_members');
+  onlineMembersArea.innerHTML = '';
+  usersInRoom.forEach((user) => {
+    const userDiv = document.createElement('div');
+    userDiv.classList.add('room_member');
+    userDiv.setAttribute('id', `roomMember_${user.userId}`);
+    const smallCircle = document.createElement('div');
+    smallCircle.classList.add('small_circle');
+    const userName = document.createElement('p');
+    userName.textContent = user.name;
+    userDiv.appendChild(smallCircle);
+    userDiv.appendChild(userName);
+    onlineMembersArea.appendChild(userDiv);
+  })
+}
+// 連線 UI 調整
+function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
+  // 處理現在誰在線上
+  let hashObj = {};
+  for (let i = 0; i < usersOfRoom.length; i++) {
+    hashObj[usersOfRoom[i].userId] = false;
+  }
+
+  
+  for (let i = 0; i < roomUsersPair[currentSelectedRoom.roomId].length; i++) {
+    hashObj[roomUsersPair[currentSelectedRoom.roomId][i].userId] = true;
+  }
+  
+
+  const membersRegionTag = document.getElementById('online_members');
+  membersRegionTag.childNodes.forEach((eachNode) => {
+    if (eachNode.nodeName.toUpperCase() === 'DIV') {
+      const userId = eachNode.id.replace('roomMember_', '');
+      if (hashObj[userId]) {
+        eachNode.classList.add('online_member_status');
+      }
+    }
+  })
 }
 
 // 如果斷線自動重連

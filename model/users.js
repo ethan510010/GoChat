@@ -396,6 +396,35 @@ const updateUserLastNamespace = async (userId, namespaceId) => {
   }
 }
 
+const getUsersOfRoom = async (roomId) => {
+  const queryResult = await exec(`select 
+    wholeUsersTable.userId,
+    wholeUsersTable.name,
+    wholeUsersTable.email,
+    wholeUsersTable.avatarUrl,
+    room.id as roomId,
+    room.name as roomName
+    from 
+    (select 
+      tempTable.userId, 
+      tempTable.provider, 
+      IFNULL(tempTable.name, fb_info.fb_name) as name, 
+      IFNULL(tempTable.email, fb_info.fb_email) as email, 
+      IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from 
+      (select user.id as userId, provider, name, avatarUrl, email from user 
+      left join general_user_info 
+      on user.id=general_user_info.userId) as tempTable
+      left join fb_info
+      on tempTable.userId=fb_info.userId) as wholeUsersTable
+      inner join user_room_junction
+      on wholeUsersTable.userId=user_room_junction.userId
+      inner join room
+      on user_room_junction.roomId=room.id
+      where roomId=${roomId}`
+    );
+  return queryResult;
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -409,5 +438,6 @@ module.exports = {
   updateUserAvatar,
   updateUserSelectedRoom,
   getAllUsersOfNamespace,
-  updateUserLastNamespace
+  updateUserLastNamespace,
+  getUsersOfRoom
 }

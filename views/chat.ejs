@@ -115,7 +115,15 @@
         </div>
       </div>
     </div>
-    <div id="online_members"></div>
+    <div id="decoration_line"></div>
+    <div id="online_members">
+      <% for (let i = 0; i < usersOfRoom.length; i++) { %>
+        <div class="room_member" id=roomMember_<%= usersOfRoom[i].userId%>>
+          <div class="small_circle"></div>
+          <p><%= usersOfRoom[i].name %></p>
+        </div>
+      <% } %>
+    </div>
   </div>
   <!-- Modal Div -->
   <div id="addRoomModal" class="modal">
@@ -189,6 +197,7 @@
       roomTitle: currentUserDetail.lastSelectedRoomTitle
     }
     let allRooms = <%- JSON.stringify(allRooms)%>;
+    let usersOfRoom = <%- JSON.stringify(usersOfRoom)%>;
   </script>
   <script src="/javascripts/common.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
