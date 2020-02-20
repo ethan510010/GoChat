@@ -1,5 +1,5 @@
 let isSettingOpen = false;
-const settingBtn = document.getElementById('room_setting');
+const settingBtn = document.querySelector('.room_setting');
 settingBtn.addEventListener('click', function() {
   // 如果是要對 general 這個預設的 room 做操作，會跳一個 alert 通知說無法
   if (currentSelectedRoom.roomId === 1) {
@@ -8,7 +8,7 @@ settingBtn.addEventListener('click', function() {
   }
   isSettingOpen = !isSettingOpen;
   const displayType = isSettingOpen ? 'block' : 'none';
-  document.querySelector('header .settings_block').style.display = displayType;  
+  document.querySelector('.settings_block').style.display = displayType;  
 });
 
 const addPeopleBtn = document.querySelector('.settings_block .add_people');
@@ -32,7 +32,7 @@ deleteChannelBtn.addEventListener('click', function() {
       leaveRoom: currentSelectedRoom
     })
   } else {
-    document.querySelector('header .settings_block').style.display = 'none';
+    document.querySelector('.settings_block').style.display = 'none';
   }
 })
 // 其他人接收有人離線的通知，退群者看到 UI 切換到 general，並且移除原本該 room 在左側欄

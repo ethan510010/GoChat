@@ -14,22 +14,6 @@
     <span>Chatvas</span>
     <img src="/images/menu.png" alt="">
   </div>
-  <!-- <header>
-    <div id="room_setting">
-      <img src="/images/settings.png" alt="">
-    </div>
-    <div id="room_title">
-      <h1><%= roomTitle %></h1>
-    </div>
-    <div id="small_avatar">
-      <img src=<%= userAvatar %> alt="">
-    </div>
-    <div class="settings_block">
-      <div class="add_people">Add people</div>
-      <div class="delete_channel">Leave current channel</div>
-    </div>
-  </header> -->
-  <!-- <div class="background_img"></div> -->
   <div class="content">
     <div class="side_pad">
       <div class="upper_section">
@@ -60,9 +44,20 @@
         <div id="function_area">
           <img class="launchVideo" src="/images/video.png" alt="">
           <img class="room_setting" src="/images/settings.png" alt="">
+          <div class="settings_block">
+            <div class="corner_decoration"></div>
+            <div class="add_people">
+              <p>Add people</p>
+            </div>
+            <div class="delete_channel">
+              <p>Leave current channel</p>
+            </div>
+            <div class="corner_decoration"></div>
+          </div>
         </div>
       </div>
       <div id="chat_area">
+        <%- include('./loader.ejs'); %>
         <div id="message_flow_area"></div>
         <div id="message_input">
           <input id="message_window" type="text" placeholder="Type message ...">
@@ -211,7 +206,7 @@
   <script src="/javascripts/resizeBorder.js"></script>
   <script src="/javascripts/modalPopup.js"></script> 
   <!-- 使用者按下左上方的設定相關的 js -->
-  <!-- <script src="/javascripts/setting.js"></script> -->
+  <script src="/javascripts/setting.js"></script>
   <script src="/javascripts/toggle.js"></script>
   <script src="/javascripts/canvas.js"></script>
 </body>

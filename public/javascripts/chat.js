@@ -1,3 +1,5 @@
+// 動畫區塊
+const loader = document.getElementById('loader');
 // 聊天室主區塊 Div
 const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.addEventListener('scroll', function () {
@@ -244,6 +246,7 @@ roomsAreaSection.addEventListener('click', function (event) {
     // 要有一支 api
     // 更新房間
     // 更換房間事件
+    loader.style.display = 'block';
     socket.emit('changeRoom', {
       joinRoomInfo: currentSelectedRoom,
       userInfo: currentUserDetail,
@@ -407,6 +410,7 @@ socket.on('showHistory', (historyInfo) => {
   }
   const pageDiv = document.createElement('div');
   pageDiv.id = `currentPage${currentScrollPage}`;
+  loader.style.display = 'none';
   for (let i = 0; i < reverseMessages.length; i++) {
     const historyMsg = reverseMessages[i];
     let defaultAvatar = historyMsg.avatarUrl === '' ? '/images/defaultAvatar.png' : historyMsg.avatarUrl;
