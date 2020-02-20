@@ -629,6 +629,7 @@ header {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
 }
 
 .roomTitleRegion {
