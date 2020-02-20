@@ -3,11 +3,13 @@ let fullScreenVideoMode = true;
 shrinkVideoBtn.addEventListener('click', function () {
   if (fullScreenVideoMode) {
     videoDisplayDiv.classList.add('shrinkMode');
+    document.getElementById('shrink_video_screen').src = '/images/largeScreen.png';
     fullScreenVideoMode = false;  
   } else {
     videoDisplayDiv.classList.remove('shrinkMode');
     videoDisplayDiv.removeAttribute('style');
-    videoDisplayDiv.style.display = 'block'
+    videoDisplayDiv.style.display = 'block';
+    document.getElementById('shrink_video_screen').src = '/images/shrinkScreen.png';
     fullScreenVideoMode = true;
   }
 })
