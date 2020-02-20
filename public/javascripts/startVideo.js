@@ -1,7 +1,7 @@
 // video 區塊
 const videoDisplayDiv = document.querySelector('.videoPopup');
 
-const launchVideoBtn = document.querySelector('.lower_section .launchVideo');
+const launchVideoBtn = document.querySelector('.launchVideo');
 launchVideoBtn.addEventListener('click', async function () {
   videoDisplayDiv.style.display = 'block';
 })

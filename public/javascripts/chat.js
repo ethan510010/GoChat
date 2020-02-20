@@ -584,5 +584,6 @@ function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
 // 如果斷線自動重連
 socket.on('disconnect', () => {
   console.log('socket 斷線，自動重連');
-  socket.open();
+  socket.connect();
+  console.log('socket 重新連線');
 });
