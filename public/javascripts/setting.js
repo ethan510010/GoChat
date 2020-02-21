@@ -2,10 +2,10 @@ let isSettingOpen = false;
 const settingBtn = document.querySelector('.room_setting');
 settingBtn.addEventListener('click', function() {
   // 如果是要對 general 這個預設的 room 做操作，會跳一個 alert 通知說無法
-  if (currentSelectedRoom.roomId === 1) {
-    showCustomAlert('channel general can not be set by user');
-    return;
-  }
+  // if (currentSelectedRoom.roomId === 1) {
+  //   showCustomAlert('channel general can not be set by user');
+  //   return;
+  // }
   isSettingOpen = !isSettingOpen;
   const displayType = isSettingOpen ? 'block' : 'none';
   document.querySelector('.settings_block').style.display = displayType;  
@@ -15,15 +15,12 @@ const addPeopleBtn = document.querySelector('.settings_block .add_people');
 addPeopleBtn.addEventListener('click', function() {
   // 跳出 Modal 視窗
   // 這邊的話要隱藏裡面的 channel name p 及 channel name input
-  beInvitedMembers = [];
-  updateOrCreateRoomType = 'updateRoom';
-  shouldHideChannelInput(updateOrCreateRoomType);
-  modal.style.display = 'block';
+  resetModalup('updateRoom');
 });
 
 const deleteChannelBtn = document.querySelector('.settings_block .delete_channel');
 deleteChannelBtn.addEventListener('click', function() {
-  const leaveChannel = confirm('Are you sure to leave current cahnnel?');
+  const leaveChannel = confirm('Are you sure to leave current channel?');
   if (leaveChannel) {
     // 讓其他人可以看到該用戶退群，所以用 socket，不打 restful api
     // 退群後讓他回到 general

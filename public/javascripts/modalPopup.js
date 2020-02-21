@@ -15,15 +15,16 @@ let beInvitedMembers = [];
 // 獲取 close button
 const closePopupSpan = document.getElementsByClassName('close')[0];
 
-createRoomBtn.addEventListener('click', function (event) {
+function resetModalup(mode) {
   modal.style.display = 'block';
   optionsContainer.classList.remove('active');
   beInvitedMembers = [];
-  updateOrCreateRoomType = 'createRoom';
-  // // 把搜尋會員弄回原本的樣子
+  updateOrCreateRoomType = mode;
+
+  // 把搜尋會員弄回原本的樣子
   const selected = document.querySelector('.selected');
   selected.innerHTML = '';
-  // // 會員下拉選單重置
+  // 會員下拉選單重置
   optionsContainer.innerHTML = '';
   for (let i = 0; i < allUsers.length; i++) {
     const eachUser = allUsers[i];
@@ -48,6 +49,42 @@ createRoomBtn.addEventListener('click', function (event) {
     selected.appendChild(pTag);
   }
   shouldHideChannelInput(updateOrCreateRoomType);
+}
+
+createRoomBtn.addEventListener('click', function (event) {
+  resetModalup('createRoom');
+  // modal.style.display = 'block';
+  // optionsContainer.classList.remove('active');
+  // beInvitedMembers = [];
+  // updateOrCreateRoomType = 'createRoom';
+  // // 把搜尋會員弄回原本的樣子
+  // const selected = document.querySelector('.selected');
+  // selected.innerHTML = '';
+  // // 會員下拉選單重置
+  // optionsContainer.innerHTML = '';
+  // for (let i = 0; i < allUsers.length; i++) {
+  //   const eachUser = allUsers[i];
+  //   const eachOption = document.createElement('div');
+  //   eachOption.classList.add('option');
+  //   eachOption.setAttribute('id', `option_${eachUser.userId}`);
+  //   const radioUserTag = document.createElement('input');
+  //   radioUserTag.type = 'radio';
+  //   radioUserTag.classList.add('radio');
+  //   radioUserTag.setAttribute('id', `userId_${eachUser.userId}`);
+  //   radioUserTag.name = 'user';
+  //   const userLabel = document.createElement('label');
+  //   userLabel.setAttribute('for', `userId_${eachUser.userId}`);
+  //   userLabel.textContent = `${eachUser.userName}`;
+  //   eachOption.appendChild(radioUserTag);
+  //   eachOption.appendChild(userLabel);
+  //   optionsContainer.appendChild(eachOption);
+  // }
+  // if (!document.querySelector('.selected p')) {
+  //   const pTag = document.createElement('p');
+  //   pTag.textContent = 'select member';
+  //   selected.appendChild(pTag);
+  // }
+  // shouldHideChannelInput(updateOrCreateRoomType);
 })
 
 // popup 關閉按鈕
