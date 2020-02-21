@@ -275,9 +275,9 @@ header {
 }
 
 .side_pad:hover .back_Namespace_btn {
-  display: flex;
+  /* display: flex;
   align-items: center;
-  justify-content: row;
+  justify-content: row; */
 }
 
 .upper_section {
