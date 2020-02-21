@@ -186,7 +186,7 @@ const listAllUsers = async (req, res) => {
 
 // 更新使用者大頭貼
 const updateAvatar = async (req, res) => {
-  const userAvatarUrl = `https://d23udu0vnjg8rb.cloudfront.net/${req.files.userAvatar[0].key}`;
+  const userAvatarUrl = `https://d1pj9pkj6g3ldu.cloudfront.net/${req.files.userAvatar[0].key}`;
   const userId = req.body.userId;
   try {
     const updateResult = await updateUserAvatar(userId, userAvatarUrl);

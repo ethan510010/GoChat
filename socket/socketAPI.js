@@ -11,12 +11,11 @@ require('dotenv').config();
 const aws = require('aws-sdk');
 aws.config.update({
   secretAccessKey: process.env.awsSecretKey,
-  accessKeyId: process.env.awsAccessKeyId,
-  region: 'us-east-2',
+  accessKeyId: process.env.awsAccessKeyId 
 })
 const s3Bucket = new aws.S3({
   params: {
-    Bucket: 'ethangochat'
+    Bucket: 'chatvas'
   }
 })
 
@@ -154,7 +153,7 @@ socketio.getSocketio = async function (server) {
           // ContentType: `image/${type}` // 為了讓使用者點擊可以直接下載
         }
         const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
-        messageObj.messageContent = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
+        messageObj.messageContent = `https://d1pj9pkj6g3ldu.cloudfront.net/${Key}`;
       }
       try {
         const createMessageResult = await insertChatMessage(messageObj);
@@ -286,7 +285,7 @@ socketio.getSocketio = async function (server) {
       }
       const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
       // 存到 DB
-      const canvasImagePath = `https://d23udu0vnjg8rb.cloudfront.net/${Key}`;
+      const canvasImagePath = `https://d1pj9pkj6g3ldu.cloudfront.net/${Key}`;
       try {
         const handleCanvas = await handleRoomCanvasImage({
           roomId: eachTimeDrawResult.roomDetail.roomId,

@@ -20,13 +20,12 @@ var app = express();
 // aws 設定
 aws.config.update({
   secretAccessKey: process.env.awsSecretKey,
-  accessKeyId: process.env.awsAccessKeyId,
-  region: 'us-east-2',
+  accessKeyId: process.env.awsAccessKeyId
 });
 const awsS3 = new aws.S3();
 const fileStorage = multerS3({
   s3: awsS3,
-  bucket: 'ethangochat',
+  bucket: 'chatvas',
   acl: 'public-read',
   key: function (req, file, callback) {
     callback(null, `${Date.now()}_${file.originalname}`);
