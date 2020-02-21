@@ -5,7 +5,7 @@ const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('.
 const { updateUserSelectedRoom, getUsersOfRoom } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
-const { userLeaveRoom } = require('../model/rooms');
+const { userLeaveRoom, insertNewRoom } = require('../model/rooms');
 const { listAllNamespaces } = require('../model/namespace');
 require('dotenv').config();
 const aws = require('aws-sdk');
@@ -338,6 +338,20 @@ socketio.getSocketio = async function (server) {
         launchVideoPeerId,
         shouldConnectedPeerId,
         videoLauncherRoomId
+      })
+    })
+
+    // 新增房間
+    socket.on('createRoom', async (newRoomInfo) => {
+      const { channelName, namespaceId, userIdList} = newRoomInfo;
+      const { channelId, allUsers, bindingNamespaceId } = await insertNewRoom(channelName, namespaceId, userIdList);  
+      // 廣播給全部人，可以即時看到被加進去的房間
+      subNamespace.emit('newRoomCreated', {
+        newRoom: {
+          roomId: channelId,
+          roomName: channelName
+        },
+        bindingNamespaceId
       })
     })
 

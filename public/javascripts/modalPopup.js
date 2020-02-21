@@ -165,7 +165,7 @@ selected.addEventListener('click', function (e) {
         e.preventDefault();
         return;
       }
-  } 
+  }
   // 把新抓到的 options 存起來
   optionsList = document.querySelectorAll('.option');
   optionsContainer.classList.toggle('active');
@@ -244,7 +244,7 @@ function filterList(searchTerm) {
 const buildChannelBtn = document.querySelector('.modal-content .confirm_button');
 buildChannelBtn.addEventListener('click', function () {
   // 把當前用戶的 id 先放進去
-  const channelName = document.querySelector('.enter_channel_name').value; 
+  const channelName = document.querySelector('.enter_channel_name').value;
   let userIdList = [currentUserDetail.userId];
   let newAddedMembers = [];
   for (let i = 0; i < beInvitedMembers.length; i++) {
@@ -269,13 +269,13 @@ buildChannelBtn.addEventListener('click', function () {
         'Content-type': 'application/json'
       })
     }).then((response) => response.json())
-    .catch((error) => console.log(error))
-    .then((validResponse) => {
-      if (validResponse.data) {
-        const modal = document.getElementById('addRoomModal');
-        modal.style.display = 'none';
-      }
-    })
+      .catch((error) => console.log(error))
+      .then((validResponse) => {
+        if (validResponse.data) {
+          const modal = document.getElementById('addRoomModal');
+          modal.style.display = 'none';
+        }
+      })
   } else {
     // 新增 Room
     // 打 api 創建 Room 
@@ -288,42 +288,37 @@ buildChannelBtn.addEventListener('click', function () {
       showCustomAlert(`請輸入 Channel 名字`)
       return;
     }
-    if(/^\s+$/gi.test(channelName)){
+    if (/^\s+$/gi.test(channelName)) {
       showCustomAlert('Channel 名字不能全為空白');
       return;
     }
-    fetch('/rooms/createRoom', {
-      method: 'POST',
-      body: JSON.stringify({
-        channelName: channelName,
-        namespaceId: currentNamespaceId,
-        userIdList: userIdList
-      }),
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })
-    }).then((response) => response.json())
-      .catch((error) => console.log(error))
-      .then((validResponse) => {
-        if (typeof validResponse.data === 'string') {
-          showCustomAlert('新增房間失敗，請稍後再試');
-        } else {
-          // 新增成功這邊要讓前端顯示房間
-          const modal = document.getElementById('addRoomModal');
-          modal.style.display = 'none';
-          // 新增 Room 到畫面上
-          const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
-          const newCreatedRoomTag = document.createElement('div');
-          const newCreatedRoomTitleTag = document.createElement('p');
-          newCreatedRoomTitleTag.textContent = channelName;
-          newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
-          newCreatedRoomTag.classList.add('room_title');
-          const decorationDiv = document.createElement('div');
-          decorationDiv.classList.add('decoration_bar');
-          newCreatedRoomTag.appendChild(decorationDiv);
-          newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
-          roomListArea.appendChild(newCreatedRoomTag);
-        }
-      })
+    // 新增房間
+    socket.emit('createRoom', {
+      channelName: channelName,
+      namespaceId: currentNamespaceId,
+      userIdList: userIdList
+    });
   }
+})
+
+// 接收到新房間
+socket.on('newRoomCreated', (newRoomInfo) => {
+  const { newRoom } = newRoomInfo;
+  const newRoomId = newRoom.roomId;
+  const newRoomTitle = newRoom.roomName;
+  // 新增成功這邊要讓前端顯示房間
+  const modal = document.getElementById('addRoomModal');
+  modal.style.display = 'none';
+  // 新增 Room 到畫面上
+  const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
+  const newCreatedRoomTag = document.createElement('div');
+  const newCreatedRoomTitleTag = document.createElement('p');
+  newCreatedRoomTitleTag.textContent = newRoomTitle;
+  newCreatedRoomTag.setAttribute('id', `channelId_${newRoomId}`);
+  newCreatedRoomTag.classList.add('room_title');
+  const decorationDiv = document.createElement('div');
+  decorationDiv.classList.add('decoration_bar');
+  newCreatedRoomTag.appendChild(decorationDiv);
+  newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
+  roomListArea.appendChild(newCreatedRoomTag);
 })
