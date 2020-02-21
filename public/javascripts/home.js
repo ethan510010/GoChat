@@ -177,7 +177,8 @@ function fetchUserInfo(accessToken) {
       // 前端設定cookie
       document.cookie = `access_token=${info.data.accessToken}`;
       // 切換到主頁
-      window.location = `/userLanguage?userId=${info.data.user.id}`;
+      // window.location = `/userLanguage?userId=${info.data.user.id}`;
+      showUserSettingBlock(info.data.user);
     });
 }
 
