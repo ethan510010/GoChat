@@ -57,7 +57,7 @@ const uploadMessageImage = async (req, res) => {
   if (req.files.messageImage[0].key) {
     console.log('圖片訊息路徑', req.files.messageImage[0].key);
     res.status(200).json({
-      data: `https://d23udu0vnjg8rb.cloudfront.net/${req.files.messageImage[0].key}`
+      data: `https://d1pj9pkj6g3ldu.cloudfront.net/${req.files.messageImage[0].key}`
     })
   } else {
     res.status(500).send(error.message);
