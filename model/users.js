@@ -1,9 +1,9 @@
-const { 
-  createGeneralUser, 
-  exec, 
-  escape, 
-  updateFBUserInfo, 
-  updateGeneralUserTransaction, 
+const {
+  createGeneralUser,
+  exec,
+  escape,
+  updateFBUserInfo,
+  updateGeneralUserTransaction,
   updateUserSelectedNamespaceAndRoomTransaction } = require('../db/mysql')
 
 const insertUser = async (
@@ -67,14 +67,14 @@ const insertUser = async (
 }
 
 const updateUserFBInfo = async (
-  userId, 
-  accessToken, 
-  fbAccessToken, 
-  provider, 
-  expiredDate, 
-  avatarUrl, 
-  fbEmail, 
-  fbUserName, 
+  userId,
+  accessToken,
+  fbAccessToken,
+  provider,
+  expiredDate,
+  avatarUrl,
+  fbEmail,
+  fbUserName,
   beInvitedRoomId) => {
   const userInfoObj = {
     userId,
@@ -202,8 +202,8 @@ const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
   const updateResult = await updateGeneralUserTransaction(`UPDATE user SET
   access_token=?,
   expired_date=?
-  WHERE id=${id}`, 
-  `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
+  WHERE id=${id}`,
+    `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
   if (updateResult) {
     return true;
   } else {
@@ -317,13 +317,11 @@ const getAllUsers = async () => {
 const getAllUsersOfNamespace = async (namespaceId) => {
   const namespaceUsers = await exec(`
     select 
-    wholeUsersTable.userId, 
+    DISTINCT wholeUsersTable.userId, 
     wholeUsersTable.provider, 
     wholeUsersTable.name as userName, 
     wholeUsersTable.email,
-    wholeUsersTable.avatarUrl, 
-    user_room_junction.roomId as roomId, 
-    room.name as roomName, namespace.id as namespaceId, 
+    wholeUsersTable.avatarUrl, namespace.id as namespaceId, 
     namespace.namespaceName
     from 
     (select 
@@ -344,7 +342,37 @@ const getAllUsersOfNamespace = async (namespaceId) => {
       inner join namespace
       on namespace.id=room.namespaceId
       where namespaceId=${namespaceId}
-  `);
+  `)
+  // const namespaceUsers = await exec(`
+  //   select 
+  //   wholeUsersTable.userId, 
+  //   wholeUsersTable.provider, 
+  //   wholeUsersTable.name as userName, 
+  //   wholeUsersTable.email,
+  //   wholeUsersTable.avatarUrl, 
+  //   user_room_junction.roomId as roomId, 
+  //   room.name as roomName, namespace.id as namespaceId, 
+  //   namespace.namespaceName
+  //   from 
+  //   (select 
+  //     tempTable.userId, 
+  //     tempTable.provider, 
+  //     IFNULL(tempTable.name, fb_info.fb_name) as name, 
+  //     IFNULL(tempTable.email, fb_info.fb_email) as email, 
+  //     IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from 
+  //     (select user.id as userId, provider, name, avatarUrl, email from user 
+  //     left join general_user_info 
+  //     on user.id=general_user_info.userId) as tempTable
+  //     left join fb_info
+  //     on tempTable.userId=fb_info.userId) as wholeUsersTable
+  //     inner join user_room_junction
+  //     on wholeUsersTable.userId=user_room_junction.userId
+  //     inner join room
+  //     on user_room_junction.roomId=room.id
+  //     inner join namespace
+  //     on namespace.id=room.namespaceId
+  //     where namespaceId=${namespaceId}
+  // `);
   return namespaceUsers;
 }
 
@@ -421,7 +449,7 @@ const getUsersOfRoom = async (roomId) => {
       inner join room
       on user_room_junction.roomId=room.id
       where roomId=${roomId}`
-    );
+  );
   return queryResult;
 }
 

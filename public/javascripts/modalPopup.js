@@ -1,24 +1,19 @@
 const modal = document.getElementById('addRoomModal');
-
+// 功能 DOM
+const selected = document.querySelector('.selected');
+const optionsContainer = document.querySelector('.options-container');
+const optionsList = document.querySelectorAll('.option');
+const searchBox = document.querySelector('.search-box input');
+// 建立房間的按鈕
 const createRoomBtn = document.querySelector('.room_header .add_room');
-let allUsers = [];
-
 // 用來分辨是要新增房間還是更新房間用戶
 let updateOrCreateRoomType = 'createRoom';
 
 // 被邀請進 channel 的用戶
 let beInvitedMembers = [];
 
-fetch('/users/listUsers')
-  .then((response) => response.json())
-  .catch((err) => console.log(err))
-  .then((validResponse) => {
-    if (validResponse.data) {
-      allUsers = validResponse.data;
-    }
-  })
 // 獲取 close button
-var closePopupSpan = document.getElementsByClassName("close")[0];
+const closePopupSpan = document.getElementsByClassName('close')[0];
 
 createRoomBtn.addEventListener('click', function (event) {
   beInvitedMembers = [];
@@ -26,6 +21,25 @@ createRoomBtn.addEventListener('click', function (event) {
   // 把搜尋會員弄回原本的樣子
   const selected = document.querySelector('.selected');
   selected.innerHTML = '';
+  // 會員下拉選單重置
+  optionsContainer.innerHTML = '';
+  console.log('邀請不包含自己的用戶', allUsers);
+  for (let i = 0; i < allUsers.length; i++) {
+    const eachUser = allUsers[i];
+    const eachOption = document.createElement('div');
+    eachOption.classList.add('option');
+    const radioUserTag = document.createElement('input');
+    radioUserTag.type = 'radio';
+    radioUserTag.classList.add('radio');
+    radioUserTag.setAttribute('id', `userId_${eachUser.userId}`);
+    radioUserTag.name = 'user';
+    const userLabel = document.createElement('label');
+    userLabel.setAttribute('for', `userId=${eachUser.userId}`);
+    eachOption.appendChild(radioUserTag);
+    eachOption.appendChild(userLabel);
+    optionsContainer.appendChild(eachOption);
+  }
+  
   // optionsContainer.innerHTML = '';
   // for (let index = 0; index < allUsers.length; index++) {
   //   const userData = allUsers[index];
@@ -91,11 +105,6 @@ window.onclick = function (event) {
 }
 
 // 跳出選單
-const selected = document.querySelector('.selected');
-const optionsContainer = document.querySelector('.options-container');
-const optionsList = document.querySelectorAll('.option');
-const searchBox = document.querySelector('.search-box input');
-
 selected.addEventListener('click', function (e) {
   // 移除原本的提示 p tag，並加上一個可編輯的 div 作為裝飾用
   if (document.querySelector('.selected p')) {
@@ -194,7 +203,6 @@ optionsContainer.addEventListener('click', function (e) {
   nameTag.appendChild(nameSpan);
   nameTag.appendChild(removeNameImg);
   selected.appendChild(nameTag);
-  // selected.textContent = selectedUILanguage;
   optionsContainer.classList.remove('active');
 })
 

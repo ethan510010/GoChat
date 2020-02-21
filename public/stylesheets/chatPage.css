@@ -462,7 +462,7 @@ header {
   padding: 10px 15px 20px;
   border: 1px solid #888;
   width: 60%;
-  border-radius: 20px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -514,19 +514,19 @@ header {
   font-weight: 500;
   height: 40px;
   border-radius: 5px;
-  width: 60%;
+  width: 100%;
 }
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
   position: relative;
   display: flex;
-  width: 80%;
+  width: 100%;
   flex-direction: column;
 }
 
 .select-box p {
   margin: 0;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .select-box .options-container {
@@ -544,7 +544,7 @@ header {
 
 .selected {
   background: #003e85;
-  border-radius: 8px;
+  border-radius: 5px;
   margin: 8px 0;
   color: #FFF;
   position: relative;
@@ -566,7 +566,7 @@ header {
   height: 100%;
   width: 32px;
   right: 10px;
-  top: 50%;
+  top: 70%;
   transform: translateY(-50%); 
   transition: all 0.4s;
   outline: none;
@@ -588,7 +588,7 @@ header {
 
 .select-box .options-container.active + .selected::after {
   transform: rotateX(180deg);
-   top: -6px;
+  top: -20%;
 }
 
  .select-box .options-container::-webkit-scrollbar {
@@ -604,7 +604,7 @@ header {
 
 .select-box .option,
 .selected {
-  padding: 12px 24px;
+  padding: 12px 15px;
   cursor: pointer;
 }
 
@@ -624,14 +624,15 @@ header {
 /* Searchbox */
 
 .search-box input {
+  height: 60px;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 7px;
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
   position: absolute;
-  border-radius: 8px 8px 0 0;
+  border-radius: 5px 5px 0 0;
   z-index: 100;
-  border: 9px solid #003e85;
+  border: 10px solid #003e85;
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s;
@@ -659,7 +660,12 @@ header {
   padding: 3px; 
 }
 
+.nameTag span {
+  padding-left: 5px;
+}
+
 .nameTag img {
+  margin-left: 5px;
   width: 20px;
   height: 20px;
 }
