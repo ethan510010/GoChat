@@ -253,6 +253,10 @@ buildChannelBtn.addEventListener('click', function () {
   }
   // 如果是從新增房間輸入的，才會有上面這個值，如果是直接從設定加人的就是更新
   if (updateOrCreateRoomType === 'updateRoom') {
+    if (newAddedMembers.length === 0) {
+      alert('請輸入用戶');
+      return;
+    }
     // console.log('被新增進房間的用戶', userIdList.splice(0, 1))
     // 如果是更新，必須把第一個用戶 id 拿掉
     fetch('/rooms/updateRoomMember', {
@@ -273,7 +277,8 @@ buildChannelBtn.addEventListener('click', function () {
       }
     })
   } else {
-    // 打 api 創建 Room
+    // 新增 Room
+    // 打 api 創建 Room 
     // 先確定有沒有 room 的名稱重複了
     if (allRooms.includes(channelName)) {
       showCustomAlert(`${channelName}已經存在了，請輸入其他的`);
@@ -313,6 +318,9 @@ buildChannelBtn.addEventListener('click', function () {
           newCreatedRoomTitleTag.textContent = channelName;
           newCreatedRoomTag.setAttribute('id', `channelId_${validResponse.data.channelId}`);
           newCreatedRoomTag.classList.add('room_title');
+          const decorationDiv = document.createElement('div');
+          decorationDiv.classList.add('decoration_bar');
+          newCreatedRoomTag.appendChild(decorationDiv);
           newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
           roomListArea.appendChild(newCreatedRoomTag);
         }
