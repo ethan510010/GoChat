@@ -2,7 +2,7 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom, getUsersOfRoom } = require('../model/users');
+const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom, insertNewRoom } = require('../model/rooms');
@@ -341,6 +341,15 @@ socketio.getSocketio = async function (server) {
       })
     })
 
+    // 取得現在在 namespaceId 底下但不在該房間下的用戶
+    socket.on('searchUsersUnderNamespaceAndNotRoom', async (dataFromClient, callback) => {
+      const { roomId, selfUserId } = dataFromClient;
+      const usersOfRoom = await getUsersOfRoomExclusiveSelf(roomId, selfUserId);
+      callback({
+        usersOfRoom
+      })
+    })
+
     // 新增房間
     socket.on('createRoom', async (newRoomInfo) => {
       const { channelName, namespaceId, userIdList} = newRoomInfo;
@@ -353,6 +362,11 @@ socketio.getSocketio = async function (server) {
         },
         bindingNamespaceId
       })
+    })
+
+    // 更新房間用戶
+    socket.on('updateRoomMember', async (updateInfo) => {
+
     })
 
     socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {

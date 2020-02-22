@@ -1,6 +1,6 @@
 const { getUserInfoByUserId } = require('../model/chat');
 const { getRooms, listExistedRooms, getRoomsOfNamespaceAndUser, getAllRoomsOfNamespace } = require('../model/rooms');
-const { getAllUsers, getAllUsersOfNamespace, getUsersOfRoom } = require('../model/users');
+const { getAllUsers, getAllUsersOfNamespaceExclusiveSelf, getUsersOfRoom, getUsersOfRoomExclusiveSelf } = require('../model/users');
 
 const chatPageContent = async (req, res) => {
   // inputUserId 就是當前用戶 id
@@ -20,15 +20,8 @@ const chatPageContent = async (req, res) => {
     // render 出現在有在該 namespace而且此用戶有被加入的房間
     const allRoomsOfCurrentUserAndNamespace = await getRoomsOfNamespaceAndUser(inputNamespaceId, inputUserId);
 
-    // render 出在該 namespace 底下的所有用戶
-    let exclusiveSelfUsersOfNamespace = [];
-    const allUsersOfNamespace = await getAllUsersOfNamespace(inputNamespaceId);
-    for (let i = 0; i < allUsersOfNamespace.length; i++) {
-      const eachUser = allUsersOfNamespace[i];
-      if (eachUser.userId !== parseInt(inputUserId, 10)) {
-        exclusiveSelfUsersOfNamespace.push(eachUser)
-      }
-    }
+    // render 出在該 namespace 底下的所有用戶，但不包含自己
+    const allUsersOfNamespaceExclusiceSelf = await getAllUsersOfNamespaceExclusiveSelf(inputNamespaceId, inputUserId);
 
     // render 出全部現存的房間
     const allExistedRoomsOfNamespace = await getAllRoomsOfNamespace(inputNamespaceId);
@@ -54,7 +47,7 @@ const chatPageContent = async (req, res) => {
       currentUserDetail: userProfile,
       userAvatar: uiAvatar,
       rooms: allRoomsOfCurrentUserAndNamespace,
-      allUsers: exclusiveSelfUsersOfNamespace,
+      allUsers: allUsersOfNamespaceExclusiceSelf,
       allRooms: allExistedRoomsOfNamespace,
       currentNamespaceId: inputNamespaceId,
       userLanguage: userLanguage,

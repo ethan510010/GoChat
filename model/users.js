@@ -314,7 +314,7 @@ const getAllUsers = async () => {
   return users;
 }
 
-const getAllUsersOfNamespace = async (namespaceId) => {
+const getAllUsersOfNamespaceExclusiveSelf = async (namespaceId, selfUserId) => {
   const namespaceUsers = await exec(`
     select 
     DISTINCT wholeUsersTable.userId, 
@@ -341,38 +341,8 @@ const getAllUsersOfNamespace = async (namespaceId) => {
       on user_room_junction.roomId=room.id
       inner join namespace
       on namespace.id=room.namespaceId
-      where namespaceId=${namespaceId}
-  `)
-  // const namespaceUsers = await exec(`
-  //   select 
-  //   wholeUsersTable.userId, 
-  //   wholeUsersTable.provider, 
-  //   wholeUsersTable.name as userName, 
-  //   wholeUsersTable.email,
-  //   wholeUsersTable.avatarUrl, 
-  //   user_room_junction.roomId as roomId, 
-  //   room.name as roomName, namespace.id as namespaceId, 
-  //   namespace.namespaceName
-  //   from 
-  //   (select 
-  //     tempTable.userId, 
-  //     tempTable.provider, 
-  //     IFNULL(tempTable.name, fb_info.fb_name) as name, 
-  //     IFNULL(tempTable.email, fb_info.fb_email) as email, 
-  //     IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from 
-  //     (select user.id as userId, provider, name, avatarUrl, email from user 
-  //     left join general_user_info 
-  //     on user.id=general_user_info.userId) as tempTable
-  //     left join fb_info
-  //     on tempTable.userId=fb_info.userId) as wholeUsersTable
-  //     inner join user_room_junction
-  //     on wholeUsersTable.userId=user_room_junction.userId
-  //     inner join room
-  //     on user_room_junction.roomId=room.id
-  //     inner join namespace
-  //     on namespace.id=room.namespaceId
-  //     where namespaceId=${namespaceId}
-  // `);
+      where namespaceId=${namespaceId} and wholeUsersTable.userId<>${selfUserId}
+  `);
   return namespaceUsers;
 }
 
@@ -453,6 +423,36 @@ const getUsersOfRoom = async (roomId) => {
   return queryResult;
 }
 
+const getUsersOfRoomExclusiveSelf = async (roomId, selfUserId) => {
+  const queryResult = await exec(`
+  select 
+  wholeUsersTable.userId,
+  wholeUsersTable.name,
+  wholeUsersTable.email,
+  wholeUsersTable.avatarUrl,
+  room.id as roomId,
+  room.name as roomName
+  from 
+  (select 
+    tempTable.userId, 
+    tempTable.provider, 
+    IFNULL(tempTable.name, fb_info.fb_name) as name, 
+    IFNULL(tempTable.email, fb_info.fb_email) as email, 
+    IFNULL(tempTable.avatarUrl, fb_info.fb_avatar_url) as avatarUrl from 
+    (select user.id as userId, provider, name, avatarUrl, email from user 
+    left join general_user_info 
+    on user.id=general_user_info.userId) as tempTable
+    left join fb_info
+    on tempTable.userId=fb_info.userId) as wholeUsersTable
+    inner join user_room_junction
+    on wholeUsersTable.userId=user_room_junction.userId
+    inner join room
+    on user_room_junction.roomId=room.id
+    where roomId=${roomId} and wholeUsersTable.userId<>${selfUserId}`
+  );
+  return queryResult;
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -465,7 +465,8 @@ module.exports = {
   getAllUsers,
   updateUserAvatar,
   updateUserSelectedRoom,
-  getAllUsersOfNamespace,
+  getAllUsersOfNamespaceExclusiveSelf,
   updateUserLastNamespace,
-  getUsersOfRoom
+  getUsersOfRoom,
+  getUsersOfRoomExclusiveSelf
 }
