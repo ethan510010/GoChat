@@ -309,7 +309,7 @@ const enterMessageInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
 
 sendMessageBtn.addEventListener('click', function () {
-  sendMessagageLoadingDiv();
+  sendMessagageLoadingDiv('textMessage');
   socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
@@ -326,6 +326,7 @@ sendImageBtn.addEventListener('change', function (e) {
   const fileData = e.target.files[0];
   let reader = new FileReader();
   reader.readAsDataURL(fileData);
+  sendMessagageLoadingDiv('imageMessage');
   reader.onload = function () {
     socket.emit('clientMessage', {
       roomDetail: currentSelectedRoom,
@@ -599,7 +600,7 @@ function showOnlineMemberUI(roomUsersPair, usersOfRoom) {
 }
 
 // 發送訊息時產生假的 div，作為等待動畫
-function sendMessagageLoadingDiv() {
+function sendMessagageLoadingDiv(messageType) {
   const fakeDiv = document.createElement('div');
   fakeDiv.classList.add('message_block');
   fakeDiv.classList.add('messageHost');
@@ -623,19 +624,26 @@ function sendMessagageLoadingDiv() {
   fakeDiv.appendChild(messageUserInfoDiv);
 
   // loading 及其動畫
-  const fakeLoading = document.createElement('div');
-  fakeLoading.classList.add('spinner');
-
-  const bounceOne = document.createElement('div');
-  bounceOne.classList.add('bounceOne');
-  const bounceTwo = document.createElement('div');
-  bounceTwo.classList.add('bounceTwo');
-  const bounceThree = document.createElement('div');
-  bounceThree.classList.add('bounceThree');
-  fakeLoading.appendChild(bounceOne);
-  fakeLoading.appendChild(bounceTwo);
-  fakeLoading.appendChild(bounceThree);
-  fakeDiv.appendChild(fakeLoading);
+  if (messageType === 'textMessage') {
+    const fakeLoading = document.createElement('div');
+    fakeLoading.classList.add('spinner');
+  
+    const bounceOne = document.createElement('div');
+    bounceOne.classList.add('bounceOne');
+    const bounceTwo = document.createElement('div');
+    bounceTwo.classList.add('bounceTwo');
+    const bounceThree = document.createElement('div');
+    bounceThree.classList.add('bounceThree');
+    fakeLoading.appendChild(bounceOne);
+    fakeLoading.appendChild(bounceTwo);
+    fakeLoading.appendChild(bounceThree);
+    fakeDiv.appendChild(fakeLoading);  
+  } else if (messageType === 'imageMessage') {
+    const mainLoadingDiv = document.createElement('div');
+    mainLoadingDiv.classList.add('lds-default');
+    mainLoadingDiv.innerHTML = '<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>';
+    fakeDiv.appendChild(mainLoadingDiv); 
+  }
 
   fakeDiv.setAttribute('id', 'loadingTranslation');
   chatFlowContent.appendChild(fakeDiv);
