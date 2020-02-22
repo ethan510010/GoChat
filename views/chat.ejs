@@ -111,7 +111,12 @@
   <!-- toggle profile -->
   <div id="toggle_list">
     <div id="profile_area">
-      <img src=<%= userAvatar %> alt="">
+      <div class="container">
+        <img class="avatar_img" src=<%= userAvatar %> alt="">
+        <div class="toggle_camera">
+          <img src="/images/camera.png" alt="">
+        </div>
+      </div>
       <p class="user_name"><%= currentUserDetail.name %></p>
       <div class="basic_info">
         <div class="email">

@@ -80,10 +80,40 @@ header {
   margin-bottom: 15px;
 }
 
-#profile_area img {
+#profile_area .container {
+  position: relative;
+}
+
+#profile_area .avatar_img {
   width: 150px;
   height: 150px;
   border-radius: 75px;
+  transition: .5s ease;
+  backface-visibility: hidden;
+}
+
+#profile_area .toggle_camera img {
+  width: 30px;
+  height: 30px;
+}
+
+#profile_area .toggle_camera {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+#profile_area .container:hover .avatar_img {
+  opacity: 0.3;
+}
+
+#profile_area .container:hover .toggle_camera {
+  opacity: 1;
 }
 
 /* Email 區塊 */
