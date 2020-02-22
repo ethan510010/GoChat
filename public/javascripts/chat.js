@@ -639,10 +639,13 @@ function sendMessagageLoadingDiv(messageType) {
     fakeLoading.appendChild(bounceThree);
     fakeDiv.appendChild(fakeLoading);  
   } else if (messageType === 'imageMessage') {
+    const outerBox = document.createElement('div');
+    outerBox.classList.add('loading_outer_box');
     const mainLoadingDiv = document.createElement('div');
     mainLoadingDiv.classList.add('lds-default');
     mainLoadingDiv.innerHTML = '<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>';
-    fakeDiv.appendChild(mainLoadingDiv); 
+    outerBox.appendChild(mainLoadingDiv); 
+    fakeDiv.appendChild(outerBox);
   }
 
   fakeDiv.setAttribute('id', 'loadingTranslation');

@@ -77,7 +77,9 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin-bottom: 15px;
+  width: 70%;
 }
 
 #profile_area .container {
@@ -122,6 +124,7 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
+  height: 40px;
 }
 
 #profile_area .email img,
@@ -140,6 +143,47 @@ header {
   font-size: 30px;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.4);
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 95px;
+}
+
+#profile_area .user_name input {
+  width: calc(90% - 20px);
+  font-weight: 600;
+  border: none;
+  color: rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+  outline: none;
+  text-align: center;
+}
+
+#profile_area .user_name img {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin-left: 15px;
+}
+
+#profile_area .sign_out {
+  width: 90%;
+  border: 1.5px solid rgba(0, 0, 0, 0.4);;
+  text-align: center;
+  border-radius: 5px;
+  height: 40px;
+  line-height: 40px;
+  margin-top: 20px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+#profile_area .sign_out p {
+  font-weight: 500;
+  margin: 0;
 }
 
 #decoration_line {
@@ -1049,9 +1093,17 @@ header {
   }
 }
 /* 傳圖片的 loading 動畫 */
-.lds-default {
+.loading_outer_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 150px;
   background-color: #5BB65C;
-  border-radius: 3px;
+  border-radius: 10px;
+}
+
+.lds-default {
   display: inline-block;
   position: relative;
   width: 80px;

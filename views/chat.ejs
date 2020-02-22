@@ -120,7 +120,10 @@
           <input hidden id="avatarSelection" type="file" accept="image/*">
         </div>
       </div>
-      <p class="user_name"><%= currentUserDetail.name %></p>
+      <div class="user_name">
+        <p><%= currentUserDetail.name %></p>
+        <img src="/images/edit.png" alt="">
+      </div>
       <div class="basic_info">
         <div class="email">
           <img src="/images/email.png" alt="">
@@ -130,6 +133,9 @@
           <img src="/images/language.png" alt="">
           <p class="user_language"><%= userLanguage %></p>
         </div>
+      </div>
+      <div class="sign_out">
+        <p>Sign out</p>
       </div>
     </div>
     <div id="decoration_line"></div>
