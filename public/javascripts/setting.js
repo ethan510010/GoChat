@@ -2,10 +2,10 @@ let isSettingOpen = false;
 const settingBtn = document.querySelector('.room_setting');
 settingBtn.addEventListener('click', function() {
   // 如果是要對 general 這個預設的 room 做操作，會跳一個 alert 通知說無法
-  // if (currentSelectedRoom.roomId === 1) {
-  //   showCustomAlert('channel general can not be set by user');
-  //   return;
-  // }
+  if (currentSelectedRoom.roomId === currentNamespaceDefaultRoom.roomId) {
+    showCustomAlert('default general can not be set by user');
+    return;
+  }  
   isSettingOpen = !isSettingOpen;
   const displayType = isSettingOpen ? 'block' : 'none';
   document.querySelector('.settings_block').style.display = displayType;  
@@ -20,28 +20,35 @@ addPeopleBtn.addEventListener('click', function() {
 
 const deleteChannelBtn = document.querySelector('.settings_block .delete_channel');
 deleteChannelBtn.addEventListener('click', function() {
-  const leaveChannel = confirm('Are you sure to leave current channel?');
-  if (leaveChannel) {
-    // 讓其他人可以看到該用戶退群，所以用 socket，不打 restful api
-    // 退群後讓他回到 general
+  showCustomConfirmDialog('Are you sure to leave current channel?');
+  customDialogConfirmClicked(function () {
+// 退群後讓他回到 general
     socket.emit('leaveRoom', {
       leaveUser: currentUserDetail,
       leaveRoom: currentSelectedRoom
     })
-  } else {
+  })
+  customDialogCancelClicked(function () {
     document.querySelector('.settings_block').style.display = 'none';
-  }
+    isSettingOpen = false;
+  })
+  // const leaveChannel = confirm('Are you sure to leave current channel?');
+  // if (leaveChannel) {
+    
+  // } else {
+  //   document.querySelector('.settings_block').style.display = 'none';
+  // }
 })
 // 其他人接收有人離線的通知，退群者看到 UI 切換到 general，並且移除原本該 room 在左側欄
 socket.on('leaveRoomNotification', async (leaveNotification) => {
   if (leaveNotification.leaveUser.userId === currentUserDetail.userId) {
-    // 刪除後切換到 general 這個 room
+    // 刪除後切換到該 namespace 底下的 general 房間
     currentSelectedRoom = {
-      roomId: 1,
+      roomId: currentNamespaceDefaultRoom.roomId,
       roomtitle: 'general'
     }
     // 改標題
-    const roomTitleTag = document.querySelector('#room_title h1');
+    const roomTitleTag = document.querySelector('#room_title p');
     roomTitleTag.textContent = currentSelectedRoom.roomtitle;
     // 旁邊要看不到該房間
     const roomsPad = document.querySelector('.upper_section .rooms');

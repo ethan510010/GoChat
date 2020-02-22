@@ -19,10 +19,8 @@ const chatPageContent = async (req, res) => {
     userProfile.avatarUrl = uiAvatar;
     // render 出現在有在該 namespace而且此用戶有被加入的房間
     const allRoomsOfCurrentUserAndNamespace = await getRoomsOfNamespaceAndUser(inputNamespaceId, inputUserId);
-
     // render 出在該 namespace 底下的所有用戶，但不包含自己
     const allUsersOfNamespaceExclusiceSelf = await getAllUsersOfNamespaceExclusiveSelf(inputNamespaceId, inputUserId);
-
     // render 出全部現存的房間
     const allExistedRoomsOfNamespace = await getAllRoomsOfNamespace(inputNamespaceId);
     let userLanguage = '';
@@ -51,7 +49,8 @@ const chatPageContent = async (req, res) => {
       allRooms: allExistedRoomsOfNamespace,
       currentNamespaceId: inputNamespaceId,
       userLanguage: userLanguage,
-      usersOfRoom: usersOfRoom
+      usersOfRoom: usersOfRoom,
+      currentNamespaceDefaultRoom: allRoomsOfCurrentUserAndNamespace[0]
     })
   } catch (error) {
     res.status(500).send(error.message);

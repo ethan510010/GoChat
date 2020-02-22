@@ -151,7 +151,6 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
   // 視訊發起者本身不需要看到 alert 跳出
   if (currentUserPeerId !== launchVideoPeerId) {
     videoDisplayDiv.style.display = 'block';
-    // const acceptCall = confirm(`Do you want to accept the call From ${videoLauncher.name}?`);
     showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
     customDialogConfirmClicked(function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
@@ -231,10 +230,11 @@ roomsAreaSection.addEventListener('click', function (event) {
     roomTitle = event.target.textContent;
     // 把舊的 room 的選到的裝飾 UI class 移除，加到新選擇的 
     const lastSelectedRoomDiv = document.getElementById(`channelId_${lastChooseRoom.roomId}`);
-    lastSelectedRoomDiv.classList.remove('selectedRoomUI');
-    beSelectedRoomDiv.classList.add('selectedRoomUI');
+    if (lastSelectedRoomDiv) {
+      lastSelectedRoomDiv.classList.remove('selectedRoomUI');
+      beSelectedRoomDiv.classList.add('selectedRoomUI');  
+    }
   }
-  // const validRoomId = parseInt(event.target.getAttribute('id').replace('channelId_', ''));
   currentSelectedRoom = {
     roomId: validRoomId,
     roomTitle: roomTitle
