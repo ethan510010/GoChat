@@ -650,6 +650,30 @@ function removeFakeLoadingDiv() {
   }
 }
 
+// 上傳新的大頭貼
+const editAvatar = document.getElementById('avatarSelection');
+editAvatar.addEventListener('change', function (e) {
+  const fileData = e.target.files[0];
+  let reader = new FileReader();
+  reader.readAsDataURL(fileData);
+  reader.onload = function () {
+    socket.emit('editNewAvatar', {
+      userInfo: currentUserDetail,
+      avatarData: this.result,
+      fileName: fileData.name
+    }, (response) => {
+      if (response.newAvatarUrl) {
+        // 更改當前用戶的 
+        currentUserDetail.avatarUrl = response.newAvatarUrl;
+        const avatarImgTag = document.querySelector('.container .avatar_img');
+        avatarImgTag.src = URL.createObjectURL(fileData);
+      }
+    })
+  }
+})
+
+
+
 // 如果斷線自動重連
 socket.on('disconnect', () => {
   console.log('socket 斷線，自動重連');

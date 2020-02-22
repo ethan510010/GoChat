@@ -2,7 +2,7 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf } = require('../model/users');
+const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserAvatar } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom, insertNewRoom, updateRoom } = require('../model/rooms');
@@ -11,7 +11,7 @@ require('dotenv').config();
 const aws = require('aws-sdk');
 aws.config.update({
   secretAccessKey: process.env.awsSecretKey,
-  accessKeyId: process.env.awsAccessKeyId 
+  accessKeyId: process.env.awsAccessKeyId
 })
 const s3Bucket = new aws.S3({
   params: {
@@ -25,6 +25,21 @@ let socketio = {};
 let currentSelectedRoomId = 0;
 // 用來記錄當前 room 跟 peerId 的 list
 let roomPeerIdList = {};
+
+async function handleBufferUpload(base64Info, fileKey) {
+  const buffer = new Buffer.from(base64Info.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+  // Getting the file type, ie: jpeg, png or gif
+  const type = base64Info.split(';')[0].split('/')[1];
+  const uploadS3Paras = {
+    Key: fileKey,
+    Body: buffer,
+    ACL: 'public-read',
+    ContentEncoding: 'base64',
+    // ContentType: `image/${type}` // 為了讓使用者點擊可以直接下載
+  }
+  const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
+  return `https://d1pj9pkj6g3ldu.cloudfront.net/${Key}`;
+}
 
 socketio.getSocketio = async function (server) {
   const io = socket_io.listen(server);
@@ -83,7 +98,7 @@ socketio.getSocketio = async function (server) {
         console.log('離開後房間跟用戶的狀況', roomUsersPair);
         console.log('離開房間後剩下的 peer', roomPeerIdList);
         // 代表都完成了
-        callback({ 
+        callback({
           acknowledged: true
         });
         // 全部的人都廣播
@@ -142,18 +157,8 @@ socketio.getSocketio = async function (server) {
         fileName: dataFromClient.fileName
       }
       if (dataFromClient.messageType === 'image') {
-        const buffer = new Buffer.from(dataFromClient.messageContent.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-        // Getting the file type, ie: jpeg, png or gif
-        const type = dataFromClient.messageContent.split(';')[0].split('/')[1];
-        const uploadS3Paras = {
-          Key: `${dataFromClient.messageTime}_${dataFromClient.fileName}`,
-          Body: buffer,
-          ACL: 'public-read',
-          ContentEncoding: 'base64',
-          // ContentType: `image/${type}` // 為了讓使用者點擊可以直接下載
-        }
-        const { Key } = await s3Bucket.upload(uploadS3Paras).promise();
-        messageObj.messageContent = `https://d1pj9pkj6g3ldu.cloudfront.net/${Key}`;
+        const s3Path = await handleBufferUpload(dataFromClient.messageContent, `${dataFromClient.messageTime}_${dataFromClient.fileName}`);
+        messageObj.messageContent = s3Path;
       }
       try {
         const createMessageResult = await insertChatMessage(messageObj);
@@ -352,8 +357,8 @@ socketio.getSocketio = async function (server) {
 
     // 新增房間
     socket.on('createRoom', async (newRoomInfo) => {
-      const { channelName, namespaceId, userIdList} = newRoomInfo;
-      const { channelId, allUsers, bindingNamespaceId } = await insertNewRoom(channelName, namespaceId, userIdList);  
+      const { channelName, namespaceId, userIdList } = newRoomInfo;
+      const { channelId, allUsers, bindingNamespaceId } = await insertNewRoom(channelName, namespaceId, userIdList);
       // 廣播給全部人，可以即時看到被加進去的房間
       subNamespace.emit('newRoomCreated', {
         newRoom: {
@@ -376,6 +381,16 @@ socketio.getSocketio = async function (server) {
       })
       callback({
         updateFinished: true
+      })
+    })
+
+    // 更新使用者大頭貼
+    socket.on('editNewAvatar', async (avatarInfo, callback) => {
+      const { userInfo, avatarData, fileName } = avatarInfo;
+      const s3Path = await handleBufferUpload(avatarData, `${userInfo.userId}_${Date.now()}_${fileName}`);
+      await updateUserAvatar(userInfo.userId, s3Path);
+      callback({
+        newAvatarUrl: s3Path
       })
     })
 

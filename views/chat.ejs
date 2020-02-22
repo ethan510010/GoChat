@@ -114,7 +114,10 @@
       <div class="container">
         <img class="avatar_img" src=<%= userAvatar %> alt="">
         <div class="toggle_camera">
-          <img src="/images/camera.png" alt="">
+          <label for="avatarSelection">
+            <img src="/images/camera.png" alt="">
+          </label>
+          <input hidden id="avatarSelection" type="file" accept="image/*">
         </div>
       </div>
       <p class="user_name"><%= currentUserDetail.name %></p>
