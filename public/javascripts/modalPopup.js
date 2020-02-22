@@ -275,25 +275,15 @@ buildChannelBtn.addEventListener('click', function () {
       alert('請輸入用戶');
       return;
     }
-    // console.log('被新增進房間的用戶', userIdList.splice(0, 1))
-    // 如果是更新，必須把第一個用戶 id 拿掉
-    fetch('/rooms/updateRoomMember', {
-      method: 'PUT',
-      body: JSON.stringify({
-        roomId: currentSelectedRoom.roomId,
-        userIdList: newAddedMembers
-      }),
-      headers: new Headers({
-        'Content-type': 'application/json'
-      })
-    }).then((response) => response.json())
-      .catch((error) => console.log(error))
-      .then((validResponse) => {
-        if (validResponse.data) {
-          const modal = document.getElementById('addRoomModal');
+    socket.emit('updateRoomMember', {
+      roomId: currentSelectedRoom.roomId,
+      userIdList: newAddedMembers
+    }, (updateResult) => {
+      if (updateResult.updateFinished) {
+        const modal = document.getElementById('addRoomModal');
           modal.style.display = 'none';
-        }
-      })
+      }
+    })
   } else {
     // 新增 Room
     // 打 api 創建 Room 
@@ -339,4 +329,9 @@ socket.on('newRoomCreated', (newRoomInfo) => {
   newCreatedRoomTag.appendChild(decorationDiv);
   newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
   roomListArea.appendChild(newCreatedRoomTag);
+})
+
+// 接收到被邀請到房間
+socket.on('receiveUpdateNewMember', (infoFromServer) => {
+  console.log(infoFromServer);
 })

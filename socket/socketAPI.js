@@ -5,7 +5,7 @@ const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('.
 const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
-const { userLeaveRoom, insertNewRoom } = require('../model/rooms');
+const { userLeaveRoom, insertNewRoom, updateRoom } = require('../model/rooms');
 const { listAllNamespaces } = require('../model/namespace');
 require('dotenv').config();
 const aws = require('aws-sdk');
@@ -365,8 +365,13 @@ socketio.getSocketio = async function (server) {
     })
 
     // 更新房間用戶
-    socket.on('updateRoomMember', async (updateInfo) => {
-
+    socket.on('updateRoomMember', async (updateInfo, callback) => {
+      const { roomId, userIdList } = updateInfo;
+      await updateRoom(roomId, userIdList);
+      subNamespace.emit('receiveUpdateNewMember', '更新')
+      callback({
+        updateFinished: true
+      })
     })
 
     socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {
