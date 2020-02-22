@@ -20,24 +20,21 @@ addPeopleBtn.addEventListener('click', function() {
 
 const deleteChannelBtn = document.querySelector('.settings_block .delete_channel');
 deleteChannelBtn.addEventListener('click', function() {
-  showCustomConfirmDialog('Are you sure to leave current channel?');
-  customDialogConfirmClicked(function () {
-// 退群後讓他回到 general
+  const leaveRoomConfirm = confirm('Are you sure to leave current channel?');
+  // socket.emit('leaveRoom', {
+  //   leaveUser: currentUserDetail,
+  //   leaveRoom: currentSelectedRoom
+  // })
+  if (leaveRoomConfirm) {
+    // 退群後讓他回到 general
     socket.emit('leaveRoom', {
       leaveUser: currentUserDetail,
       leaveRoom: currentSelectedRoom
     })
-  })
-  customDialogCancelClicked(function () {
+  } else {
     document.querySelector('.settings_block').style.display = 'none';
     isSettingBlockOpen = false;
-  })
-  // const leaveChannel = confirm('Are you sure to leave current channel?');
-  // if (leaveChannel) {
-    
-  // } else {
-  //   document.querySelector('.settings_block').style.display = 'none';
-  // }
+  }
 })
 // 其他人接收有人離線的通知，退群者看到 UI 切換到 general，並且移除原本該 room 在左側欄
 socket.on('leaveRoomNotification', async (leaveNotification) => {
@@ -107,7 +104,7 @@ socket.on('leaveRoomNotification', async (leaveNotification) => {
     }
   }
 })
-
+// 點擊旁邊可以隱藏 setting block
 window.addEventListener('mouseup', function(event) {
   if (event.target === settingBtn) {
     return;
