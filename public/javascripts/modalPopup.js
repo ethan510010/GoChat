@@ -145,8 +145,8 @@ selected.addEventListener('click', function (e) {
     case 'IMG':
       const beRemovedNameTag = e.target.parentElement;
       const beRemovedUserId = beRemovedNameTag.classList[1].replace('userId', '');
-      const beRemovedIndex = beInvitedMembers.findIndex((userId) => {
-        return userId === beRemovedUserId;
+      const beRemovedIndex = beInvitedMembers.findIndex((user) => {
+        return user.userId === beRemovedUserId;
       });
       beInvitedMembers.splice(beRemovedIndex, 1);
       selected.removeChild(beRemovedNameTag);
@@ -216,7 +216,11 @@ optionsContainer.addEventListener('click', function (e) {
   nameTag.classList.add('nameTag');
   nameTag.classList.add(`userId${selectedUserIdValue}`);
   // 記錄到要加進 channel 的用戶
-  beInvitedMembers.push(parseInt(selectedUserIdValue, 10));
+  beInvitedMembers.push({
+    userId: parseInt(selectedUserIdValue, 10),
+    userName: selectedUIUser
+  })
+  // beInvitedMembers.push(parseInt(selectedUserIdValue, 10));
   // 同時也要把下拉選單該用戶先移除掉，避免重複選取
   const allUserOptions = document.querySelectorAll('.options-container .option');
   for (let i = 0; i < allUserOptions.length; i++) {
@@ -266,7 +270,7 @@ buildChannelBtn.addEventListener('click', function () {
   let userIdList = [currentUserDetail.userId];
   let newAddedMembers = [];
   for (let i = 0; i < beInvitedMembers.length; i++) {
-    userIdList.push(beInvitedMembers[i]);
+    userIdList.push(beInvitedMembers[i].userId);
     newAddedMembers.push(beInvitedMembers[i]);
   }
   // 如果是從新增房間輸入的，才會有上面這個值，如果是直接從設定加人的就是更新
@@ -275,13 +279,17 @@ buildChannelBtn.addEventListener('click', function () {
       alert('請輸入用戶');
       return;
     }
+    // 如果是已存在房間新增用戶就把當前的用戶拿掉避免重複寫入
+    userIdList.splice(0, 1);
     socket.emit('updateRoomMember', {
-      roomId: currentSelectedRoom.roomId,
-      userIdList: newAddedMembers
+      inviterUserId: currentUserDetail.userId,
+      room: currentSelectedRoom,
+      userList: newAddedMembers,
+      newAddedMemberIdList: userIdList
     }, (updateResult) => {
       if (updateResult.updateFinished) {
         const modal = document.getElementById('addRoomModal');
-          modal.style.display = 'none';
+        modal.style.display = 'none';
       }
     })
   } else {
@@ -311,27 +319,67 @@ buildChannelBtn.addEventListener('click', function () {
 
 // 接收到新房間
 socket.on('newRoomCreated', (newRoomInfo) => {
-  const { newRoom } = newRoomInfo;
+  const { newRoom, userIdList } = newRoomInfo;
   const newRoomId = newRoom.roomId;
   const newRoomTitle = newRoom.roomName;
   // 新增成功這邊要讓前端顯示房間
   const modal = document.getElementById('addRoomModal');
   modal.style.display = 'none';
-  // 新增 Room 到畫面上
-  const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
-  const newCreatedRoomTag = document.createElement('div');
-  const newCreatedRoomTitleTag = document.createElement('p');
-  newCreatedRoomTitleTag.textContent = newRoomTitle;
-  newCreatedRoomTag.setAttribute('id', `channelId_${newRoomId}`);
-  newCreatedRoomTag.classList.add('room_title');
-  const decorationDiv = document.createElement('div');
-  decorationDiv.classList.add('decoration_bar');
-  newCreatedRoomTag.appendChild(decorationDiv);
-  newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
-  roomListArea.appendChild(newCreatedRoomTag);
+  for (let i = 0; i < userIdList.length; i++) {
+    if (userIdList[i] === currentUserDetail.userId) {
+      // 新增 Room 到畫面上
+      const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
+      const newCreatedRoomTag = document.createElement('div');
+      const newCreatedRoomTitleTag = document.createElement('p');
+      newCreatedRoomTitleTag.textContent = newRoomTitle;
+      newCreatedRoomTag.setAttribute('id', `channelId_${newRoomId}`);
+      newCreatedRoomTag.classList.add('room_title');
+      const decorationDiv = document.createElement('div');
+      decorationDiv.classList.add('decoration_bar');
+      newCreatedRoomTag.appendChild(decorationDiv);
+      newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
+      roomListArea.appendChild(newCreatedRoomTag);
+    }
+  }
 })
 
 // 接收到被邀請到房間
 socket.on('receiveUpdateNewMember', (infoFromServer) => {
-  console.log(infoFromServer);
+  const { room, userList, inviterUserId } = infoFromServer;
+  // 主邀請者，處理上線用戶區塊的 UI
+  if (inviterUserId === currentUserDetail.userId) {
+    const onlineMembersDiv = document.getElementById('online_members');
+    for (let i = 0; i < userList.length; i++) {
+      const beAddedUser = userList[i];
+      const newMemberTag = document.createElement('div');
+      newMemberTag.classList.add('room_member');
+      newMemberTag.setAttribute('id', `roomMember_${beAddedUser.userId}`);
+      const circleDiv = document.createElement('div');
+      circleDiv.classList.add('small_circle');
+      const userNameTag = document.createElement('p');
+      userNameTag.textContent = beAddedUser.userName;
+      newMemberTag.appendChild(circleDiv);
+      newMemberTag.appendChild(userNameTag);
+      onlineMembersDiv.appendChild(newMemberTag);
+    }
+    return;
+  }
+  // 被邀請的人都要看到
+  for (let i = 0; i < userList.length; i++) {
+    const beAddedUser = userList[i];
+    if (beAddedUser.userId === currentUserDetail.userId) {
+      // 新增 Room 到畫面上
+      const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
+      const newCreatedRoomTag = document.createElement('div');
+      const newCreatedRoomTitleTag = document.createElement('p');
+      newCreatedRoomTitleTag.textContent = room.roomTitle;
+      newCreatedRoomTag.setAttribute('id', `channelId_${room.roomId}`);
+      newCreatedRoomTag.classList.add('room_title');
+      const decorationDiv = document.createElement('div');
+      decorationDiv.classList.add('decoration_bar');
+      newCreatedRoomTag.appendChild(decorationDiv);
+      newCreatedRoomTag.appendChild(newCreatedRoomTitleTag);
+      roomListArea.appendChild(newCreatedRoomTag);
+    }
+  }
 })

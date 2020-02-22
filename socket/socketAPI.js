@@ -360,15 +360,20 @@ socketio.getSocketio = async function (server) {
           roomId: channelId,
           roomName: channelName
         },
-        bindingNamespaceId
+        bindingNamespaceId,
+        userIdList
       })
     })
 
     // 更新房間用戶
     socket.on('updateRoomMember', async (updateInfo, callback) => {
-      const { roomId, userIdList } = updateInfo;
-      await updateRoom(roomId, userIdList);
-      subNamespace.emit('receiveUpdateNewMember', '更新')
+      const { inviterUserId, room, userList, newAddedMemberIdList } = updateInfo;
+      await updateRoom(room.roomId, newAddedMemberIdList);
+      subNamespace.emit('receiveUpdateNewMember', {
+        inviterUserId,
+        room,
+        userList
+      })
       callback({
         updateFinished: true
       })
