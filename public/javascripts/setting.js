@@ -1,4 +1,4 @@
-let isSettingOpen = false;
+let isSettingBlockOpen = false;
 const settingBtn = document.querySelector('.room_setting');
 settingBtn.addEventListener('click', function() {
   // 如果是要對 general 這個預設的 room 做操作，會跳一個 alert 通知說無法
@@ -6,8 +6,8 @@ settingBtn.addEventListener('click', function() {
     showCustomAlert('default general can not be set by user');
     return;
   }  
-  isSettingOpen = !isSettingOpen;
-  const displayType = isSettingOpen ? 'block' : 'none';
+  isSettingBlockOpen = !isSettingBlockOpen;
+  const displayType = isSettingBlockOpen ? 'block' : 'none';
   document.querySelector('.settings_block').style.display = displayType;  
 });
 
@@ -30,7 +30,7 @@ deleteChannelBtn.addEventListener('click', function() {
   })
   customDialogCancelClicked(function () {
     document.querySelector('.settings_block').style.display = 'none';
-    isSettingOpen = false;
+    isSettingBlockOpen = false;
   })
   // const leaveChannel = confirm('Are you sure to leave current channel?');
   // if (leaveChannel) {
@@ -105,5 +105,18 @@ socket.on('leaveRoomNotification', async (leaveNotification) => {
         }
       });
     }
+  }
+})
+
+window.addEventListener('mouseup', function(event) {
+  if (event.target === settingBtn) {
+    return;
+  }
+  if (isSettingBlockOpen) {
+    const settingBlock = document.querySelector('.settings_block');
+    if (event.target !== settingBlock && event.target.parentNode !== settingBlock) {
+      settingBlock.style.display = 'none';
+      isSettingBlockOpen = false;
+    }  
   }
 })
