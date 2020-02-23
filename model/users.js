@@ -347,19 +347,6 @@ const getAllUsersOfNamespaceExclusiveSelf = async (namespaceId, selfUserId) => {
   return namespaceUsers;
 }
 
-const updateUserAvatar = async (userId, avatarUrl) => {
-  const updateAvatarResult = await exec(`
-    update general_user_info set
-    avatarUrl='${avatarUrl}'
-    where userId=${userId}
-  `);
-  if (updateAvatarResult) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
   // userName 及 userAvatar 一次只會有一個更新
   if (newUserName) {
@@ -487,7 +474,6 @@ module.exports = {
   getTokenExpiredTime,
   updateUserToken,
   getAllUsers,
-  updateUserAvatar,
   updateUserSelectedRoom,
   getAllUsersOfNamespaceExclusiveSelf,
   updateUserLastNamespace,
