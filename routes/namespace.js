@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 const { namespacePage, createNamespace, invitePeopleToNamespace, updateNamespace } = require('../controller/namespace');
+const { checkTokenExpired } = require('../middleware/checkTokenExpired');
 
-router.get('/', namespacePage);
+router.get('/', checkTokenExpired, namespacePage);
 
 router.post('/createNamespace', createNamespace);
 
