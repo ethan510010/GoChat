@@ -317,6 +317,10 @@ enterMessageInput.addEventListener('keypress', function(e) {
 
 sendMessageBtn.addEventListener('click', function () {
   sendMessageBtn.disabled = true;
+  if (enterMessageInput.value === '' || /^\s+$/gi.test(enterMessageInput.value)) {
+    sendMessageBtn.disabled = false;
+    return;
+  }
   sendMessagageLoadingDiv('textMessage');
   socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
