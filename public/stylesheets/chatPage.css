@@ -882,7 +882,7 @@ header {
 /* 對話框共有 */
 .messageDetail {
   border-radius: 5px;
-  padding: 3px;
+  padding: 3px 8px;
 }
 
 .messageReceiver .messageDetail {

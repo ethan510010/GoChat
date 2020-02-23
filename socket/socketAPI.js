@@ -147,7 +147,7 @@ socketio.getSocketio = async function (server) {
       callback(joinInfo);
     })
 
-    socket.on('clientMessage', async (dataFromClient) => {
+    socket.on('clientMessage', async (dataFromClient, callback) => {
       // 用來處理要存到 redis cache 的每一筆資料
       // let messageRedisCache = {};
       // 儲存訊息到 mySQL
@@ -211,6 +211,9 @@ socketio.getSocketio = async function (server) {
           // console.log('組裝的 cache 訊息', messageRedisCache);
           // // 儲存成功發送出去，並存到 redis
           // saveCacheMessage(messageRedisCache);
+          callback({
+            inputFinished: true
+          })
           subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {

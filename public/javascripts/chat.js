@@ -308,7 +308,15 @@ socket.on('changeRoomPeersList', (peersInfoFromServer) => {
 const enterMessageInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
 
+enterMessageInput.addEventListener('keypress', function(e) {
+  if (e.keyCode === 13) {
+    e.preventDefault();
+    sendMessageBtn.click();
+   }
+})
+
 sendMessageBtn.addEventListener('click', function () {
+  sendMessageBtn.disabled = true;
   sendMessagageLoadingDiv('textMessage');
   socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
@@ -317,6 +325,12 @@ sendMessageBtn.addEventListener('click', function () {
     fileName: '',
     messageTime: Date.now(),
     messageType: 'text'
+  }, (acknowledged) => {
+    if (acknowledged.inputFinished) {
+      //  清空輸入框
+      sendMessageBtn.disabled = false;
+      enterMessageInput.value = '';
+    }
   });
 })
 
