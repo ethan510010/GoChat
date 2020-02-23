@@ -108,7 +108,7 @@ inviteButton.addEventListener('click', async function() {
       invitor: currentUser.name,
     }, 'POST')
     if (sendEmailResult) {
-      alert('邀請信送出成功');
+      showCustomAlert('invited email successfully sent');
     }
     // 代表是編輯 namespace，打 updateNamespace
   } else {
@@ -133,7 +133,7 @@ inviteButton.addEventListener('click', async function() {
       invitor: currentUser.name
     }, 'POST')
     if (sendEmailResult) {
-      alert('邀請信送出成功');
+      showCustomAlert('invited email successfully sent');
     }
   }
 })

@@ -67,7 +67,7 @@ signupBtn.addEventListener('click', (e) => {
       } else {
         document.cookie = `access_token=${response.data.accessToken}`;
         // 註冊成功進到設定頁
-        alert('請去收取驗證信');
+        showCustomAlert('Please receive verification email');
         // showUserSettingBlock(response.data.user);
       }
     })
@@ -112,11 +112,11 @@ signinBtn.addEventListener('click', function(event) {
   .catch((err) => console.log(err))
   .then((response) => {
     if (typeof(response.data) === 'string') {
-      showCustomAlert('請確定帳號密碼輸入正確');
+      showCustomAlert('check the email and the password are correct');
     } else {
       // 登入成功，但要看是否有激活該帳戶，有的話才跳轉到 settingBlock
       if (response.data.isActive === false) {
-        alert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
+        showCustomAlert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
       } else {
         console.log('登入成功', response.data);
         document.cookie = `access_token=${response.data.accessToken}`;

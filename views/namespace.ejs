@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/stylesheets/namespace.css">
 </head>
 <body>
+  <%- include('./customAlert.ejs'); %>
   <header>
     <span>Chatvas</span>
   </header>
@@ -49,6 +50,7 @@
   <script type="text/javascript">
     let currentUser = <%- JSON.stringify(currentUser) %>;
   </script>
+  <script src="/javascripts/customAlert.js"></script>
   <script src="/javascripts/emailInputModal.js"></script>
   <script src="/javascripts/namespace.js"></script>
 </body>
