@@ -7,9 +7,9 @@ const {
   updateUserToken, 
   updateUserFBInfo, 
   getAllUsers, 
-  updateUserAvatar,
   updateUserSelectedRoom,
-  updateUserLastNamespace 
+  updateUserLastNamespace,
+  updateUserNameOrAvatar 
 } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
 const rp = require('request-promise');
@@ -190,7 +190,8 @@ const updateAvatar = async (req, res) => {
   const userAvatarUrl = `https://d1pj9pkj6g3ldu.cloudfront.net/${req.files.userAvatar[0].key}`;
   const userId = req.body.userId;
   try {
-    const updateResult = await updateUserAvatar(userId, userAvatarUrl);
+    const updateResult = await updateUserNameOrAvatar(userId, undefined, userAvatarUrl);
+    // const updateResult = await updateUserAvatar(userId, userAvatarUrl);
     if (updateResult) {
       res.status(200).json({
         data: {

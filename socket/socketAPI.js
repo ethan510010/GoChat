@@ -2,7 +2,7 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserAvatar, updateUserNameOrAvatar } = require('../model/users');
+const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserNameOrAvatar } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom, insertNewRoom, updateRoom } = require('../model/rooms');
@@ -388,7 +388,8 @@ socketio.getSocketio = async function (server) {
     socket.on('editNewAvatar', async (avatarInfo, callback) => {
       const { userInfo, avatarData, fileName } = avatarInfo;
       const s3Path = await handleBufferUpload(avatarData, `${userInfo.userId}_${Date.now()}_${fileName}`);
-      await updateUserAvatar(userInfo.userId, s3Path);
+      await updateUserNameOrAvatar(userInfo.userId, undefined, s3Path);
+      // await updateUserAvatar(userInfo.userId, s3Path);
       callback({
         newAvatarUrl: s3Path
       })
