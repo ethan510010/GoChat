@@ -16,7 +16,8 @@ const insertUser = async (
   email,
   password,
   name,
-  beInvitedRoomId) => {
+  beInvitedRoomId,
+  activeToken) => {
   const userInfoObj = {
     accessToken,
     fbAccessToken,
@@ -26,7 +27,8 @@ const insertUser = async (
     email,
     password,
     name,
-    beInvitedRoomId
+    beInvitedRoomId,
+    activeToken
   }
   let insertUserBasicSQL = '';
   if (beInvitedRoomId) {
@@ -47,13 +49,24 @@ const insertUser = async (
   }
   let insertUserDetailSQL = '';
   if (provider === 'native') {
-    insertUserDetailSQL = `
-      INSERT INTO general_user_info SET
-      avatarUrl=?,
-      email=?,
-      password=?,
-      name=?,
-      userId=?`;
+      if (activeToken) {
+        insertUserDetailSQL = `
+        INSERT INTO general_user_info SET
+        avatarUrl=?,
+        email=?,
+        password=?,
+        name=?,
+        userId=?,
+        activeToken=?`;
+      } else {
+        insertUserDetailSQL = `
+        INSERT INTO general_user_info SET
+        avatarUrl=?,
+        email=?,
+        password=?,
+        name=?,
+        userId=?`;
+      }
   } else if (provider === 'facebook') {
     insertUserDetailSQL = `
       INSERT INTO fb_info SET
@@ -141,7 +154,8 @@ const searchUser = async (email, password) => {
     general_user_info.userId as userId,
     general_user_info.email as email,
     general_user_info.avatarUrl as avatarUrl,
-    general_user_info.name as name
+    general_user_info.name as name,
+    general_user_info.isActive as isActive
     from user inner join general_user_info on user.id=general_user_info.userId
     WHERE email='${email}' and password='${password}'
   `
@@ -153,6 +167,7 @@ const searchUser = async (email, password) => {
       name: searchResult[0].name,
       avatarUrl: validAvatarUrl,
       selectedLanguage: searchResult[0].selectedLanguage,
+      isActive: searchResult[0].isActive,
       hasUser: true,
     };
   } else {
@@ -343,17 +358,17 @@ const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
   // userName 及 userAvatar 一次只會有一個更新
   if (newUserName) {
     const updateResult = await updateUserNameOrAvatarTransaction(
-      `select provider from user where id = ${userId}`, 
+      `select provider from user where id = ${userId}`,
       `update fb_info SET fb_name=? where userId=${userId}`,
       `update general_user_info SET name=? where userId=${userId}`,
       newUserName
     );
     return updateResult;
   }
-  
+
   if (userAvatar) {
     const updateResult = await updateUserNameOrAvatarTransaction(
-      `select provider from user where id = ${userId}`, 
+      `select provider from user where id = ${userId}`,
       `update fb_info SET fb_avatar_url=? where userId=${userId}`,
       `update general_user_info SET avatarUrl=? where userId=${userId}`,
       userAvatar
@@ -467,6 +482,13 @@ const searchUserTokenExpiredTime = async (token, userId) => {
   }
 }
 
+const activateGeneralUser = async (activeToken) => {
+  const result = await exec(`
+    UPDATE general_user_info SET isActive=1 
+    where activeToken='${activeToken}'`);
+  return result;
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -483,5 +505,6 @@ module.exports = {
   getUsersOfRoom,
   getUsersOfRoomExclusiveSelf,
   updateUserNameOrAvatar,
-  searchUserTokenExpiredTime
+  searchUserTokenExpiredTime,
+  activateGeneralUser
 }

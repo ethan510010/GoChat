@@ -55,8 +55,16 @@ const translationPromise = (inputText, targetLanguage) => {
   })
 }
 
+const generateActiveToken = () => {
+  const hashedKey = crypto.createHash('sha256', process.env.cryptoSecret);
+  const activeTokenContent = `${Date.now()}ActiveAccountToken`;
+  const hasedActiveToken = hashedKey.update(activeTokenContent).digest('hex');
+  return hasedActiveToken;
+}
+
 module.exports = {
   generateAccessToken,
   hashThirdPartyLoginToken,
-  translationPromise
+  translationPromise,
+  generateActiveToken
 }

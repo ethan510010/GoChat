@@ -1,18 +1,19 @@
 require('dotenv').config();
-const { 
-  insertUser, 
-  searchFBUser, 
-  searchUser, 
-  getUserProfileByToken, 
-  updateUserToken, 
-  updateUserFBInfo, 
-  getAllUsers, 
+const {
+  insertUser,
+  searchFBUser,
+  searchUser,
+  getUserProfileByToken,
+  updateUserToken,
+  updateUserFBInfo,
+  getAllUsers,
   updateUserSelectedRoom,
   updateUserLastNamespace,
-  updateUserNameOrAvatar 
+  updateUserNameOrAvatar
 } = require('../model/users');
-const { generateAccessToken, hashThirdPartyLoginToken } = require('../common/common');
+const { generateAccessToken, hashThirdPartyLoginToken, generateActiveToken } = require('../common/common');
 const rp = require('request-promise');
+const nodemailer = require('nodemailer');
 
 // 登入
 const userSignin = async (req, res) => {
@@ -22,28 +23,37 @@ const userSignin = async (req, res) => {
     case 'native':
       const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
       try {
-        const { userId, hasUser, name, avatarUrl, selectedLanguage } = await searchUser(email, hashedUserPassword);
+        const { userId, hasUser, name, avatarUrl, selectedLanguage, isActive } = await searchUser(email, hashedUserPassword);
         if (hasUser) {
-          // 重新登入要更新 token
-          const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate, beInvitedRoomId);
-          if (updateResult === true) {
+          if (isActive) {
+            // 重新登入要更新 token
+            const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate, beInvitedRoomId);
+            if (updateResult === true) {
+              res.status(200).json({
+                data: {
+                  accessToken: accessToken,
+                  expiredDate: tokenExpiredDate,
+                  user: {
+                    id: userId,
+                    provider: 'native',
+                    email: email,
+                    name: name,
+                    avatarUrl: avatarUrl,
+                    selectedLanguage: selectedLanguage
+                  }
+                }
+              })
+            } else {
+              res.status(200).json({
+                data: '更新Token失敗'
+              })
+            }
+          } else {
+            // 代表此用戶沒有被激活
             res.status(200).json({
               data: {
-                accessToken: accessToken,
-                expiredDate: tokenExpiredDate,
-                user: {
-                  id: userId,
-                  provider: 'native',
-                  email: email,
-                  name: name,
-                  avatarUrl: avatarUrl,
-                  selectedLanguage: selectedLanguage
-                }
+                isActive: false
               }
-            })
-          } else {
-            res.status(200).json({
-              data: '更新Token失敗'
             })
           }
         } else {
@@ -78,27 +88,27 @@ const userSignin = async (req, res) => {
         const { userId, hasFBUser, selectedLanguage } = await searchFBUser(fbEmail);
         if (hasFBUser) {
           validUserId = await updateUserFBInfo(
-            userId, 
-            thirdPartyLoginCustomToken, 
-            hasedThirdPartyToken, 
-            'facebook', 
-            tokenExpiredTime, 
-            fbPicture, 
-            fbEmail, 
-            fbUserName, 
+            userId,
+            thirdPartyLoginCustomToken,
+            hasedThirdPartyToken,
+            'facebook',
+            tokenExpiredTime,
+            fbPicture,
+            fbEmail,
+            fbUserName,
             beInvitedRoomId
           );
           validSelectedLanguage = selectedLanguage;
         } else {
           const { userId, selectedLanguage } = await insertUser(
-            thirdPartyLoginCustomToken, 
-            hasedThirdPartyToken, 
-            'facebook', 
-            tokenExpiredTime, 
-            fbPicture, 
-            fbEmail, 
-            '', 
-            fbUserName, 
+            thirdPartyLoginCustomToken,
+            hasedThirdPartyToken,
+            'facebook',
+            tokenExpiredTime,
+            fbPicture,
+            fbEmail,
+            '',
+            fbUserName,
             beInvitedRoomId
           );
           validUserId = userId;
@@ -134,22 +144,71 @@ const signupUser = async (req, res) => {
   const { username, email, password, beInvitedRoomId } = req.body;
   const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
   try {
-    const { userId, selectedLanguage } = await insertUser(accessToken, '', 'native', tokenExpiredDate, '', email, hashedUserPassword, username, beInvitedRoomId);
+    const activeToken = generateActiveToken()
+    const { userId, selectedLanguage } = await insertUser(
+      accessToken,
+      '',
+      'native',
+      tokenExpiredDate,
+      '',
+      email,
+      hashedUserPassword,
+      username,
+      beInvitedRoomId,
+      activeToken
+    );
     // 剛註冊時沒有大頭貼網址，所以 avatar 預設我們給 '/images/defaultAvatar.png'
-    res.status(200).json({
-      data: {
-        accessToken: accessToken,
-        expiredDate: tokenExpiredDate,
-        user: {
-          id: userId,
-          provider: 'native',
-          name: username,
-          email: email,
-          avatarUrl: '/images/defaultAvatar.png',
-          selectedLanguage: selectedLanguage
-        }
+    // 寄送驗證信
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      requireTLS: true,
+      auth: {
+        user: process.env.gmailAccount,
+        pass: process.env.gmailPassword
+      }
+    });
+    const inviteUrl = `http://localhost:3000?activeToken=${activeToken}`;
+    const mailOptions = {
+      from: process.env.gmailAccount,
+      to: email,
+      subject: `Activate the account you register for Chatvas`,
+      text: `active account link: ${inviteUrl}`
+    }
+    transporter.sendMail(mailOptions, (err, data) => {
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        res.status(200).json({
+          data: {
+            accessToken: accessToken,
+            expiredDate: tokenExpiredDate,
+            user: {
+              id: userId,
+              provider: 'native',
+              name: username,
+              email: email,
+              avatarUrl: '/images/defaultAvatar.png',
+              selectedLanguage: selectedLanguage
+            }
+          }
+        })
       }
     })
+    // res.status(200).json({
+    //   data: {
+    //     accessToken: accessToken,
+    //     expiredDate: tokenExpiredDate,
+    //     user: {
+    //       id: userId,
+    //       provider: 'native',
+    //       name: username,
+    //       email: email,
+    //       avatarUrl: '/images/defaultAvatar.png',
+    //       selectedLanguage: selectedLanguage
+    //     }
+    //   }
+    // })
   } catch (err) {
     console.log(err)
     res.status(500).send(err.message)

@@ -117,7 +117,13 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
           let parameters = [];
           switch (userInfoObj.provider) {
             case 'native':
-              parameters = [userInfoObj.avatarUrl, userInfoObj.email, userInfoObj.password, userInfoObj.name, userId]
+              parameters = [
+                userInfoObj.avatarUrl, 
+                userInfoObj.email, 
+                userInfoObj.password, 
+                userInfoObj.name, 
+                userId, 
+                userInfoObj.activeToken]
               break;
             case 'facebook':
               parameters = [userInfoObj.avatarUrl, userInfoObj.name, userInfoObj.email, userId]
