@@ -1,17 +1,29 @@
 const { getUserInfoByUserId } = require('../model/chat');
 const { getNamespacesForUser, createNamespaceAndBindingGeneralRoom, renewNamespace } = require('../model/namespace');
+const { searchUserTokenExpiredTime } = require('../model/users');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const namespacePage = async (req, res) => {
   const { userId } = req.query;
-  const validNamespaces = await getNamespacesForUser(userId);
-  const currentUser = await getUserInfoByUserId(userId);
-  console.log(currentUser)
-  res.render('namespace', { 
-    currentUser: currentUser,
-    namespaces: validNamespaces
-  })  
+  const accessToken = req.cookies.access_token;
+  try {
+    const { expiredDate } = await searchUserTokenExpiredTime(accessToken, userId);
+    const validNamespaces = await getNamespacesForUser(userId);
+    const currentUser = await getUserInfoByUserId(userId);
+    if (expiredDate && Date.now() < expiredDate) {
+      res.render('namespace', { 
+        currentUser: currentUser,
+        namespaces: validNamespaces
+      }) 
+    } else {
+      res.render('home', {
+        title: 'Home' 
+      })
+    }
+  } catch (error) {
+    throw error;
+  }  
 }
 
 const createNamespace = async (req, res) => {

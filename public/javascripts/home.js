@@ -66,7 +66,6 @@ signupBtn.addEventListener('click', (e) => {
         showCustomAlert('The email has already registerd');
       } else {
         document.cookie = `access_token=${response.data.accessToken}`;
-        // window.location = `/userLanguage?userId=${response.data.user.id}`
         // 註冊成功進到設定頁
         showUserSettingBlock(response.data.user);
       }
@@ -117,7 +116,6 @@ signinBtn.addEventListener('click', function(event) {
       // 登入成功，切換到設定頁
       console.log('登入成功', response.data);
       document.cookie = `access_token=${response.data.accessToken}`;
-      // window.location = `/userLanguage?userId=${response.data.user.id}`
       showUserSettingBlock(response.data.user);
     }
   })
@@ -177,7 +175,6 @@ function fetchUserInfo(accessToken) {
       // 前端設定cookie
       document.cookie = `access_token=${info.data.accessToken}`;
       // 切換到主頁
-      // window.location = `/userLanguage?userId=${info.data.user.id}`;
       showUserSettingBlock(info.data.user);
     });
 }

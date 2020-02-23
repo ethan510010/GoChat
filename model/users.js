@@ -136,14 +136,6 @@ const checkExistingUserEmail = async (email) => {
 }
 
 const searchUser = async (email, password) => {
-  // const searchUserSQL = `
-  //   SELECT general_user_info.userId as userId, 
-  //   general_user_info.email as email,
-  //   general_user_info.name as name,
-  //   general_user_info.avatarUrl as avatarUrl,
-  //   general_user_info.password as password FROM
-  //   general_user_info WHERE email='${email}' and password='${password}'
-  // `
   const searchUserSQL = `
     SELECT user.selected_language as selectedLanguage,
     general_user_info.userId as userId,
@@ -464,6 +456,17 @@ const getUsersOfRoomExclusiveSelf = async (roomId, selfUserId) => {
   return queryResult;
 }
 
+const searchUserTokenExpiredTime = async (token, userId) => {
+  const searchedUsers = await exec(`
+    select expired_date as expiredDate from user where id=${userId} and access_token='${token}'
+  `);
+  if (searchedUsers[0]) {
+    return searchedUsers[0];
+  } else {
+    return [];
+  }
+}
+
 module.exports = {
   insertUser,
   searchUser,
@@ -479,5 +482,6 @@ module.exports = {
   updateUserLastNamespace,
   getUsersOfRoom,
   getUsersOfRoomExclusiveSelf,
-  updateUserNameOrAvatar
+  updateUserNameOrAvatar,
+  searchUserTokenExpiredTime
 }
