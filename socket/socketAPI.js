@@ -2,7 +2,7 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserAvatar } = require('../model/users');
+const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserAvatar, updateUserNameOrAvatar } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom, insertNewRoom, updateRoom } = require('../model/rooms');
@@ -391,6 +391,15 @@ socketio.getSocketio = async function (server) {
       await updateUserAvatar(userInfo.userId, s3Path);
       callback({
         newAvatarUrl: s3Path
+      })
+    })
+
+    // 更新使用者姓名
+    socket.on('editUserName', async (newUserInfo, callback) => {
+      const { userId, newUserName } = newUserInfo;
+      await updateUserNameOrAvatar(userId, newUserName, undefined);
+      callback({
+        newUserName
       })
     })
 

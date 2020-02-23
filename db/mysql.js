@@ -664,6 +664,62 @@ function updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId) {
   })
 }
 
+function updateUserNameOrAvatarTransaction(selecteUserProviderSQL, updateFBUserAvatarOrNameSQL, updateNativeUserAvatarOrNameSQL, parameter) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(selecteUserProviderSQL, (err, result) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(err);
+            })
+          }
+          const { provider } = result[0];
+          let updateUserSQL = '';
+          if (provider === 'native') {
+            updateUserSQL = updateNativeUserAvatarOrNameSQL;
+          } else if (provider === 'facebook') {
+            updateUserSQL = updateFBUserAvatarOrNameSQL;
+          }
+          connection.query(updateUserSQL, [parameter], (err, result) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                reject(err);
+              })
+            }
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(commitErr);
+                })
+              }
+              resolve({
+                updateInfo: parameter
+              })
+              connection.release();
+              console.log('更新使用者資料成功');
+            })
+          })
+        })
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
@@ -677,6 +733,7 @@ module.exports = {
   createNameSpaceTransaction,
   updateNamespaceTransaction,
   updateGeneralUserTransaction,
+  updateUserNameOrAvatarTransaction,
   updateUserSelectedNamespaceAndRoomTransaction
 }
 

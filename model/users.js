@@ -4,7 +4,8 @@ const {
   escape,
   updateFBUserInfo,
   updateGeneralUserTransaction,
-  updateUserSelectedNamespaceAndRoomTransaction } = require('../db/mysql')
+  updateUserSelectedNamespaceAndRoomTransaction,
+  updateUserNameOrAvatarTransaction } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -359,6 +360,29 @@ const updateUserAvatar = async (userId, avatarUrl) => {
   }
 }
 
+const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
+  // userName 及 userAvatar 一次只會有一個更新
+  if (newUserName) {
+    const updateResult = await updateUserNameOrAvatarTransaction(
+      `select provider from user where id = ${userId}`, 
+      `update fb_info SET fb_name=? where userId=${userId}`,
+      `update general_user_info SET name=? where userId=${userId}`,
+      newUserName
+    );
+    return updateResult;
+  }
+  
+  if (userAvatar) {
+    const updateResult = await updateUserNameOrAvatarTransaction(
+      `select provider from user where id = ${userId}`, 
+      `update fb_info SET fb_avatar_url=? where userId=${userId}`,
+      `update general_user_info SET avatarUrl=? where userId=${userId}`,
+      userAvatar
+    );
+    return updateResult;
+  }
+}
+
 const updateUserSelectedRoom = async (userId, roomId) => {
   const updateResult = await exec(`
     update user set last_selected_room_id=${roomId}
@@ -468,5 +492,6 @@ module.exports = {
   getAllUsersOfNamespaceExclusiveSelf,
   updateUserLastNamespace,
   getUsersOfRoom,
-  getUsersOfRoomExclusiveSelf
+  getUsersOfRoomExclusiveSelf,
+  updateUserNameOrAvatar
 }
