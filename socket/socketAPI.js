@@ -351,9 +351,6 @@ socketio.getSocketio = async function (server) {
         videoLauncher: launchVideoUser,
         launchVideoPeerId: launchPeerId
       })
-      callback({
-        launchVideoPeerId: launchPeerId
-      })
     })
 
     socket.on('shouldBeConnectedPeerId', (shouldConnectPeerInfo, callback) => {

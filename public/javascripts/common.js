@@ -17,3 +17,7 @@ function getCookie(cname) {
   }
   return '';
 }
+
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}

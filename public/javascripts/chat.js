@@ -115,30 +115,6 @@ callBtn.addEventListener('click', function () {
     videoLauncherRoomId: currentSelectedRoom.roomId,
     launchVideoUser: currentUserDetail,
     launchPeerId: currentUserPeerId
-  }, (getBroadCastVideo) => {
-    // 這段 code 很重要
-    // for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-    //   const eachPeerIdOfCurrentRoom = allConnectionPeersOfCurrentRoom[i];
-    //   // 相當於按下 connect 按鈕
-    //   if (eachPeerIdOfCurrentRoom) {
-    //     if (eachPeerIdOfCurrentRoom !== currentUserPeerId) {
-    //       console.log('目前用戶 peerId', currentUserPeerId);
-    //       conn = peer.connect(eachPeerIdOfCurrentRoom)
-    //       const currentConnection = peer.connect(eachPeerIdOfCurrentRoom);
-    //       // 要 call 誰
-    //       console.log('calling a peer ' + eachPeerIdOfCurrentRoom);
-    //       // 我要 call 誰
-    //       const call = peer.call(eachPeerIdOfCurrentRoom, window.localstream);
-    //       console.log('the call', call);
-    //       callConnections[call.connectionId] = call;
-    //     } else {
-    //       console.log('自己跟自己不用連')
-    //     }
-    //     // connectionList.push(currentConnection);
-    //   } else {
-    //     alert('error')
-    //   }
-    // }
   })
 })
 // 紀錄房間正在播放中，只有當視訊發起人關閉時這個開關才會變成 false，其他人才可以在該房間發起視訊
@@ -152,10 +128,10 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
   if (currentUserPeerId !== launchVideoPeerId) {
     videoDisplayDiv.style.display = 'block';
     showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
-    customDialogConfirmClicked(function () {
+    customDialogConfirmClicked(async function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
       console.log('要看視訊的 Peer Id', currentUserPeerId);
-      peer.connect(currentUserPeerId);
+      await sleep(1000);
       socket.emit('shouldBeConnectedPeerId', {
         launchVideoPeerId: launchVideoPeerId,
         shouldConnectedPeerId: currentUserPeerId,
@@ -171,11 +147,11 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
 
 // 發起視訊端接收到的
 socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
-  const { launchVideoPeerId, shouldConnectedPeerId, videoLauncherRoomId } = dataFromServer;
+  const { launchVideoPeerId, shouldConnectedPeerId } = dataFromServer;
   // 代表是視訊發起者
   if (launchVideoPeerId === currentUserPeerId) {
     console.log('視訊發起者', peer);
-    const currentConnection = peer.connect(shouldConnectedPeerId);
+    peer.connect(shouldConnectedPeerId);
     // 要 call 誰
     console.log('calling a peer ' + shouldConnectedPeerId);
     // 我要 call 誰
