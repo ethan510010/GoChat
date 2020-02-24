@@ -2,7 +2,12 @@ const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
-const { updateUserSelectedRoom, getUsersOfRoom, getUsersOfRoomExclusiveSelf, updateUserNameOrAvatar } = require('../model/users');
+const { 
+  updateUserSelectedRoom, 
+  getUsersOfRoom, 
+  getUsersOfRoomExclusiveSelf, 
+  updateUserNameOrAvatar, 
+  getAllUsersOfNamespaceExclusiveSelf } = require('../model/users');
 // const { saveCacheMessage } = require('../db/redis');
 const { translationPromise } = require('../common/common');
 const { userLeaveRoom, insertNewRoom, updateRoom } = require('../model/rooms');
@@ -259,6 +264,14 @@ socketio.getSocketio = async function (server) {
         usersOfRoom,
         roomUsersPair
       });
+    })
+
+    socket.on('searchAllUsersExclusiveSelfInNamespace', async (namespaceInfo, callback) => {
+      const { currentNamespaceId, userId } = namespaceInfo;
+      const validAllUsers = await getAllUsersOfNamespaceExclusiveSelf(currentNamespaceId, userId);
+      callback({
+        validAllUsers
+      })
     })
 
     // canvas 歷史畫面

@@ -154,7 +154,8 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
     showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
     customDialogConfirmClicked(function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
-      console.log('該 Peer Id 需要進行連線', currentUserPeerId);
+      console.log('要看視訊的 Peer Id', currentUserPeerId);
+      peer.connect(currentUserPeerId);
       socket.emit('shouldBeConnectedPeerId', {
         launchVideoPeerId: launchVideoPeerId,
         shouldConnectedPeerId: currentUserPeerId,

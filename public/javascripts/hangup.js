@@ -4,10 +4,15 @@ hangupCallBtn.addEventListener('click', function () {
   if (!receiveCallId) {
     const allCalls = Object.values(callConnections);
     console.log('掛斷的 connenctions', callConnections);
-    for (let i = 0; i < allCalls.length; i++) {
-      const call = allCalls[i];
+    allCalls.forEach((call) => {
+      console.log('要被關掉的 call', call);
       call.close();
-    }
+    })
+    // for (let i = 0; i < allCalls.length; i++) {
+    //   const call = allCalls[i];
+    //   console.log('要被關掉的 call', call);
+    //   call.close();
+    // }
     callConnections = {};
     // 代表現在發起端沒有在播放影片了
     isPlayingLocalVideo = false;

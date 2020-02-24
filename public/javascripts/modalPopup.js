@@ -26,55 +26,14 @@ function resetModalup(mode) {
   selected.innerHTML = '';
   // 會員下拉選單重置
   optionsContainer.innerHTML = '';
-  if (mode === 'createRoom') {
-    for (let i = 0; i < allUsers.length; i++) {
-      const eachUser = allUsers[i];
-      const eachOption = document.createElement('div');
-      eachOption.classList.add('option');
-      eachOption.setAttribute('id', `option_${eachUser.userId}`);
-      const radioUserTag = document.createElement('input');
-      radioUserTag.type = 'radio';
-      radioUserTag.classList.add('radio');
-      radioUserTag.setAttribute('id', `userId_${eachUser.userId}`);
-      radioUserTag.name = 'user';
-      const userLabel = document.createElement('label');
-      userLabel.setAttribute('for', `userId_${eachUser.userId}`);
-      userLabel.textContent = `${eachUser.userName}`;
-      eachOption.appendChild(radioUserTag);
-      eachOption.appendChild(userLabel);
-      optionsContainer.appendChild(eachOption);
-    }
-  } else if (mode === 'updateRoom') {
-    // 詢問現在在 namespace 但還不在此房間的用戶才有需要被加進來，要不然會重複加
-    socket.emit('searchUsersUnderNamespaceAndNotRoom', {
-      roomId: currentSelectedRoom.roomId,
-      selfUserId: currentUserDetail.userId
-    }, (specificConditionUsers) => {
-      const usersOfRoom = specificConditionUsers.usersOfRoom;
-      let namespaceUsers = [];
-      for (let i = 0; i < allUsers.length; i++) {
-        const namespaceUser = allUsers[i];
-        namespaceUsers.push({
-          userId: namespaceUser.userId,
-          userName: namespaceUser.userName
-        });
-      }
-      let roomUserList = [];
-      for (let i = 0; i < usersOfRoom.length; i++) {
-        const roomUser = usersOfRoom[i];
-        roomUserList.push({
-          userId: roomUser.userId,
-          userName: roomUser.name
-        });
-      }
-      // 要出現在UI上的，為第一個減去第二個
-      // https://stackoverflow.com/questions/21987909/how-to-get-the-difference-between-two-arrays-of-objects-in-javascript/21988185
-      const shouldShowOnUIUsers = namespaceUsers.filter(({ value: id1 }) => !roomUserList.some(({ value: id2 }) => id2 === id1));
-      console.log('差集', shouldShowOnUIUsers);
-      // 取兩個 array 2k7t8 
-      if (shouldShowOnUIUsers) {
-        for (let i = 0; i < shouldShowOnUIUsers.length; i++) {
-          const eachUser = shouldShowOnUIUsers[i];
+  socket.emit('searchAllUsersExclusiveSelfInNamespace', {
+    currentNamespaceId,
+    userId: currentUserDetail.userId,
+  }, (usersInfo) => {
+    if (usersInfo.validAllUsers) {
+      if (mode === 'createRoom') {
+        for (let i = 0; i < allUsers.length; i++) {
+          const eachUser = allUsers[i];
           const eachOption = document.createElement('div');
           eachOption.classList.add('option');
           eachOption.setAttribute('id', `option_${eachUser.userId}`);
@@ -90,15 +49,67 @@ function resetModalup(mode) {
           eachOption.appendChild(userLabel);
           optionsContainer.appendChild(eachOption);
         }
+      } else if (mode === 'updateRoom') {
+        // 詢問現在在 namespace 但還不在此房間的用戶才有需要被加進來，要不然會重複加
+        socket.emit('searchUsersUnderNamespaceAndNotRoom', {
+          roomId: currentSelectedRoom.roomId,
+          selfUserId: currentUserDetail.userId
+        }, (specificConditionUsers) => {
+          const usersOfRoom = specificConditionUsers.usersOfRoom;
+          let namespaceUsers = [];
+          for (let i = 0; i < allUsers.length; i++) {
+            const namespaceUser = allUsers[i];
+            const userInfoJsonStr = JSON.stringify({
+              userId: namespaceUser.userId,
+              userName: namespaceUser.userName
+            })
+            namespaceUsers.push(userInfoJsonStr);
+          }
+          let roomUserList = [];
+          for (let i = 0; i < usersOfRoom.length; i++) {
+            const roomUser = usersOfRoom[i];
+            const roomUserInfoStr = JSON.stringify({
+              userId: roomUser.userId,
+              userName: roomUser.name
+            })
+            roomUserList.push(roomUserInfoStr);
+          }
+          console.log('存在於該 namespace 底下的用戶', namespaceUsers);
+          console.log('存在於該 room 底下的用戶', roomUserList);
+          // 要出現在UI上的，為第一個減去第二個
+          // https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
+          const shouldShowOnUIUsers = namespaceUsers.filter((userStr) => !roomUserList.includes(userStr));
+          console.log('差集', shouldShowOnUIUsers);
+          // 取兩個 array
+          if (shouldShowOnUIUsers) {
+            for (let i = 0; i < shouldShowOnUIUsers.length; i++) {
+              const eachUser = JSON.parse(shouldShowOnUIUsers[i]);
+              const eachOption = document.createElement('div');
+              eachOption.classList.add('option');
+              eachOption.setAttribute('id', `option_${eachUser.userId}`);
+              const radioUserTag = document.createElement('input');
+              radioUserTag.type = 'radio';
+              radioUserTag.classList.add('radio');
+              radioUserTag.setAttribute('id', `userId_${eachUser.userId}`);
+              radioUserTag.name = 'user';
+              const userLabel = document.createElement('label');
+              userLabel.setAttribute('for', `userId_${eachUser.userId}`);
+              userLabel.textContent = `${eachUser.userName}`;
+              eachOption.appendChild(radioUserTag);
+              eachOption.appendChild(userLabel);
+              optionsContainer.appendChild(eachOption);
+            }
+          }
+        })
       }
-    })
-  }
-  if (!document.querySelector('.selected p')) {
-    const pTag = document.createElement('p');
-    pTag.textContent = 'select member';
-    selected.appendChild(pTag);
-  }
-  shouldHideChannelInput(updateOrCreateRoomType);
+      if (!document.querySelector('.selected p')) {
+        const pTag = document.createElement('p');
+        pTag.textContent = 'select member';
+        selected.appendChild(pTag);
+      }
+      shouldHideChannelInput(updateOrCreateRoomType);    
+    }
+  })
 }
 
 createRoomBtn.addEventListener('click', function (event) {
