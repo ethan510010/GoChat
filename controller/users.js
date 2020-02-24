@@ -168,7 +168,13 @@ const signupUser = async (req, res) => {
         pass: process.env.gmailPassword
       }
     });
-    const inviteUrl = `http://localhost:3000?activeToken=${activeToken}`;
+    console.log(process.env.NODE_ENV)
+    let inviteUrl ='';
+    if (process.env.NODE_ENV === 'development') {
+      inviteUrl = `${process.env.devHost}?activeToken=${activeToken}`;
+    } else if (process.env.NODE_ENV === 'production') {
+      inviteUrl = `${process.env.prodHost}?activeToken=${activeToken}`;
+    }
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,

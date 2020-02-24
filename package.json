@@ -3,12 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "dev": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "production": "cross-env NODE_ENV=production nodemon ./bin/www"
   },
   "dependencies": {
     "@google-cloud/translate": "^5.1.4",
     "aws-sdk": "^2.610.0",
     "cookie-parser": "~1.4.4",
+    "cross-env": "^7.0.0",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "ejs": "~2.6.1",

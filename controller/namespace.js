@@ -68,7 +68,12 @@ const invitePeopleToNamespace = async (req, res) => {
   let sendEmailPromiseList = [];
   for (let i = 0; i < emailList.length; i++) {
     const email = emailList[i];
-    const inviteUrl = `http://localhost:3000?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
+    console.log(process.env.NODE_ENV)
+    if (process.env.NODE_ENV === 'development') {
+      inviteUrl = `${process.env.devHost}?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
+    } else if (process.env.NODE_ENV === 'production') {
+      inviteUrl = `${process.env.prodHost}?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
+    }
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,
