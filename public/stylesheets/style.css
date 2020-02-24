@@ -141,6 +141,7 @@ body, html {
   background-color: rgba(135, 206, 235, .6);
   height: 40px;
   color: #ffffff;
+  cursor: pointer;
 }
 
 .signup_area p {
@@ -156,6 +157,7 @@ body, html {
   background-color: #0BD1DB;
   height: 40px;
   color: #ffffff;
+  cursor: pointer;
 }
 
 .signup_info {
@@ -179,6 +181,7 @@ body, html {
   padding-bottom: 5px;
   border-radius: 10px;
   margin-bottom: 15px;
+  cursor: pointer;
 }
 
 .facebook_login_area {
@@ -207,6 +210,7 @@ body, html {
   padding: 0;
   font-weight: 600;
   color: #FFFFFF;
+  cursor: pointer;
 }
 
 .facebook_login_area input {

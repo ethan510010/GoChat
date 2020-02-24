@@ -30,6 +30,14 @@ confirmEmailBtn.addEventListener('click', function() {
   }
 })
 
+const emailEnterInput = document.querySelector('.enter_email');
+emailEnterInput.addEventListener('keypress', function(e) {
+  if (e.keyCode === 13) {
+    e.preventDefault();
+    confirmEmailBtn.click();
+   }
+})
+
 // 刪除 email 
 emailArea.addEventListener('click', function(event) {
   if (event.target.nodeName.toUpperCase() === 'IMG' && event.target.getAttribute('class') === 'deleteEmail') {
@@ -64,8 +72,8 @@ const userId = currentUrl.searchParams.get('userId');
 inviteButton.addEventListener('click', async function() {
   const namespaceInput = document.querySelector('.namespace_input input').value;
   if (!isEditNamespaceMode) {
-    if (namespaceInput === '') {
-      alert('沒有輸入 namespace')
+    if (namespaceInput === '' || /^\s+$/gi.test(namespaceInput)) {
+      showCustomAlert('workspace name can not be empty');
       return;
     }  
     const createNamespaceResult = await encapsulateFetch('/namespace/createNamespace', {
@@ -108,7 +116,11 @@ inviteButton.addEventListener('click', async function() {
       invitor: currentUser.name,
     }, 'POST')
     if (sendEmailResult) {
-      showCustomAlert('invited email successfully sent');
+      inputModal.style.display = 'none';
+      // 如果有邀請 email 用戶才需要跳寄信 alert
+      if (emailList.length > 0) {
+        showCustomAlert('invited email successfully sent');  
+      }
     }
     // 代表是編輯 namespace，打 updateNamespace
   } else {

@@ -73,8 +73,6 @@ body, html {
 #user_basic .userLanguage {
   margin: 5px 0;
   font-weight: 600;
-  font-family: cursive;
-  font-style: italic;
   color: #FFF;
   font-size: 18px;
 }
@@ -94,7 +92,6 @@ body, html {
 .select-box p {
   margin: 0;
   font-weight: 600;
-  font-family: cursive;
 }
 
 .select-box .options-container {
@@ -168,7 +165,6 @@ body, html {
   cursor: pointer;
   font-weight: normal;
   font-size: 16px;
-  font-family: cursive;
 }
 
 .select-box .option .radio {
@@ -184,7 +180,6 @@ body, html {
   color: #FFF;
   font-size: 16px;
   font-weight: normal;
-  font-family: cursive;
 }
 
 #user_basic .upload_button_box .button-primary {
@@ -212,7 +207,6 @@ body, html {
   padding: 10px;
   color: #fff;
   font-weight: 500;
-  font-family: cursive;
   margin-top: 15px;
   cursor: pointer;
 }
