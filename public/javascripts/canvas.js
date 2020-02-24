@@ -162,14 +162,20 @@ downloadLink.addEventListener('click', function() {
 })
 
 socket.on('showDrawData', (drawInfoFromServer) => {
+  // 把使用者原本的筆觸跟顏色存起來
+  context.save();
   context.strokeStyle = drawInfoFromServer.strokeColor;
   context.beginPath();
   context.moveTo(drawInfoFromServer.drawInfo.originalX, drawInfoFromServer.drawInfo.originalY);
   context.lineTo(drawInfoFromServer.drawInfo.destinationX, drawInfoFromServer.drawInfo.destinationY);
   context.closePath();
   context.stroke();
+  // 等到接收完對方的顏色之後，因為覆蓋掉原本自己的，要弄回來
+  context.restore();
 })
 
 socket.on('eraseDrawData', (eraseInfo) => {
+  context.save();
   context.clearRect(eraseInfo.clearCoordinateX, eraseInfo.clearCoordinateY, 15, 15);
+  context.restore();
 })

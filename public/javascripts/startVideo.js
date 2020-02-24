@@ -25,12 +25,8 @@ async function startVideo() {
     return;
   } else {
     const constraints = {
-      video: true,
+      video: true
     }
-    // 獲取本機視訊
-    // navigator.mediaDevices.getDisplayMedia(constraints)
-    //   .then(gotMediaStream)
-    //   .catch(handleError);
     try {
       // 獲取螢幕
       const videoStream = await navigator.mediaDevices.getDisplayMedia(constraints);

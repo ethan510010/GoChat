@@ -97,6 +97,7 @@ header {
 #profile_area .toggle_camera img {
   width: 30px;
   height: 30px;
+  cursor: pointer;
 }
 
 #profile_area .toggle_camera {

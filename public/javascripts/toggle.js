@@ -15,6 +15,8 @@ toggleSwitcher.addEventListener('click', function () {
 // 登出
 const signOutBtn = document.querySelector('#profile_area .sign_out');
 signOutBtn.addEventListener('click', function () {
+  // 刪除存在 cookie 的 access token
+  document.cookie = 'access_token'+'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   window.location = '/';
 })
 
