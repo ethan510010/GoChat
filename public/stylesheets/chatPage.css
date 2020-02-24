@@ -531,7 +531,8 @@ header {
 
 /* Modal Content */
 .modal-content {
-  background-color: #fefefe;
+  /* background-color: #fefefe; */
+  background-color: #3252A8;
   margin: auto;
   padding: 10px 15px 20px;
   border: 1px solid #888;
@@ -544,7 +545,7 @@ header {
 /* The Close Button */
 .close {
   text-align: right;
-  color: #aaaaaa;
+  color: #FFF;
   float: right;
   font-size: 28px;
   font-weight: bold;
@@ -552,7 +553,7 @@ header {
 
 .close:hover,
 .close:focus {
-  color: #000;
+  color: #CCCCCC;
   text-decoration: none;
   cursor: pointer;
 }
@@ -566,6 +567,10 @@ header {
 .modal-content h3 {
   margin: 0;
   font-weight: 500;
+  width: calc(100% - 10px);
+  text-align: center;
+  color: #FFF;
+  font-weight: 600;
 }
 
 .modal-content p {
@@ -580,15 +585,28 @@ header {
   height: 30px;
 }
 
+.modal-content .enter_channel_name_mention,
+.modal-content .enter_people_name_mention {
+  color: #FFF;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.modal-content .enter_people_name_mention {
+  margin-bottom: 0;
+}
+
 .modal-content .confirm_button {
   margin: 0 auto;
-  background-color: #175091;
+  background-color: #3252A8;
   color: #FFF;
   font-size: 16px;
   font-weight: 500;
   height: 40px;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-weight: 600;
   width: 100%;
+  border: 1.5px solid #FFF;
 }
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
@@ -617,7 +635,7 @@ header {
 }
 
 .selected {
-  background: #003e85;
+  background: rgba(3, 23, 46, .4);
   border-radius: 5px;
   margin: 8px 0;
   color: #FFF;
@@ -645,13 +663,6 @@ header {
   transition: all 0.4s;
   outline: none;
 }
-
-/* .selected .decorationEdit {
-  background-color: #003e85;
-  outline: none;
-  border: 0;
-  color: #C3C6C9;
-} */
 
 .select-box .options-container.active {
   max-height: 240px;
@@ -698,15 +709,16 @@ header {
 /* Searchbox */
 
 .search-box input {
-  height: 60px;
+  height: 45px;
   width: 100%;
   padding: 12px 7px;
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
   position: absolute;
-  border-radius: 5px 5px 0 0;
+  border-radius: 5px;
   z-index: 100;
-  border: 10px solid #003e85;
+  /* border: 5px solid;
+  border-color: rgba(3, 23, 46, .8); */
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s;

@@ -94,6 +94,7 @@ inviteButton.addEventListener('click', async function() {
     namespaceNameTag.textContent = newNamespaceName;
     const inviteButton = document.createElement('input');
     inviteButton.type = 'button';
+    inviteButton.classList.add('invite_from_namespace_block_btn');
     inviteButton.value = 'invite people to namespace';
     const enterNamespaceBtn = document.createElement('input');
     enterNamespaceBtn.type = 'button';
