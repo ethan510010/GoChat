@@ -73,4 +73,7 @@ function resetVideo() {
   resetRemoteVideoTag.style.height = 'calc((100% - 60px)/2)';
   mainAreaTag.prepend(resetRemoteVideoTag);
   mainAreaTag.prepend(resetLocalVideoTag);
+  if (window.localstream) {
+    window.localstream = null;
+  }
 }

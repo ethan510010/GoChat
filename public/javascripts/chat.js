@@ -169,7 +169,7 @@ peer.on('call', function (call) {
   call.answer(window.localstream);
   console.log('接收到 call')
   call.on('stream', function (stream) {
-    window.peer_stream = stream
+    // window.peer_stream = stream
     // 接收 call 的人要存自己拿到的 call 的 id
     callConnections[call.connectionId] = call;
     receiveCallId = call.connectionId;
