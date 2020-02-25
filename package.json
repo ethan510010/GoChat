@@ -3,10 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env NODE_ENV=development nodemon ./bin/www",
-    "dev": "cross-env NODE_ENV=development nodemon ./bin/www",
-    "production": "cross-env NODE_ENV=production nodemon ./bin/www",
-    "ec2Production": "cross-env NODE_ENV=production pm2 ./bin/www"
+    "start": "nodemon ./bin/www",
   },
   "dependencies": {
     "@google-cloud/translate": "^5.1.4",

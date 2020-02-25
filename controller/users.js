@@ -168,11 +168,10 @@ const signupUser = async (req, res) => {
         pass: process.env.gmailPassword
       }
     });
-    console.log(process.env.NODE_ENV)
     let inviteUrl ='';
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.environment === 'development') {
       inviteUrl = `${process.env.devHost}?activeToken=${activeToken}`;
-    } else if (process.env.NODE_ENV === 'production') {
+    } else if (process.env.environment === 'production') {
       inviteUrl = `${process.env.prodHost}?activeToken=${activeToken}`;
     }
     const mailOptions = {
