@@ -93,7 +93,7 @@ peer.on('connection', function (connection) {
 
 peer.on('error', function (error) {
   console.log(error);
-  showCustomAlert('an error occurred');
+  // showCustomAlert('an error occurred');
 })
 
 // 紀錄與發起者有建立 call 的

@@ -84,7 +84,6 @@ const signinBtn = document.querySelector('.sign_in_button');
 const currentUrl = new URL(window.location)
 const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
 signinBtn.addEventListener('click', function(event) {
-  // 測試先看看能不能導頁導出來
   let bodyParas;
   if (defaultRoomId) {
     bodyParas = {

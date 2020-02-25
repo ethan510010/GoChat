@@ -118,11 +118,11 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
           switch (userInfoObj.provider) {
             case 'native':
               parameters = [
-                userInfoObj.avatarUrl, 
-                userInfoObj.email, 
-                userInfoObj.password, 
-                userInfoObj.name, 
-                userId, 
+                userInfoObj.avatarUrl,
+                userInfoObj.email,
+                userInfoObj.password,
+                userInfoObj.name,
+                userId,
                 userInfoObj.activeToken]
               break;
             case 'facebook':
@@ -152,29 +152,29 @@ function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
               }
               // 再把資料撈出來
               connection.query(`SELECT user.selected_language as selectedLanguage 
-              from user where id=${userId}`, 
-              (searchErr, result) => {
-                if (searchErr) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(searchErr);
-                  })
-                }
-                connection.commit((commitErr) => {
-                  if (commitErr) {
+              from user where id=${userId}`,
+                (searchErr, result) => {
+                  if (searchErr) {
                     return connection.rollback(() => {
                       connection.release();
-                      reject(commitErr);
+                      reject(searchErr);
                     })
                   }
-                  console.log('新增用戶成功')
-                  resolve({
-                    userId: userId,
-                    selectedLanguage: result[0].selectedLanguage
-                  });
-                  connection.release();
+                  connection.commit((commitErr) => {
+                    if (commitErr) {
+                      return connection.rollback(() => {
+                        connection.release();
+                        reject(commitErr);
+                      })
+                    }
+                    console.log('新增用戶成功')
+                    resolve({
+                      userId: userId,
+                      selectedLanguage: result[0].selectedLanguage
+                    });
+                    connection.release();
+                  })
                 })
-              })
             })
           })
         })
@@ -220,30 +220,55 @@ function updateFBUserInfo(generalUserSQL, fbUserSQL, userDetailObj) {
               })
             }
             // 如果有 beInvitedRoomId (beInvitedRoomId 不是 undefined)，代表是被邀請的，
-            // 就必須再 insert 到 user_room_junction 這張 table
+            // 就必須再 insert 到 user_room_junction 這張 table，但是如果該用戶已經被綁定到該 room 過，就不應該再重複插入 (擋掉使用者又是從信件中按連結)
             // 否則代表是一般 FB 重新登入，就不需此步驟
             if (userDetailObj.beInvitedRoomId) {
-              connection.query(`insert into user_room_junction 
-                set roomId=${userDetailObj.beInvitedRoomId}, 
-                userId=${userDetailObj.userId}
-              `, (insertRoomJunctionErr, result) => {
-                if (insertRoomJunctionErr) {
+              connection.query(`
+                select * from user_room_junction 
+                where userId=${userDetailObj.userId} and roomId=${userDetailObj.beInvitedRoomId}`, (err, result) => {
+                if (err) {
                   return connection.rollback(() => {
                     connection.release();
                     reject(commitErr);
                   })
                 }
-                connection.commit((commitErr) => {
-                  if (commitErr) {
-                    return connection.rollback(() => {
+                // 代表已經存在了，不用再 insert
+                if (result.length > 0) {
+                  connection.commit((commitErr) => {
+                    if (commitErr) {
+                      return connection.rollback(() => {
+                        connection.release();
+                        reject(commitErr);
+                      })
+                    }
+                    console.log('更新FB用戶成功')
+                    resolve(userDetailObj.userId);
+                    connection.release();
+                  })
+                } else {
+                  connection.query(`insert into user_room_junction 
+                    set roomId=${userDetailObj.beInvitedRoomId}, 
+                    userId=${userDetailObj.userId}
+                  `, (insertRoomJunctionErr, result) => {
+                    if (insertRoomJunctionErr) {
+                      return connection.rollback(() => {
+                        connection.release();
+                        reject(commitErr);
+                      })
+                    }
+                    connection.commit((commitErr) => {
+                      if (commitErr) {
+                        return connection.rollback(() => {
+                          connection.release();
+                          reject(commitErr);
+                        })
+                      }
+                      console.log('更新FB用戶成功')
+                      resolve(userDetailObj.userId);
                       connection.release();
-                      reject(commitErr);
                     })
-                  }
-                  console.log('更新FB用戶成功')
-                  resolve(userDetailObj.userId);
-                  connection.release();
-                })
+                  })
+                }
               })
             } else {
               connection.commit((commitErr) => {
@@ -305,26 +330,52 @@ function updateGeneralUserTransaction(updateGeneralUserSQL, insertRoomJunctionSQ
               resolve(userObj.userId);
               connection.release();
             })
-            // 有 beInvitedRoomId 代表為有被邀請的重新登入
+            // 有 beInvitedRoomId 代表為有被邀請的重新登入，但要先確定是不是已經被綁定過到該房間裡面了 (這個是要擋使用者自己從信中點邀請連結避免重複 insert)
           } else {
-            connection.query(insertRoomJunctionSQL, [userObj.userId, userObj.beInvitedRoomId], (err, result) => {
-              if (err) {
+            connection.query(`
+            select * from user_room_junction 
+            where roomId=${userObj.beInvitedRoomId} 
+            and userId=${userObj.userId}`, (searchErr, result) => {
+              if (searchErr) {
                 return connection.rollback(() => {
                   connection.release();
-                  reject(err);
+                  reject(searchErr);
                 })
               }
-              connection.commit((commitErr) => {
-                if (commitErr) {
-                  return connection.rollback(() => {
+              // 代表該用戶已經被綁定到該房間了
+              if (result.length > 0) {
+                connection.commit((commitErr) => {
+                  if (commitErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(commitErr);
+                    })
+                  }
+                  console.log('更新 Token 成功');
+                  resolve(userObj.userId);
+                  connection.release();
+                })
+              } else {
+                connection.query(insertRoomJunctionSQL, [userObj.userId, userObj.beInvitedRoomId], (err, result) => {
+                  if (err) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      reject(err);
+                    })
+                  }
+                  connection.commit((commitErr) => {
+                    if (commitErr) {
+                      return connection.rollback(() => {
+                        connection.release();
+                        reject(commitErr);
+                      })
+                    }
+                    console.log('更新一般用戶成功')
+                    resolve(userObj.userId);
                     connection.release();
-                    reject(commitErr);
                   })
-                }
-                console.log('更新一般用戶成功')
-                resolve(userObj.userId);
-                connection.release();
-              })
+                })
+              }
             })
           }
         })
@@ -742,4 +793,3 @@ module.exports = {
   updateUserNameOrAvatarTransaction,
   updateUserSelectedNamespaceAndRoomTransaction
 }
-

@@ -88,6 +88,7 @@ const invitePeopleToNamespace = async (req, res) => {
       data: results
     })
   }).catch((error) => {
+    console.log('寄信錯誤', error);
     res.status(500).send({
       data: error.message
     })

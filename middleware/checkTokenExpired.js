@@ -8,7 +8,7 @@ const checkTokenExpired = async (req, res, next) => {
   if (expiredDate && Date.now() < expiredDate) {
     next();
   } else {
-    res.render('home', { title: 'Home' });
+    res.redirect('/');
   }
 }
 
