@@ -61,7 +61,6 @@ signupBtn.addEventListener('click', (e) => {
     .then((res) => res.json())
     .catch((error) => console.log(error))
     .then((response) => {
-      console.log(response)
       if (typeof(response.data) === 'string') {
         showCustomAlert('The email has already registerd');
       } else {
@@ -92,7 +91,6 @@ signinBtn.addEventListener('click', function(event) {
       signinway: 'native',
       beInvitedRoomId: defaultRoomId
     }
-    console.log(bodyParas)
   } else {
     bodyParas = {
       email: signinUserEmailTag.value,
@@ -117,7 +115,6 @@ signinBtn.addEventListener('click', function(event) {
       if (response.data.isActive === false) {
         showCustomAlert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
       } else {
-        console.log('登入成功', response.data);
         document.cookie = `access_token=${response.data.accessToken}`;
         showUserSettingBlock(response.data.user);
       }
