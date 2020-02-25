@@ -79,16 +79,17 @@ const invitePeopleToNamespace = async (req, res) => {
       subject: `You are invited to join Interchatvas by ${invitor}`,
       text: `Your Interchatvas link: ${inviteUrl}`
     }
-    await sleep(2000);
-    await sendEmail(transporter, mailOptions);
+    // 因為 nodemailer 用 promiseAll 太密集送會有問題，讓每一次送 email 間隔 1.5s
+    await sleep(1500);
+    const sendResult = await sendEmail(transporter, mailOptions);
     // const eachEmailPromise = sendEmail(transporter, mailOptions)
     // sendEmailPromiseList.push(eachEmailPromise);
+    sendEmailPromiseList.push(sendResult);
   }
 
   res.status(200).send({
-    data: 'finished'
+    data: sendEmailPromiseList
   })
-
   // Promise.all(sendEmailPromiseList).then((results) => {
   //   res.status(200).send({
   //     data: results
