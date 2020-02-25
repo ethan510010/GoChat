@@ -79,19 +79,30 @@ const invitePeopleToNamespace = async (req, res) => {
       subject: `You are invited to join Interchatvas by ${invitor}`,
       text: `Your Interchatvas link: ${inviteUrl}`
     }
-    const eachEmailPromise = sendEmail(transporter, mailOptions)
-    sendEmailPromiseList.push(eachEmailPromise);
+    await sleep(2000);
+    await sendEmail(transporter, mailOptions);
+    // const eachEmailPromise = sendEmail(transporter, mailOptions)
+    // sendEmailPromiseList.push(eachEmailPromise);
   }
-  Promise.all(sendEmailPromiseList).then((results) => {
-    res.status(200).send({
-      data: results
-    })
-  }).catch((error) => {
-    console.log('寄信錯誤', error);
-    res.status(500).send({
-      data: error.message
-    })
+
+  res.status(200).send({
+    data: 'finished'
   })
+
+  // Promise.all(sendEmailPromiseList).then((results) => {
+  //   res.status(200).send({
+  //     data: results
+  //   })
+  // }).catch((error) => {
+  //   console.log('寄信錯誤', error);
+  //   res.status(500).send({
+  //     data: error.message
+  //   })
+  // })
+}
+
+const sleep = (time) => {
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 const sendEmail = (transporter, mailOptions) => {

@@ -131,7 +131,7 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
     customDialogConfirmClicked(async function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
       console.log('要看視訊的 Peer Id', currentUserPeerId);
-      await sleep(1000);
+      await sleep(500);
       socket.emit('shouldBeConnectedPeerId', {
         launchVideoPeerId: launchVideoPeerId,
         shouldConnectedPeerId: currentUserPeerId,
