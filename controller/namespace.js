@@ -96,10 +96,12 @@ const invitePeopleToNamespace = async (req, res) => {
 
 const sendEmail = (transporter, mailOptions) => {
   return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (err, data) => {
+    transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
+        console.log(err);
         reject(err)
       } else {
+        console.log(info.response)
         resolve('success')
       }
     })
