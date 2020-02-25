@@ -47,10 +47,7 @@ async function handleBufferUpload(base64Info, fileKey) {
 }
 
 socketio.getSocketio = async function (server) {
-  const io = socket_io(server, {
-    pingInterval: 250000,
-    pingTimeout: 40000,
-  });
+  const io = socket_io(server);
   // 註冊 socket io for eachNamespace
   io.of(/^\/namespaceId=\d+$/).on('connect', function (socket) {
     // 有人連線進來
