@@ -67,7 +67,7 @@ function recStream(stream, elemid) {
       mainAreaTag.removeChild(originalLocalVideoTag);
       const newVideoTag = document.createElement('video');
       newVideoTag.setAttribute('id', 'localVideo');
-      newVideoTag.style.height = 'calc(100% - 40px)';
+      newVideoTag.style.height = 'calc(100% - 60px)';
       newVideoTag.srcObject = stream;
       newVideoTag.autoplay = true;
       newVideoTag.playsinline = true;
@@ -83,7 +83,7 @@ function recStream(stream, elemid) {
       mainAreaTag.removeChild(originalRemoteVideoTag);
       const newRemoteVideoTag = document.createElement('video');
       newRemoteVideoTag.setAttribute('id', 'remoteVideo');
-      newRemoteVideoTag.style.height = 'calc(100% - 40px)';
+      newRemoteVideoTag.style.height = 'calc(100% - 60px)';
       newRemoteVideoTag.srcObject = stream;
       newRemoteVideoTag.autoplay = true;
       newRemoteVideoTag.playsinline = true;

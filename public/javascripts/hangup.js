@@ -36,7 +36,6 @@ hangupCallBtn.addEventListener('click', function () {
 })
 
 // 因為視訊發起方掛斷電話，才會得到 roomPlayingVideo over 的結果，所以 socket.on 寫在這邊
-// 
 socket.on('getRoomPlayingVideoOver', (overInfo) => {
   if (overInfo) {
     const { finisedVideoRoomId, roomPlayingVideo } = overInfo;
@@ -48,6 +47,7 @@ socket.on('getRoomPlayingVideoOver', (overInfo) => {
       isWatchingRemoteVideo = false;
       receiveCallId = undefined;
     }
+    resetVideo();
   }
 })
 
@@ -65,12 +65,12 @@ function resetVideo() {
   resetLocalVideoTag.setAttribute('id', 'localVideo');
   resetLocalVideoTag.autoplay = true;
   resetLocalVideoTag.playsinline = true;
-  resetLocalVideoTag.style.height = 'calc((100% - 40px)/2)';
+  resetLocalVideoTag.style.height = 'calc((100% - 60px)/2)';
   const resetRemoteVideoTag = document.createElement('video');
   resetRemoteVideoTag.setAttribute('id', 'remoteVideo');
   resetRemoteVideoTag.autoplay = true;
   resetRemoteVideoTag.playsinline = true;
-  resetRemoteVideoTag.style.height = 'calc((100% - 40px)/2)';
+  resetRemoteVideoTag.style.height = 'calc((100% - 60px)/2)';
   mainAreaTag.prepend(resetRemoteVideoTag);
   mainAreaTag.prepend(resetLocalVideoTag);
 }
