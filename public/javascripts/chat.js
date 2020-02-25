@@ -151,9 +151,10 @@ socket.on('shouldBeConnectedPeerId', async (dataFromServer) => {
   // 代表是視訊發起者
   if (launchVideoPeerId === currentUserPeerId) {
     console.log('視訊發起者', peer);
+    await sleep(500);
     peer.connect(shouldConnectedPeerId);
     // 要 call 誰
-    await sleep(1000);
+    await sleep(500);
     console.log('calling a peer ' + shouldConnectedPeerId);
     // 我要 call 誰
     const call = peer.call(shouldConnectedPeerId, window.localstream);
