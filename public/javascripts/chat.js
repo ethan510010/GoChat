@@ -5,8 +5,8 @@ const chatFlowContent = document.getElementById('message_flow_area');
 chatFlowContent.addEventListener('scroll', function () {
   // Get parent element properties
   const chatFlowContentTop = chatFlowContent.scrollTop;
-  // 180 大約是三筆訊息的大小
-  if (chatFlowContentTop <= 180 && !scrollFinished) {
+  // 240 大約是四筆訊息的大小
+  if (chatFlowContentTop <= 240 && !scrollFinished) {
     currentScrollPage += 1;
     socket.emit('getRoomHistory', {
       roomId: currentSelectedRoom.roomId,
@@ -146,13 +146,14 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
 })
 
 // 發起視訊端接收到的
-socket.on('shouldBeConnectedPeerId', (dataFromServer) => {
+socket.on('shouldBeConnectedPeerId', async (dataFromServer) => {
   const { launchVideoPeerId, shouldConnectedPeerId } = dataFromServer;
   // 代表是視訊發起者
   if (launchVideoPeerId === currentUserPeerId) {
     console.log('視訊發起者', peer);
     peer.connect(shouldConnectedPeerId);
     // 要 call 誰
+    await sleep(1000);
     console.log('calling a peer ' + shouldConnectedPeerId);
     // 我要 call 誰
     const call = peer.call(shouldConnectedPeerId, window.localstream);
