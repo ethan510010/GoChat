@@ -777,6 +777,62 @@ function updateUserNameOrAvatarTransaction(selecteUserProviderSQL, updateFBUserA
   })
 }
 
+function updateActiveTokenTransaction(
+  updateActiveSQL,
+  activeToken,
+  getUserInfoSQL) {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return connection.rollback(() => {
+            connection.release();
+            reject(transactionErr);
+          })
+        }
+        connection.query(updateActiveSQL, [activeToken], (updateErr, result) => {
+          if (updateErr) {
+            return connection.rollback(() => {
+              connection.release();
+              reject(err);
+            })
+          }
+          connection.query(getUserInfoSQL, [activeToken], (err, result) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                reject(err);
+              })
+            }
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                return connection.rollback(() => {
+                  connection.release();
+                  reject(commitErr);
+                })
+              }
+              resolve({
+                userId: result[0].userId,
+                userEmail: result[0].email, 
+                userName: result[0].name,
+                accessToken: result[0].accessToken,
+                selectedLanguage: result[0].selectedLanguage
+              })
+              connection.release();
+              console.log('驗證帳號成功');
+            })
+          })
+        })
+      })
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
@@ -791,5 +847,6 @@ module.exports = {
   updateNamespaceTransaction,
   updateGeneralUserTransaction,
   updateUserNameOrAvatarTransaction,
-  updateUserSelectedNamespaceAndRoomTransaction
+  updateUserSelectedNamespaceAndRoomTransaction,
+  updateActiveTokenTransaction
 }

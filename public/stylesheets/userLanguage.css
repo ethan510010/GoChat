@@ -25,6 +25,10 @@ body, html {
   max-width: 500px;
 }
 
+.loginStatus {
+  display: block;
+}
+
 #user_basic {
   /* position: absolute;
   left: 50%;

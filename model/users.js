@@ -5,7 +5,8 @@ const {
   updateFBUserInfo,
   updateGeneralUserTransaction,
   updateUserSelectedNamespaceAndRoomTransaction,
-  updateUserNameOrAvatarTransaction } = require('../db/mysql')
+  updateUserNameOrAvatarTransaction,
+  updateActiveTokenTransaction } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -483,10 +484,20 @@ const searchUserTokenExpiredTime = async (token, userId) => {
 }
 
 const activateGeneralUser = async (activeToken) => {
-  const result = await exec(`
-    UPDATE general_user_info SET isActive=1 
-    where activeToken='${activeToken}'`);
-  return result;
+  const userInfo = await updateActiveTokenTransaction(
+    `UPDATE 
+    general_user_info SET isActive=1
+    where activeToken=?`, 
+    activeToken,
+    `SELECT 
+    general_user_info.userId as userId, 
+    general_user_info.email as email, 
+    general_user_info.name as name, 
+    user.selected_language as selectedLanguage,
+    user.access_token as accessToken from general_user_info 
+    inner join user on general_user_info.userId=user.id 
+    where activeToken=?`);
+  return userInfo;
 }
 
 module.exports = {

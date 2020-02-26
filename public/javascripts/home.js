@@ -6,18 +6,20 @@ const setLanguageBlock = document.querySelector('.set_language_avatar_area');
 // 當註冊或登入後把 userId 存下來後面設定語言及大頭貼會用到
 let userId;
 
-notMemberTag.addEventListener('click', function(event) {
-  const signupInfoArea = document.querySelector('.signup_info');
-  const displayValue = showSignupArea === true ? 'none' : 'block';
-  signupInfoArea.style.display = displayValue;
-
-  const signInArea = document.querySelector('.sign_in_area');
+if (notMemberTag) {
+  notMemberTag.addEventListener('click', function(event) {
+    const signupInfoArea = document.querySelector('.signup_info');
+    const displayValue = showSignupArea === true ? 'none' : 'block';
+    signupInfoArea.style.display = displayValue;
   
-  const signInHidden = showSignupArea === true ? 'block' : 'none';
-  signInArea.style.display = signInHidden;
-
-  showSignupArea = !showSignupArea
-})
+    const signInArea = document.querySelector('.sign_in_area');
+    
+    const signInHidden = showSignupArea === true ? 'block' : 'none';
+    signInArea.style.display = signInHidden;
+  
+    showSignupArea = !showSignupArea
+  })
+}
 
 // email 正則驗證
 function validateEmail(email) {
@@ -31,49 +33,51 @@ const signupUserEmailTag = document.querySelector('.enter_email_for_signup input
 const signupUserPasswordTag = document.querySelector('.enter_password_for_signup input');
 const signupBtn = document.querySelector('.signup_btn');
 
-signupBtn.addEventListener('click', (e) => {
-  // 只有被邀請信邀請的才會有這個 defaultRoomId
-  const currentUrl = new URL(window.location)
-  const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
-  let bodyParas;
-  if (defaultRoomId) {
-    bodyParas = {
-      username: signupUserNameInputTag.value,
-      email: signupUserEmailTag.value,
-      password: signupUserPasswordTag.value,
-      beInvitedRoomId: defaultRoomId
-    }
-  } else {
-    bodyParas = {
-      username: signupUserNameInputTag.value,
-      email: signupUserEmailTag.value,
-      password: signupUserPasswordTag.value
-    }
-  }
-  if (validateEmail(signupUserEmailTag.value)) {
-    fetch('/users/signup', {
-      method: 'POST',
-      body: JSON.stringify(bodyParas),
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      })
-    })
-    .then((res) => res.json())
-    .catch((error) => console.log(error))
-    .then((response) => {
-      if (typeof(response.data) === 'string') {
-        showCustomAlert('The email has already registerd');
-      } else {
-        document.cookie = `access_token=${response.data.accessToken}`;
-        // 註冊成功進到設定頁
-        showCustomAlert('Please receive verification email');
-        // showUserSettingBlock(response.data.user);
+if (signupBtn) {
+  signupBtn.addEventListener('click', (e) => {
+    // 只有被邀請信邀請的才會有這個 defaultRoomId
+    const currentUrl = new URL(window.location)
+    const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+    let bodyParas;
+    if (defaultRoomId) {
+      bodyParas = {
+        username: signupUserNameInputTag.value,
+        email: signupUserEmailTag.value,
+        password: signupUserPasswordTag.value,
+        beInvitedRoomId: defaultRoomId
       }
-    })
-  } else {
-    showCustomAlert('You have the wrong email format');
-  }
-})
+    } else {
+      bodyParas = {
+        username: signupUserNameInputTag.value,
+        email: signupUserEmailTag.value,
+        password: signupUserPasswordTag.value
+      }
+    }
+    if (validateEmail(signupUserEmailTag.value)) {
+      fetch('/users/signup', {
+        method: 'POST',
+        body: JSON.stringify(bodyParas),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        })
+      })
+      .then((res) => res.json())
+      .catch((error) => console.log(error))
+      .then((response) => {
+        if (typeof(response.data) === 'string') {
+          showCustomAlert('The email has already registerd');
+        } else {
+          document.cookie = `access_token=${response.data.accessToken}`;
+          // 註冊成功進到設定頁
+          showCustomAlert('Please receive verification email');
+          // showUserSettingBlock(response.data.user);
+        }
+      })
+    } else {
+      showCustomAlert('You have the wrong email format');
+    }
+  })
+}
 
 // 一般登入
 const signinUserEmailTag = document.querySelector('.enter_email input');
@@ -82,54 +86,58 @@ const signinBtn = document.querySelector('.sign_in_button');
 // 只有被邀請的用戶才會有這個 defaultRoomId
 const currentUrl = new URL(window.location)
 const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
-signinBtn.addEventListener('click', function(event) {
-  let bodyParas;
-  if (defaultRoomId) {
-    bodyParas = {
-      email: signinUserEmailTag.value,
-      password: signinUserPasswordTag.value,
-      signinway: 'native',
-      beInvitedRoomId: defaultRoomId
-    }
-  } else {
-    bodyParas = {
-      email: signinUserEmailTag.value,
-      password: signinUserPasswordTag.value,
-      signinway: 'native'
-    }
-  }
-  fetch('/users/signin', { 
-    method: 'POST',
-    body: JSON.stringify(bodyParas),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  })
-  .then((res) => res.json())
-  .catch((err) => console.log(err))
-  .then((response) => {
-    if (typeof(response.data) === 'string') {
-      showCustomAlert('check the email and the password are correct');
+if (signinBtn) {
+  signinBtn.addEventListener('click', function(event) {
+    let bodyParas;
+    if (defaultRoomId) {
+      bodyParas = {
+        email: signinUserEmailTag.value,
+        password: signinUserPasswordTag.value,
+        signinway: 'native',
+        beInvitedRoomId: defaultRoomId
+      }
     } else {
-      // 登入成功，但要看是否有激活該帳戶，有的話才跳轉到 settingBlock
-      if (response.data.isActive === false) {
-        showCustomAlert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
-      } else {
-        document.cookie = `access_token=${response.data.accessToken}`;
-        showUserSettingBlock(response.data.user);
+      bodyParas = {
+        email: signinUserEmailTag.value,
+        password: signinUserPasswordTag.value,
+        signinway: 'native'
       }
     }
+    fetch('/users/signin', { 
+      method: 'POST',
+      body: JSON.stringify(bodyParas),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    })
+    .then((res) => res.json())
+    .catch((err) => console.log(err))
+    .then((response) => {
+      if (typeof(response.data) === 'string') {
+        showCustomAlert('check the email and the password are correct');
+      } else {
+        // 登入成功，但要看是否有激活該帳戶，有的話才跳轉到 settingBlock
+        if (response.data.isActive === false) {
+          showCustomAlert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
+        } else {
+          document.cookie = `access_token=${response.data.accessToken}`;
+          showUserSettingBlock(response.data.user);
+        }
+      }
+    })
   })
-})
+}
 
 // FB 登入
 // 前端 Fb 登入拿 Token
 const fbLoginBtn = document.querySelector('.facebook_login_area');
-fbLoginBtn.addEventListener('click', function (e) {
-  FB.getLoginStatus((response) => {
-    statusChangeCallback(response);
-  });
-})
+if (fbLoginBtn) {
+  fbLoginBtn.addEventListener('click', function (e) {
+    FB.getLoginStatus((response) => {
+      statusChangeCallback(response);
+    });
+  })
+}
 
 function statusChangeCallback(response) {
   if (response.status === 'connected') {
