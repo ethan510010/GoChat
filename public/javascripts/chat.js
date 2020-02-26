@@ -130,7 +130,7 @@ socket.on('shouldOpenCallAlert', (dataFromServer) => {
     showCustomConfirmDialog(`Do you want to accept the call From ${videoLauncher.name}?`)
     customDialogConfirmClicked(async function () {
       console.log('目前全部的 peers', allConnectionPeersOfCurrentRoom);
-      console.log('要看視訊的 Peer Id', currentUserPeerId);
+      console.log('要看視訊的 PeerId', currentUserPeerId);
       await sleep(500);
       socket.emit('shouldBeConnectedPeerId', {
         launchVideoPeerId: launchVideoPeerId,
@@ -157,6 +157,7 @@ socket.on('shouldBeConnectedPeerId', async (dataFromServer) => {
     await sleep(500);
     console.log('calling a peer ' + shouldConnectedPeerId);
     // 我要 call 誰
+    console.log(window.localstream);
     const call = peer.call(shouldConnectedPeerId, window.localstream);
     console.log('the call', call);
     callConnections[call.connectionId] = call;
@@ -166,6 +167,7 @@ socket.on('shouldBeConnectedPeerId', async (dataFromServer) => {
 // click call (offer and answer is exchanged) 
 let receiveCallId;
 peer.on('call', function (call) {
+  console.log('windowLocalStream', window.localstream);
   call.answer(window.localstream);
   console.log('接收到 call')
   call.on('stream', function (stream) {
@@ -180,6 +182,7 @@ peer.on('call', function (call) {
   call.on('close', function () {
     // 這邊把全部的 call 都關掉
     console.log('call被移掉了');
+    // peer.disconnect();
     // 關閉視窗
     videoDisplayDiv.style.display = 'none';
   })
@@ -390,7 +393,6 @@ socket.on('newMessageMention', (newMessageInfo) => {
 // 接收歷史的 canvas 畫面
 socket.on('showCanvas', (canvasHistory) => {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  console.log('歷史canvas', canvasHistory)
   // canvas context
   if (canvasHistory.canvasUrl !== '') {
     let img = new Image;
@@ -659,8 +661,8 @@ function removeFakeLoadingDiv() {
 }
 
 // 如果斷線自動重連
-socket.on('disconnect', () => {
-  console.log('socket 斷線，自動重連');
-  socket.connect();
-  console.log('socket 重新連線');
-});
+// socket.on('disconnect', () => {
+//   console.log('socket 斷線，自動重連');
+//   socket.connect();
+//   console.log('socket 重新連線');
+// });
