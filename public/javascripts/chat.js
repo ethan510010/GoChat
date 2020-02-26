@@ -110,12 +110,22 @@ callBtn.addEventListener('click', function () {
     return;
   }
   // 依序進行連線
+  console.log('當前發起視訊的 peerId', currentUserPeerId);
   console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
-  socket.emit('broadcastVideo', {
-    videoLauncherRoomId: currentSelectedRoom.roomId,
-    launchVideoUser: currentUserDetail,
-    launchPeerId: currentUserPeerId
-  })
+  for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+    const eachPeerId = allConnectionPeersOfCurrentRoom[i];
+    if (eachPeerId !== currentUserPeerId) {
+      peer.connect(eachPeerId);
+      const call = peer.call(eachPeerId, window.localstream);
+      console.log('the call', call);
+      callConnections[call.connectionId] = call;
+    }
+  }
+  // socket.emit('broadcastVideo', {
+  //   videoLauncherRoomId: currentSelectedRoom.roomId,
+  //   launchVideoUser: currentUserDetail,
+  //   launchPeerId: currentUserPeerId
+  // })
 })
 // 紀錄房間正在播放中，只有當視訊發起人關閉時這個開關才會變成 false，其他人才可以在該房間發起視訊
 let roomPlayingVideoRecords = {};
