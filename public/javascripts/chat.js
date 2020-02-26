@@ -45,7 +45,6 @@ peer.on('open', function () {
   document.getElementById('displayId').textContent = peer.id;
   // 每一個人專屬的 peerId
   currentUserPeerId = peer.id;
-  console.log('my peerId', peer.id);
   socket.emit('join', {
     peerId: peer.id,
     roomInfo: currentSelectedRoom,
@@ -103,10 +102,6 @@ let roomPlayingVideoRecords = {};
 // 視訊發起者要發起視訊 (下面的 code 是針對視訊發起者)
 callBtn.addEventListener('click', async function () {
   // 接收端如果正在看 remote 端的影片或是該房間的廣播影片還在播放是不可以按下連線的
-  // if (isWatchingRemoteVideo) {
-  //   showCustomAlert('You can not call before hanging up current call');
-  //   return;
-  // }
   if (roomPlayingVideoRecords[currentSelectedRoom.roomId]) {
     showCustomAlert('The rooms is still playing a video, Please try again after the call finished');
     return;
@@ -184,6 +179,14 @@ roomsAreaSection.addEventListener('click', function (event) {
     const beSelectedRoomDiv = event.target;
     validRoomId = parseInt(beSelectedRoomDiv.getAttribute('id').replace('channelId_', ''));
     roomTitle = event.target.children[1].textContent;
+    if (isPlayingLocalVideo && (lastChooseRoom.roomId !== validRoomId)) {
+      showCustomAlert('You are braodcasting a video, you have to turn off video before changing the room');
+      return;
+    }
+    if (isWatchingRemoteVideo && (lastChooseRoom.roomId !== validRoomId)) {
+      showCustomAlert('You have to turn off video before changing the room');
+      return;
+    }
     // 把舊的 room 的選到的裝飾 UI class 移除，加到新選擇的 
     const lastSelectedRoomDiv = document.getElementById(`channelId_${lastChooseRoom.roomId}`);
     lastSelectedRoomDiv.classList.remove('selectedRoomUI');
@@ -192,6 +195,14 @@ roomsAreaSection.addEventListener('click', function (event) {
     const beSelectedRoomDiv = event.target.parentElement;
     validRoomId = parseInt(beSelectedRoomDiv.getAttribute('id').replace('channelId_', ''), 10);
     roomTitle = event.target.textContent;
+    if (isPlayingLocalVideo && (lastChooseRoom.roomId !== validRoomId)) {
+      showCustomAlert('You are braodcasting a video, you have to turn off video before changing the room');
+      return;
+    }
+    if (isWatchingRemoteVideo && (lastChooseRoom.roomId !== validRoomId)) {
+      showCustomAlert('You have to turn off video before changing the room');
+      return;
+    }
     // 把舊的 room 的選到的裝飾 UI class 移除，加到新選擇的 
     const lastSelectedRoomDiv = document.getElementById(`channelId_${lastChooseRoom.roomId}`);
     if (lastSelectedRoomDiv) {
@@ -208,10 +219,10 @@ roomsAreaSection.addEventListener('click', function (event) {
   //   showCustomAlert('Please turn off video before change channel');
   //   return;
   // }
-  if ((roomPlayingVideoRecords[currentSelectedRoom.roomId] || isPlayingLocalVideo) && (currentSelectedRoom.roomId !== lastChooseRoom.roomId)) {
-    showCustomAlert('Please turn off video before change channel');
-    return;
-  }
+  // if ((roomPlayingVideoRecords[currentSelectedRoom.roomId] || isPlayingLocalVideo) && (currentSelectedRoom.roomId !== lastChooseRoom.roomId)) {
+  //   showCustomAlert('Please turn off video before change channel');
+  //   return;
+  // }
   // 改變上方 header UI
   const roomTitleTag = document.querySelector('#room_title p');
   roomTitleTag.textContent = currentSelectedRoom.roomTitle;
@@ -303,6 +314,7 @@ sendMessageBtn.addEventListener('click', function () {
 // 發送圖片訊息
 const sendImageBtn = document.getElementById('send_image');
 sendImageBtn.addEventListener('change', function (e) {
+  sendMessageBtn.disabled = true;
   const fileData = e.target.files[0];
   let reader = new FileReader();
   reader.readAsDataURL(fileData);
@@ -642,7 +654,6 @@ function removeFakeLoadingDiv() {
     chatFlowContent.removeChild(document.getElementById('loadingTranslation'));
   }
 }
-
 // 如果斷線自動重連
 // socket.on('disconnect', () => {
 //   console.log('socket 斷線，自動重連');
