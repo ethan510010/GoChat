@@ -152,7 +152,7 @@ socketio.getSocketio = async function (server) {
       callback(joinInfo);
     })
 
-    socket.on('clientMessage', async (dataFromClient, callback) => {
+    socket.on('clientMessage', async (dataFromClient) => {
       // 用來處理要存到 redis cache 的每一筆資料
       // let messageRedisCache = {};
       // 儲存訊息到 mySQL
@@ -216,9 +216,6 @@ socketio.getSocketio = async function (server) {
           // console.log('組裝的 cache 訊息', messageRedisCache);
           // // 儲存成功發送出去，並存到 redis
           // saveCacheMessage(messageRedisCache);
-          callback({
-            inputFinished: true
-          })
           subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
@@ -320,6 +317,16 @@ socketio.getSocketio = async function (server) {
       }
     })
 
+    // 房間正在播放影片
+    socket.on('roomIsPlaying', async (roomPlayingInfo) => {
+      const { roomId, videoPlaying } = roomPlayingInfo;
+      // 自己不需要接收
+      socket.broadcast.to(roomId).emit('whichRoomPlayingVideo', {
+        roomId,
+        videoPlaying
+      })
+    })
+
     socket.on('disconnect', () => {
       if (roomUsersPair[currentSelectedRoomId]) {
         console.log('currentSelectedRoomId', currentSelectedRoomId)
@@ -345,25 +352,6 @@ socketio.getSocketio = async function (server) {
         }
       }
       console.log('有重整後的房間peer配對', roomPeerIdList)
-    })
-
-    socket.on('broadcastVideo', (videoLauncherInfo, callback) => {
-      const { videoLauncherRoomId, launchVideoUser, launchPeerId } = videoLauncherInfo;
-      console.log('視訊發起者', launchVideoUser.name);
-      subNamespace.to(videoLauncherRoomId).emit('shouldOpenCallAlert', {
-        videoLauncherRoomId: videoLauncherRoomId,
-        videoLauncher: launchVideoUser,
-        launchVideoPeerId: launchPeerId
-      })
-    })
-
-    socket.on('shouldBeConnectedPeerId', (shouldConnectPeerInfo, callback) => {
-      const { launchVideoPeerId, shouldConnectedPeerId, videoLauncherRoomId } = shouldConnectPeerInfo;
-      subNamespace.to(videoLauncherRoomId).emit('shouldBeConnectedPeerId', {
-        launchVideoPeerId,
-        shouldConnectedPeerId,
-        videoLauncherRoomId
-      })
     })
 
     // 取得現在在 namespaceId 底下但不在該房間下的用戶

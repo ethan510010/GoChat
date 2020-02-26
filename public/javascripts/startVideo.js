@@ -10,7 +10,7 @@ launchVideoBtn.addEventListener('click', async function () {
 const startVideoBtn = document.querySelector('.video_button_area .call');
 startVideoBtn.addEventListener('click', function () {
   // 正在看遠端影片按下 startVideo 會跳 alert
-  if (isWatchingRemoteVideo) {
+  if (roomPlayingVideoRecords[currentSelectedRoom.roomId]) {
     showCustomAlert('The remote video is playing. Please hang up the call before');
     return;
   }
@@ -19,8 +19,7 @@ startVideoBtn.addEventListener('click', function () {
 
 // get the video and display it with permission
 async function startVideo() {
-  if (!navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showCustomAlert('getUserMedia is not supported');
     return;
   } else {

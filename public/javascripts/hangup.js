@@ -2,13 +2,7 @@ const hangupCallBtn = document.getElementById('hangup');
 hangupCallBtn.addEventListener('click', function () {
   // 代表是由發起視訊的人 (視訊發起者) 掛斷
   if (!receiveCallId) {
-    // const allCalls = Object.values(callConnections);
-    // console.log('掛斷的 connenctions', callConnections);
-    // for (let i = 0; i < allCalls.length; i++) {
-    //   const call = allCalls[i];
-    //   console.log('要被關掉的 call', call);
-    //   call.close();
-    // }
+    console.log('視訊發起者掛斷');
     callConnections = {};
     // 代表現在發起端沒有在播放影片了
     isPlayingLocalVideo = false;
@@ -21,6 +15,7 @@ hangupCallBtn.addEventListener('click', function () {
     });
     // 移除
   } else {
+    console.log('視訊接收者掛斷');
     // 代表是看到視訊 (視訊接收者) 的觸發掛斷的
     if (callConnections[receiveCallId]) {
       callConnections[receiveCallId].close();
