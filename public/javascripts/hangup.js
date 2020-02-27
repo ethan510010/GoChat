@@ -51,11 +51,11 @@ function resetVideo() {
   const localVideoTag = document.getElementById('localVideo');
   const remoteVideoTag = document.getElementById('remoteVideo');
   if (localVideoTag) {
-    localVideoTag.src = null;
+    // localVideoTag.src = null;
     mainAreaTag.removeChild(localVideoTag);
   }
   if (remoteVideoTag) {
-    mainAreaTag.src = null;
+    // mainAreaTag.src = null;
     mainAreaTag.removeChild(remoteVideoTag);
   }
   const resetLocalVideoTag = document.createElement('video');

@@ -9,11 +9,12 @@ body, html {
 }
 
 .scene_background {
-  background-image: url('/images/beachSky.jpg');
+  background-image: url('/images/home.jpg');
   height: 100%;
+  width: 100%;
   /* Add the blur effect */
-  /* filter: blur(6px);
-  -webkit-filter: blur(6px); */
+  /* filter: blur(2px); */
+  /* -webkit-filter: blur(2px); */
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
@@ -25,31 +26,36 @@ body, html {
   position: absolute;
   left: 0;
   top: 0;
-  height: 70px;
+  height: 60px;
   width: 100%;
   z-index: 2;
-  text-align: center;
-  line-height: 70px;
-  background-color: #051057;
+  text-align: start;
+  line-height: 60px;
+  background-color: #16496A;
+  display: flex;
 }
 
 #title p {
-  font-size: 46px;
+  font-size: 40px;
   color: #FFF;
   margin: 0;
+  padding-left: 25px;
 }
 
 #login_content {
-  width: 100%;
+  width: 98%;
   height: calc(100% - 100px);
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   z-index: 2;
   position: absolute;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  /* left: 0; */
   top: 70px;
-  background-color: rgb(237, 237, 237);
+  /* background-color: rgb(237, 237, 237); */
 }
 
 .decoration_area, 
@@ -145,7 +151,7 @@ body, html {
 }
 
 .signup_area p {
-  font-size: 14px;
+  font-size: 16px;
   color: rgba(213, 215, 219, .8);
   text-align: center;
   font-weight: normal;

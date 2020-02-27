@@ -22,7 +22,7 @@ const activateUser = async (req, res) => {
           break;
       }
       res.render('home', { 
-        title: 'Home', 
+        title: 'Chatvas', 
         directlyLogin: true,
         userId: userId,
         email: userEmail,
@@ -35,7 +35,7 @@ const activateUser = async (req, res) => {
     }
   } else {
     res.render('home', { 
-      title: 'Home', 
+      title: 'Chatvas', 
       directlyLogin: false,
       userId: undefined,
       email: undefined,

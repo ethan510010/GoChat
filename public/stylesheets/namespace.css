@@ -3,22 +3,22 @@
 }
 
 body, html {
-  /* height: 100%;
-  margin: 0 */
+  height: 100%;
+  margin: 0;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .scene_background {
-  /* background-image: url('/images/beachSky.jpg'); */
-  /* height: 100%; */
+  background-image: url('/images/home.jpg');
+  height: 100%;
   /* Add the blur effect */
   /* filter: blur(6px);
   -webkit-filter: blur(6px); */
   /* Center and scale the image nicely */
-  /* background-position: center; */
-  /* background-repeat: no-repeat; */
-  /* background-size: cover; */
-  /* opacity: 0.4; */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.5;
   /* z-index: -1; */
 }
 
@@ -27,9 +27,8 @@ header {
   line-height: 60px;
   padding-left: 20px;
   color: #FFF;
-  font-weight: 600;
   font-size: 40px;
-  background-color: #051057;
+  background-color: #062D46;
   position: fixed;
   top: 0;
   left: 0;
@@ -60,6 +59,7 @@ header span {
 }
 
 .namespaceBlock {
+  background-color: #FFF;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,7 +84,7 @@ header span {
   height: 30px;
   margin: 10px 0 0 0;
   border-radius: 5px;
-  background-color: rgba(0, 71, 125, 0.5);
+  background-color: #5299D3;
   color: #FFFFFF;
   outline: none;
   cursor: pointer;
@@ -106,7 +106,7 @@ header span {
 }
 
 .modal-content {
-  background-color: #3252A8;
+  background-color: #5299D3;
   margin: auto;
   padding: 0 10px 10px 10px;
   width: 50%;
@@ -128,7 +128,7 @@ header span {
   margin: 0;
   padding-top: 10px;
   font-size: 20px;
-  font-weight: bolder;
+  font-weight: 500;
   color: #FFF;
 }
 
@@ -180,6 +180,7 @@ header span {
   border: 1px solid rgba(0, 0, 0, 0.4);
   font-weight: 600;
   outline: none;
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .confirmBtn {
@@ -213,14 +214,12 @@ header span {
 
 #invite_btn {
   border-radius: 5px;
-  background-color: #3252A8;
-  /* background-color: rgba(0, 191, 255, 0.8); */
+  background-color: #A2BCE0;
   height: 35px;
-  border: 1.5px solid #FFF;
+  border: 1px solid #FFF;
   color: #FFFFFF;
   margin-top: 10px;
   font-size: 20px;
-  font-weight: 600;
   text-align: center;
   padding: 0;
   cursor: pointer;
