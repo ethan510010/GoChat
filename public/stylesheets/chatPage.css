@@ -135,6 +135,13 @@ header {
   margin-right: 10px;
 }
 
+#profile_area .language .edit_icon {
+  width: 15px;
+  height: 15px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
 #profile_area .user_email,
 #profile_area .user_language {
   color: rgba(0, 0, 0, 0.6);
@@ -186,6 +193,53 @@ header {
 #profile_area .sign_out p {
   font-weight: 500;
   margin: 0;
+}
+
+/* 語言下拉選單 */
+.language_selected_box {
+  display: flex;
+  flex-direction: column;
+}
+
+.language-options-container {
+  background: #074a75;
+  color: #FFF;
+  max-height: 0;
+  width: 100%;
+  opacity: 0;
+  transition: all 0.4s;
+  border-radius: 4px;
+  overflow: hidden;
+  order: 1;
+}
+
+.language-options-container .option {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.language-options-container.active {
+  max-height: 240px;
+  opacity: 1;
+}
+
+.language-options-container.active + .language .edit_icon {
+  transform: rotateX(180deg);
+}
+
+.language-options-container .option .radio {
+  display: none;
+}
+
+.language-options-container .option label {
+  cursor: pointer;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.language-options-container .option:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 #decoration_line {

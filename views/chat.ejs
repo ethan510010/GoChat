@@ -133,9 +133,30 @@
           <img src="/images/email.png" alt="">
           <p class="user_email"><%= currentUserDetail.email %></p>
         </div>
-        <div class="language">
-          <img src="/images/language.png" alt="">
-          <p class="user_language"><%= userLanguage %></p>
+        <div class="language_selected_box">
+          <div class="language-options-container">
+            <div class="option">
+              <input type="option" class="radio" id="en" name="language">
+              <label for="en">English</label>
+            </div>
+            <div class="option">
+              <input type="option" class="radio" id="zh-TW" name="language">
+              <label for="zh-TW">繁體中文</label>
+            </div>
+            <div class="option">
+              <input type="option" class="radio" id="ja" name="language">
+              <label for="ja">Japanese</label>
+            </div>
+            <div class="option">
+              <input type="option" class="radio" id="es" name="language">
+              <label for="es">Spanish</label>
+            </div>
+          </div>
+          <div class="language">
+            <img src="/images/language.png" alt="">
+            <p class="user_language"><%= userLanguage %></p>
+            <img class="edit_icon" src="/images/downArrow.png" alt="">
+          </div>
         </div>
       </div>
       <div class="sign_out">
@@ -246,5 +267,6 @@
   <script src="/javascripts/canvas.js"></script>
   <script src="/javascripts/changePage.js"></script>
   <script src="/javascripts/searchRoom.js"></script>
+  <script src="/javascripts/changeLanguage.js"></script>
 </body>
 </html>

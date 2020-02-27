@@ -1,6 +1,7 @@
 const socket_io = require('socket.io');
 const { insertChatMessage } = require('../model/chatContent');
 const { saveTranslatedContent, listSpecifiedRoomMessages } = require('../model/message');
+const { updateUserLanguage } = require('../model/language');
 const { handleRoomCanvasImage, getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
 const { 
   updateUserSelectedRoom, 
@@ -412,6 +413,16 @@ socketio.getSocketio = async function (server) {
       })
     })
 
+    // 更新使用者偏好語言
+    socket.on('editUserLanguage', async (userLanguageInfo, callback) => {
+      const { userId, selectedLanguage } = userLanguageInfo;
+      await updateUserLanguage(userId, selectedLanguage);
+      callback({
+        selectedLanguage
+      })
+    })
+
+    // 視訊結束
     socket.on('roomPlayingVideoOver', (roomPlayingOverInfo) => {
       const { roomId, roomPlayingVideo } = roomPlayingOverInfo;
       subNamespace.emit('getRoomPlayingVideoOver', {
