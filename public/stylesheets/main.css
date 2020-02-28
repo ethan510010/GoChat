@@ -102,6 +102,10 @@ header .header_start_button {
   flex-direction: column;
 }
 
+.introduction a {
+  text-decoration: none;
+}
+
 .introduction .started_button {
   border-radius: 8px;
   padding: 10px 15px;

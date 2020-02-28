@@ -43,29 +43,36 @@ body, html {
 }
 
 #login_content {
-  width: 98%;
-  height: calc(100% - 100px);
+  /* width: 98%; */
+  width: 100%;
+  /* height: calc(100% - 100px); */
   display: flex;
-  flex-direction: row;
+  flex-direction:column;
   align-items: center;
-  justify-content: space-between;
-  z-index: 2;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  justify-content: center;
+  /* justify-content: space-between; */
+  /* z-index: 2; */
+  /* position: absolute; */
+  /* left: 50%; */
+  /* transform: translateX(-50%); */
   /* left: 0; */
-  top: 70px;
+  position: absolute;
+  top: 105px;
+  left: 0;
+  height: calc(100% - 105px);
+  background-color: #f8f8f8;
+  /* top: 70px; */
   /* background-color: rgb(237, 237, 237); */
 }
 
-.decoration_area, 
+/* .decoration_area, 
 .function_area {
   width: 50%;
-}
+} */
 
 
 
-.decoration_area {
+/* .decoration_area {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -81,12 +88,14 @@ body, html {
 .decoration_area video {
   width: 90%;
   max-height: 400px;
-}
+} */
 
 .function_area {
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 50%;
+  min-width: 40%;
 }
 
 .sign_in_block {
@@ -110,15 +119,14 @@ body, html {
   align-items: center;
   border-radius: 10px;
   padding-bottom: 5px;
-  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 3px rgba(0, 0, 0, 0.3);
+  background-color: #FFF;
 }
 
 .sign_in_block p {
-  margin: 10px 0 10px 0;
+  margin: 15px 0 15px 0;
   font-size: 24px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: normal; 
-  color: #FFFFFF;
+  color: #000;
 }
 
 .sign_in_area,
@@ -135,7 +143,7 @@ body, html {
   padding-left: 10px;
   padding-top: 5px;
   padding-bottom: 5px;
-  border: 0.1px solid #CCC;
+  border: 1px solid #cbd5ff;
   margin-bottom: 10px;
   border-radius: 10px;
   font-family: Arial, sans-serif;
@@ -144,15 +152,36 @@ body, html {
 }
 
 .sign_in_button input {
-  background-color: rgba(135, 206, 235, .6);
+  background-color: #3d5afe;
   height: 40px;
   color: #ffffff;
   cursor: pointer;
 }
 
+.sign_in_block a {
+  text-decoration: none;
+}
+
+.sign_in_block a p {
+  font-size: 16px;
+  color: rgba(171, 169, 169);
+  text-align: center;
+  font-weight: normal;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+#not_member_hint {
+  margin-top: 10px;
+}
+
+#has_already_member {
+  margin-bottom: 10px;
+}
+
 .signup_area p {
   font-size: 16px;
-  color: rgba(213, 215, 219, .8);
+  color: rgba(171, 169, 169);
   text-align: center;
   font-weight: normal;
   margin-bottom: 10px;
@@ -164,15 +193,12 @@ body, html {
   height: 40px;
   color: #ffffff;
   cursor: pointer;
-}
-
-.signup_info {
-  display: none;
+  margin-top: 10px;
 }
 
 .horizontal_line {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   height: 1.5px;
   background-color: #ECF0F1;
 }
@@ -193,8 +219,8 @@ body, html {
 .facebook_login_area {
   /* border: 1px solid #273c75;  */
   /* background-color: #273c75; */
-  background-color: rgba(0, 71, 125, 0.4);
-  border: 1px solid rgba(0, 71, 125, 0.4);;
+  background-color: rgba(0, 71, 125);
+  border: 1px solid rgba(0, 71, 125);;
 }
 
 .google_login_area {

@@ -1,25 +1,7 @@
-let showSignupArea = false;
-const notMemberTag = document.querySelector('#not_member_hint');
 const signupAndSigninBlock = document.querySelector('.sign_in_block');
 const setLanguageBlock = document.querySelector('.set_language_avatar_area');
-
 // 當註冊或登入後把 userId 存下來後面設定語言及大頭貼會用到
 let userId;
-
-if (notMemberTag) {
-  notMemberTag.addEventListener('click', function(event) {
-    const signupInfoArea = document.querySelector('.signup_info');
-    const displayValue = showSignupArea === true ? 'none' : 'block';
-    signupInfoArea.style.display = displayValue;
-  
-    const signInArea = document.querySelector('.sign_in_area');
-    
-    const signInHidden = showSignupArea === true ? 'block' : 'none';
-    signInArea.style.display = signInHidden;
-  
-    showSignupArea = !showSignupArea
-  })
-}
 
 // email 正則驗證
 function validateEmail(email) {

@@ -8,4 +8,6 @@ router.get('/', async (req, res) => {
 
 router.get('/signin', activateUser);
 
+router.get('/signup', activateUser);
+
 module.exports = router;
