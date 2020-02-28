@@ -170,9 +170,9 @@ const signupUser = async (req, res) => {
     });
     let inviteUrl ='';
     if (process.env.environment === 'development') {
-      inviteUrl = `${process.env.devHost}?activeToken=${activeToken}`;
+      inviteUrl = `${process.env.devHost}/signup?activeToken=${activeToken}`;
     } else if (process.env.environment === 'production') {
-      inviteUrl = `${process.env.prodHost}?activeToken=${activeToken}`;
+      inviteUrl = `${process.env.prodHost}/signup?activeToken=${activeToken}`;
     }
     const mailOptions = {
       from: process.env.gmailAccount,

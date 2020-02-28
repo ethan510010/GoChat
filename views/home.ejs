@@ -186,12 +186,12 @@
   <script src="/javascripts/userLanguage.js"></script>
   <% if (userId) { %>
   <script type="text/javascript">
-    userId = <% - userId %>            
+    userId = <%- JSON.stringify(userId) %>;            
   </script>
   <% } %>
   <% if (JSON.stringify(accessToken)) { %>
   <script type="text/javascript">
-      const accessToken = <% - JSON.stringify(accessToken) %>;
+    const accessToken = <%- JSON.stringify(accessToken) %>;
     document.cookie = `access_token=${accessToken}`;            
   </script>
   <% } %>
