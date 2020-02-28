@@ -10,15 +10,15 @@ window.onload = function() {
       const endY = e.clientY;
       let moveLen = resizeTag.top + (endY - startY);
       const maxMoveLen = chatContentDiv.clientHeight - resizeTag.offsetHeight;
-      if (moveLen < 50) {
-        moveLen = 50;
+      if (moveLen < 60) {
+        moveLen = 60;
       }
-      if (moveLen > maxMoveLen - 50) {
-        moveLen = maxMoveLen - 50;
+      if (moveLen > maxMoveLen - 60) {
+        moveLen = maxMoveLen - 60;
       }
       resizeTag.style.top = moveLen;
       chatAreaDiv.style.height = moveLen + 'px';
-      drawAreaDiv.style.height = (chatContentDiv.clientHeight - moveLen - 3) + 'px';
+      drawAreaDiv.style.height = (chatContentDiv.clientHeight - moveLen - 70) + 'px';
     }
     document.onmouseup = function(e) {
       document.onmousemove = null;

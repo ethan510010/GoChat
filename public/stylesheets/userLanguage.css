@@ -54,14 +54,6 @@ body, html {
   background-color: #FFF;
 }
 
-/* #setting_area {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 85%;
-  padding-bottom: 10px;
-} */
-
 #left_avatar_area, 
 #right_language_area {
   width: 50%;
@@ -92,9 +84,10 @@ body, html {
 }
 
 #user_basic img {
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
 }
 
 #user_basic .userLanguage {

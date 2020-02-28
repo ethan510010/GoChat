@@ -88,7 +88,8 @@ html, body {
 #profile_area .avatar_img {
   width: 150px;
   height: 150px;
-  border-radius: 75px;
+  object-fit: cover;
+  border-radius: 50%;
   transition: .5s ease;
   backface-visibility: hidden;
 }
@@ -873,8 +874,8 @@ html, body {
 
 #chat_area {
   width: 100%;
-  height: calc(95% - 50px);
-  max-height: calc(95% - 50px);
+  height: 600%;
+  max-height: calc(95% - 40px);
   background-color:#E1E1E1;
   float: left;
   display: flex;
@@ -891,16 +892,25 @@ html, body {
 
 #resize {
   width: 100%;
-  height: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: row-resize;
   float: left;
   background-color: #E6E6E6;
+  padding: 5px 0;
+}
+
+#resize img {
+  width: 15px;
+  height: 15px;
 }
 
 #draw_area {
   width: 100%;
   float: right;
-  height: calc(5%);
+  /* height: calc(5%); */
   background-color: #FFFFFF;
   position: relative;
   overflow: auto;
@@ -914,7 +924,6 @@ html, body {
   margin: 0 auto;
   display: flex;
   flex-direction: row;
-  margin-bottom: 5px;
   padding: 5px;
   background-color: #fff;
   color: #fff;
@@ -1018,6 +1027,7 @@ html, body {
   width: 50px;
   height: 50px;
   border-radius: 50%;
+  object-fit: cover;
   margin: 0 15px;
 }
 
