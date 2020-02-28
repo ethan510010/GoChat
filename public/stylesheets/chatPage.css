@@ -9,7 +9,7 @@ html, body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-.header {
+/* .header {
   position: fixed;
   top: 0;
   left: 0;
@@ -20,26 +20,25 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
+} */
 
-.header span {
+/* .header span {
   margin: 0;
   padding-left: 20px;
   font-size: 40px;
   cursor: pointer;
   color: #FFF;
   font-weight: 300;
-}
+} */
 
 .header img {
   width: 50px;
   height: 50px;
-  margin-right: 20px;
   cursor: pointer;
 }
 
 /* Header */
-header {
+/* header {
   position: fixed;
   top: 60px;
   height: 60px;
@@ -55,14 +54,14 @@ header {
   border-bottom: 0.5px solid #fff;
   color: #fff;
   position: relative;
-}
+} */
 
 #toggle_list {
   position: fixed;
-  top: 60px;
+  top: 115px;
   right: -300px;
   width: 300px;
-  height: calc(100% - 60px);
+  height: calc(100% - 115px);
   z-index: 2;
   background-color: #FFF;
   transition: all 0.3s ease;
@@ -374,7 +373,7 @@ header {
   display: flex;
   flex-direction: row;
   position: absolute;
-  top: 60px;
+  top: 115px;
   bottom: 0px;
   left: 0px;
   width: 100%;
@@ -845,17 +844,17 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 0.5px solid #B0AFAF;
+  padding: 0 22px 0 15px;
 }
 
 #function_area {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-right: 30px;
 }
 
 #function_area img {
-  margin: 0 10px;
+  margin-left: 15px;
   width: 30px;
   height: 30px;
   cursor: pointer;
@@ -864,7 +863,6 @@ header {
 #room_title {
   height: 100%;
   color: rgba(0, 0, 0, 0.7);
-  margin-left: 40px;
 }
 
 #room_title p {
@@ -883,6 +881,7 @@ header {
   flex-direction: column;
   position: relative;
   justify-content: space-between;
+  padding-top: 12px;
 }
 
 #message_flow_area {
@@ -929,6 +928,7 @@ header {
   display: flex;
   align-items: center;
   margin: 5px 0;
+  padding: 7px;
 }
 
 .message_block .messageUserInfo {
@@ -952,6 +952,7 @@ header {
   font-size: 10px;
   margin-top: 3px;
   color: #858585;
+  margin-bottom: 3px;
 }
 
 .messageHost {
@@ -1029,7 +1030,6 @@ header {
 #send_btn {
   width: 35px;
   height: 35px;
-  margin-right: 10px;
   outline: none;
 }
 
@@ -1273,9 +1273,7 @@ header {
 .wrapper {
   position: relative;
   display: flex;
-  width: 90%;
-  /* margin: 0 auto; */
-  /* height: 35px; */
+  width: 100%;
 }
 
 

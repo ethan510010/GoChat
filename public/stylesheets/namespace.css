@@ -6,6 +6,7 @@ body, html {
   height: 100%;
   margin: 0;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-color: #F8F8F8;
 }
 
 .scene_background {
@@ -22,40 +23,17 @@ body, html {
   /* z-index: -1; */
 }
 
-header {
-  height: 60px;
-  line-height: 60px;
-  padding-left: 20px;
-  color: #FFF;
-  font-size: 40px;
-  background-color: #062D46;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  /* position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  font-size: 40px;
-  font-weight: 600; */
-}
-
-header span {
-  margin: 0;
-  cursor: pointer;
-}
 
 .namespaces_area {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-top: 20px;
-  padding: 0 20px;
+  padding: 10px 20px;
   position: absolute;
-  top: 60px;
+  top: 115px;
   left: 0;
   overflow: auto;
+  background-color: #f8f8f8;
 }
 
 .namespaceBlock {
@@ -231,7 +209,7 @@ header span {
   height: 60px;
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  right: 25px;
   cursor: pointer;
 }
 

@@ -22,7 +22,8 @@ body, html {
 .set_language_avatar_area {
   display: none;
   width: 100%;
-  max-width: 500px;
+  box-shadow: 4px 4px 3px rgba(0, 0, 0, 0.3);
+  min-height: 300px;
 }
 
 .loginStatus {
@@ -47,17 +48,19 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   border-radius: 10px;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: #FFF;
 }
 
-#setting_area {
+/* #setting_area {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
-}
+  width: 85%;
+  padding-bottom: 10px;
+} */
 
 #left_avatar_area, 
 #right_language_area {
@@ -67,23 +70,44 @@ body, html {
   align-items: center;
 }
 
+#upper_avatar_area {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 85%;
+  justify-content: space-between;
+}
+
+#lower_language_area {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 85%;
+  justify-content: space-between;
+}
+
+#lower_language_area .userLanguage,
+#lower_language_area .select-box {
+  width: 50%;
+}
+
 #user_basic img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
 }
 
-#user_basic .setting_user_name,
 #user_basic .userLanguage {
-  margin: 5px 0;
-  font-weight: 600;
-  color: #FFF;
-  font-size: 18px;
+  margin: 5px 0;  
+  color: #000;
+  font-size: 16px;
 }
 
 #user_basic .setting_user_name {
-  font-size: 26px;
-  font-weight: bold;
+  margin: 5px 0;
+  color: #000;
+  font-size: 20px;
+  font-weight: normal;
 }
 
 /* 客製化下拉選單 */
@@ -95,11 +119,10 @@ body, html {
 
 .select-box p {
   margin: 0;
-  font-weight: 600;
 }
 
 .select-box .options-container {
-  background: rgba(0, 71, 125, 0.4);
+  background: #ffbd4a;
   color: #FFF;
   max-height: 0;
   width: 100%;
@@ -111,15 +134,35 @@ body, html {
 }
 
 .selected {
-  background: rgba(71, 152, 179, 0.7);
+  background: #ffbd4a;
   border-radius: 8px;
   margin: 8px 0;
   color: #FFF;
-  position: relative;
-  order: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  padding-right: 15px;
+  /* padding-left: 30px; */
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-.selected::after {
+.selected p {
+  width: calc(100% - 35px);
+  padding-left: 15px;
+  text-align: center;
+}
+
+.selected #decoration_arrow {
+  width: 20px;
+  height: 20px;
+  /* position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 20px; */
+}
+/* .selected::after {
   content: '';
   background: url("/images/arrow-down.svg");
   background-size: contain;
@@ -130,39 +173,26 @@ body, html {
   right: 10px;
   top: 5px;
   transition: all 0.5s;
-}
+} */
 
 .select-box .options-container.active {
   max-height: 240px;
   opacity: 1;
 }
 
-.select-box .options-container.active + .selected::after {
+.select-box .options-container.active + .selected  #decoration_arrow {
   transform: rotateX(180deg);
-  top: -6px;
 }
 
-/* .select-box .options-container::-webkit-scrollbar {
-  width: 8px;
-  background: #0d141f;
-  border-radius: 0 8px 8px 0;
-}
-
-.select-box .options-container::-webkit-scrollbar-thumb {
-  background: #525861;
-  border-radius: 0 8px 8px 0;
-} */
-
-.select-box .option,
-.selected {
-  padding: 12px 24px;
+.select-box .option {
+  text-align: center;
+  padding: 8px 12px;
   cursor: pointer;
-  font-weight: normal;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .select-box .option:hover {
-  background: rgba(70, 130, 180, 0.6);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .select-box label {
@@ -180,6 +210,10 @@ body, html {
   display: none;
 }
 
+.upload_button_box {
+  width: 50%;
+}
+
 .upload_button_box span {
   color: #FFF;
   font-size: 16px;
@@ -192,9 +226,9 @@ body, html {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border-radius: 2px;
-  border: 1px solid #FFF;
-  margin-top: 10px;
+  border-radius: 4px;
+  margin-top: 17px;
+  background-color: #ff5c5c;
   padding: 5px 10px;
 }
 
@@ -204,13 +238,13 @@ body, html {
 }
 
 #user_basic .enter_button {
-  width: 100%;
+  width: 85%;
   border-radius: 5px;
-  border: 1px solid rgba(0, 255, 255, 0.4);
-  background-color: rgba(0, 255, 255, 0.4);
+  border: 1px solid #A27E73;
+  background-color: #A27E73;
   padding: 10px;
-  color: #fff;
-  font-weight: 500;
+  color: #FFF;
+  font-weight: 600;
   margin-top: 15px;
   cursor: pointer;
 }

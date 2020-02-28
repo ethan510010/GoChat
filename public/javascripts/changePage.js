@@ -1,5 +1,5 @@
 // 回到首頁
-const backHomePage = document.querySelector('.header span');
+const backHomePage = document.querySelector('.logo');
 backHomePage.addEventListener('click', function() {
   window.location = `/namespace?userId=${currentUserDetail.userId}`;
 }) 

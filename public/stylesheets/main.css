@@ -7,80 +7,15 @@ body {
   position: relative;
 }
 
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.4);
-  background-color: #FFF;
-  z-index: 2;
-}
-
-header .header_start_button p {
-  margin: 0;
-}
-
-header .header_start_button {
-  border-radius: 8px;
-  padding: 10px 15px;
-  background-color: #3d5afe;
-  color: #fff;
-  cursor: pointer;
-}
-
-.logo {
-  margin-left: 40px;
-}
-
-.logo img {
-  width: 180px;
-  height: 100px;
-}
-
-.function_button {
-  margin-right: 40px;
-  display: flex;
-  flex-direction: row;
-}
-
-.function_button a {
-  text-decoration: none;
-}
-
-.signin {
-  background-color: #A27E73;
-  border-radius: 3px;
-}
-
-.signup {
-  background-color: #F7AD3D;
-  border-radius: 3px;
-  margin: 0 10px;
-}
-
-.signin p, 
-.signup p {
-  color: #FFF;
-  padding: 8px 10px;
-  font-weight: 500;
-}
-
 .whole_content {
   position: absolute;
-  top: 100px;
+  top: 115px;
   display: flex;
   flex-direction: column;
 }
 
 .content {
-  /* position: absolute; */
   width: 100%;
-  /* top: 105px; */
   display: flex;
   flex-direction: row;
   align-items: center;

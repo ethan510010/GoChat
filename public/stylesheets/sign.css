@@ -57,45 +57,20 @@ body, html {
   /* transform: translateX(-50%); */
   /* left: 0; */
   position: absolute;
-  top: 105px;
+  top: 85px;
   left: 0;
-  height: calc(100% - 105px);
+  height: calc(100% - 85px);
   background-color: #f8f8f8;
   /* top: 70px; */
   /* background-color: rgb(237, 237, 237); */
 }
 
-/* .decoration_area, 
-.function_area {
-  width: 50%;
-} */
-
-
-
-/* .decoration_area {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-#description {
-  font-size: 30px;
-  color: rgba(0, 0, 0, 0.5);
-  margin-bottom: 50px;
-}
-
-.decoration_area video {
-  width: 90%;
-  max-height: 400px;
-} */
-
 .function_area {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 50%;
-  min-width: 40%;
+  max-width: 60%;
+  min-width: 45%;
 }
 
 .sign_in_block {
@@ -113,7 +88,6 @@ body, html {
   border-radius: 10px;
   padding-bottom: 5px; */
   width: 100%;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;

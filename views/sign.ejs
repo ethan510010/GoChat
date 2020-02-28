@@ -4,7 +4,7 @@
 <head>
   <title><%= title %></title>
   <link rel="stylesheet" href="/stylesheets/normalize.css">
-  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='stylesheet' href='/stylesheets/sign.css' />
   <link rel="stylesheet" href="/stylesheets/userLanguage.css">
 </head>
 <!-- 載入 FB SDK -->
@@ -31,17 +31,9 @@
 </script>
 
 <body>
-  <!-- <div class="scene_background"></div> -->
   <%- include('./customAlert.ejs'); %>
-  <!-- <div id=title>
-    <p>Chatvas</p>
-  </div> -->
   <%- include('./header.ejs'); %>
   <div id="login_content">
-    <!-- <div class="decoration_area">
-      <div id="description">Change the way of transnational communication</div>
-      <iframe width="630" height="320" src="https://www.youtube.com/watch?v=eNFca8NmyGo" frameborder="0" allowfullscreen></iframe>
-    </div> -->
     <div class="function_area">
       <!-- 直接呈現 -->
       <% if (directlyLogin) { %>
@@ -49,7 +41,7 @@
         <div id="user_basic">
           <p class="setting_user_name">Hello, <%= name%></p>
           <div id="setting_area">
-            <div id="left_avatar_area">
+            <div id="upper_avatar_area">
               <img class="user_avatar" src="/images/defaultAvatar.png" alt="">
               <div class="upload_button_box">
                 <input id="customFileInput" type="file" accept="image/*">
@@ -59,7 +51,7 @@
                 </label>
               </div>
             </div>
-            <div id="right_language_area">
+            <div id="lower_language_area">
               <p class="userLanguage">preferred language: <%= uiLangauge%></p>
               <div class="select-box">
                 <div class="options-container">
@@ -136,8 +128,8 @@
       <div class="set_language_avatar_area">
         <div id="user_basic">
           <p class="setting_user_name"></p>
-          <div id="setting_area">
-            <div id="left_avatar_area">
+          
+            <div id="upper_avatar_area">
               <img class="user_avatar" src="" alt="">
               <div class="upload_button_box">
                 <input id="customFileInput" type="file" accept="image/*">
@@ -147,7 +139,17 @@
                 </label>
               </div>
             </div>
-            <div id="right_language_area">
+            <!-- <div id="left_avatar_area">
+              <img class="user_avatar" src="" alt="">
+              <div class="upload_button_box">
+                <input id="customFileInput" type="file" accept="image/*">
+                <label for="customFileInput" class="button-primary">
+                  
+                  <span>Upload avatar</span>
+                </label>
+              </div>
+            </div> -->
+            <div id="lower_language_area">
               <p class="userLanguage"></p>
               <div class="select-box">
                 <div class="options-container">
@@ -170,10 +172,11 @@
                 </div>
                 <div class="selected">
                   <p>Select Language</p>
+                  <img id="decoration_arrow" src="/images/arrow-down.svg" alt="">
                 </div>
               </div>
             </div>
-          </div>
+          
           <input class="enter_button" type="button" value="Enter Chat Page">
         </div>
       </div>

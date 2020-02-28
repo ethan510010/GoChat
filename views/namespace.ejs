@@ -10,10 +10,7 @@
 </head>
 <body>
   <%- include('./customAlert.ejs'); %>
-  <div class="scene_background"></div>
-  <header>
-    <span>Chatvas</span>
-  </header>
+  <%- include('./signoutHeader.ejs'); %>
   <div class="namespaces_area">
     <% if (namespaces.length > 0) { %>
       <% for (let i = 0; i < namespaces.length; i++) { %>
