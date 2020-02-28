@@ -235,6 +235,7 @@ roomsAreaSection.addEventListener('click', function (event) {
     // 要有一支 api
     // 更新房間
     // 更換房間事件
+    chatFlowContent.innerHTML = '';
     loader.style.display = 'block';
     socket.emit('changeRoom', {
       joinRoomInfo: currentSelectedRoom,

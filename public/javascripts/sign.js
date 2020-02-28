@@ -17,9 +17,7 @@ const signupBtn = document.querySelector('.signup_btn');
 
 if (signupBtn) {
   signupBtn.addEventListener('click', (e) => {
-    // 只有被邀請信邀請的才會有這個 defaultRoomId
-    const currentUrl = new URL(window.location)
-    const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+    
     let bodyParas;
     if (defaultRoomId) {
       bodyParas = {
@@ -66,8 +64,8 @@ const signinUserEmailTag = document.querySelector('.enter_email input');
 const signinUserPasswordTag = document.querySelector('.enter_password input');
 const signinBtn = document.querySelector('.sign_in_button');
 // 只有被邀請的用戶才會有這個 defaultRoomId
-const currentUrl = new URL(window.location)
-const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+// const currentUrl = new URL(window.location)
+// const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
 if (signinBtn) {
   signinBtn.addEventListener('click', function(event) {
     let bodyParas;
@@ -137,8 +135,8 @@ function statusChangeCallback(response) {
 // 前端打我們自己的後端 api
 function fetchUserInfo(accessToken) {
   // 只有被邀請的用戶才會有這個 defaultRoomId
-  const currentUrl = new URL(window.location)
-  const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
+  // const currentUrl = new URL(window.location)
+  // const defaultRoomId = currentUrl.searchParams.get('defaultRoomId');
   let bodyParas;
   if (defaultRoomId) {
     bodyParas = {
@@ -195,4 +193,21 @@ function showUserSettingBlock(userInfo) {
   }
   userLanguageTag.textContent = `preferred language: ${preferredLanguage}`;
   setLanguageBlock.style.display = 'flex';
+}
+
+// 切換登入還是註冊時 a tag 的 href 設定
+if (defaultRoomId && inviteNamespaceId) {
+  if (document.getElementById('has_already_member')) {
+    document.getElementById('has_already_member').parentNode.href =  `/signin?inviteNamespaceId=${inviteNamespaceId}&defaultRoomId=${defaultRoomId}`;  
+  }
+  if (document.getElementById('not_member_hint')) {
+    document.getElementById('not_member_hint').parentNode.href = `/signup?inviteNamespaceId=${inviteNamespaceId}&defaultRoomId=${defaultRoomId}`;  
+  }
+} else {
+  if (document.getElementById('has_already_member')) {
+    document.getElementById('has_already_member').parentNode.href =  `/signin`;  
+  }
+  if (document.getElementById('not_member_hint')) {
+    document.getElementById('not_member_hint').parentNode.href = `/signup`;  
+  }
 }

@@ -67,7 +67,6 @@ async function encapsulateFetch(url, bodyParas, method) {
 
 // 創建 namespace
 const inviteButton = document.getElementById('invite_btn');
-const currentUrl = new URL(window.location)
 const userId = currentUrl.searchParams.get('userId');
 inviteButton.addEventListener('click', async function() {
   const namespaceInput = document.querySelector('.namespace_input input').value;

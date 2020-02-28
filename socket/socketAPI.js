@@ -48,7 +48,9 @@ async function handleBufferUpload(base64Info, fileKey) {
 }
 
 socketio.getSocketio = async function (server) {
-  const io = socket_io(server);
+  const io = socket_io(server, {
+    pingTimeout: 60000
+  });
   // 註冊 socket io for eachNamespace
   io.of(/^\/namespaceId=\d+$/).on('connect', function (socket) {
     // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
