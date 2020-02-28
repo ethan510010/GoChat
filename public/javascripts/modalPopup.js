@@ -279,7 +279,7 @@ buildChannelBtn.addEventListener('click', function () {
   // 把當前用戶的 id 先放進去
   const channelName = document.querySelector('.enter_channel_name').value;
   console.log('updateOrCreateRoomType', updateOrCreateRoomType);
-  let userIdList = (updateOrCreateRoomType === 'updateRoomMember') ? [] : [currentUserDetail.userId];
+  let userIdList = [currentUserDetail.userId];
   console.log('userIdList', userIdList);
   let newAddedMembers = [];
   for (let i = 0; i < beInvitedMembers.length; i++) {
@@ -293,6 +293,7 @@ buildChannelBtn.addEventListener('click', function () {
       return;
     }
     // 如果是已存在房間新增用戶就把當前的用戶拿掉避免重複寫入
+    userIdList.splice(0, 1);
     socket.emit('updateRoomMember', {
       inviterUserId: currentUserDetail.userId,
       room: currentSelectedRoom,

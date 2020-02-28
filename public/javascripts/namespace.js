@@ -109,6 +109,7 @@ inviteButton.addEventListener('click', async function() {
       const email = emailArea.children[i].id;
       emailList.push(email);
     }
+    // 開始 loading
     const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
       emailList: emailList,
       namespaceId: newNamespaceId,
@@ -116,6 +117,7 @@ inviteButton.addEventListener('click', async function() {
       invitor: currentUser.name,
     }, 'POST')
     if (sendEmailResult) {
+      // 結束 loading
       inputModal.style.display = 'none';
       // 如果有邀請 email 用戶才需要跳寄信 alert
       if (emailList.length > 0) {
@@ -138,13 +140,15 @@ inviteButton.addEventListener('click', async function() {
       const email = emailArea.children[i].id;
       emailList.push(email);
     }
+    // 開始 loading
     const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
       emailList: emailList,
       namespaceId: shouldUpdateNamespaceId,
       newDefaultRoomId: updateNamespaceResult.thisNamespaceDefaultRoomId,
       invitor: currentUser.name
-    }, 'POST')
+    }, 'POST');
     if (sendEmailResult) {
+      // 結束 loading
       showCustomAlert('invited email successfully sent');
     }
   }
