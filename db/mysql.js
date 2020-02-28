@@ -29,7 +29,7 @@ function execWithParaObj(sql, paraObj) {
 }
 
 // Create Room and Binding user
-function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
+function createRoomTransaction(roomSQL, junstionSQL, userIdList, roomName) {
   return new Promise((resolve, reject) => {
     mySQLPool.getConnection((err, connection) => {
       if (err) {
@@ -44,7 +44,7 @@ function createRoomTransaction(roomSQL, junstionSQL, userIdList) {
             reject(transactionErr);
           })
         }
-        connection.query(roomSQL, (err, result) => {
+        connection.query(roomSQL, [roomName], (err, result) => {
           if (err) {
             return connection.rollback(() => {
               connection.release();

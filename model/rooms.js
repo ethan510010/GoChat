@@ -2,7 +2,7 @@ const { exec, createRoomTransaction, updateRoomMember } = require('../db/mysql')
 
 const insertNewRoom = async (roomName, namespaceId, userIdList) => {
   const insertRoomSQL = `
-    insert into room set name='${roomName}', namespaceId=${namespaceId}
+    insert into room set name=?, namespaceId=${namespaceId}
   `
   const userRoomJuntionSQL = `
     insert into user_room_junction 
@@ -10,7 +10,7 @@ const insertNewRoom = async (roomName, namespaceId, userIdList) => {
     userId=?
   `
   try {
-    const createNewRoomResult = await createRoomTransaction(insertRoomSQL, userRoomJuntionSQL, userIdList);  
+    const createNewRoomResult = await createRoomTransaction(insertRoomSQL, userRoomJuntionSQL, userIdList, roomName);  
     createNewRoomResult.bindingNamespaceId = namespaceId;
     return createNewRoomResult
   } catch (error) {

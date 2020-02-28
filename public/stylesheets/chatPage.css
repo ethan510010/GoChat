@@ -944,7 +944,6 @@ html, body {
 }
 
 .message_block .messageDetail p {
-  font-size: 14px;
   margin: 5px 0;
 }
 
@@ -975,7 +974,7 @@ html, body {
 }
 
 .messageHost .messageDetail {
-  background-color: #5BB65C;
+  background-color: #6587ba;
   color: #FFF;
   /* border: 0.5px solid #FFF; */
 }
@@ -992,6 +991,27 @@ html, body {
   flex-direction: column;
   align-items: flex-start;
   max-width: 50%;
+}
+
+/* 翻譯訊息、原始訊息字的顏色不同，並且區分發訊息及收訊息者的 UI  */
+.messageHost .message0 {
+  color: #d3d3d3;
+  font-size: 12px;
+}
+
+.messageHost .message1 {
+  color: #FFF;
+  font-size: 14px;
+}
+
+.messageReceiver .message0 {
+  color: rgb(139, 139, 139);
+  font-size: 12px;
+}
+
+.messageReceiver .message1 {
+  color: #000;
+  font-size: 14px;
 }
 
 #message_flow_area .messageAvatar {

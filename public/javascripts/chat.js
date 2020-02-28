@@ -492,10 +492,11 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messageDetail');
   if (messageType === 'text') {
-    // 翻譯訊息
+    // 原始訊息 + 翻譯訊息
     for (let i = 0; i < chatMsgResults.length; i++) {
       const eachTranslateMessage = chatMsgResults[i];
       const eachTranslateTag = document.createElement('p');
+      eachTranslateTag.classList.add(`message${i}`);
       eachTranslateTag.textContent = eachTranslateMessage;
       messagesDiv.appendChild(eachTranslateTag);
     }
