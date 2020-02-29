@@ -181,7 +181,7 @@ namespacesArea.addEventListener('click', async function (e) {
 }) 
 
 function inputModalAppearance(isEditNamespaceMode, shouldShow, namespaceTitle) {
-  const placeholder = isEditNamespaceMode ? 'Edit namespace' : 'create a namespace';
+  const placeholder = isEditNamespaceMode ? 'Edit workspace' : 'create a workspace';
   document.querySelector('.namespace_input input').placeholder = placeholder;
   document.querySelector('.namespace_input input').value = namespaceTitle;
   const displayType = shouldShow ? 'block' : 'none';

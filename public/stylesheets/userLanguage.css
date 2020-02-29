@@ -175,8 +175,9 @@ body, html {
 
 .selected p {
   width: calc(100% - 35px);
-  padding-left: 15px;
+  padding-left: 60px;
   text-align: center;
+  font-weight: 500;
 }
 
 .selected #decoration_arrow {
@@ -269,7 +270,7 @@ body, html {
   background-color: #A27E73;
   padding: 10px;
   color: #FFF;
-  font-weight: 600;
+  font-weight: 500;
   margin-top: 10px;
   cursor: pointer;
   outline: none;

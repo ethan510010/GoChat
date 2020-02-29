@@ -602,12 +602,11 @@ html, body {
 
 /* Modal Content */
 .modal-content {
-  /* background-color: #fefefe; */
-  background-color: #0b6fb3;
+  background-color: #FFF;
   margin: auto;
-  padding: 10px 15px 20px;
+  padding: 10px 15px 15px;
   border: 1px solid #888;
-  width: 60%;
+  width: 40%;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -616,7 +615,7 @@ html, body {
 /* The Close Button */
 .close {
   text-align: right;
-  color: #FFF;
+  color: #000;
   float: right;
   font-size: 28px;
   font-weight: bold;
@@ -637,11 +636,10 @@ html, body {
 
 .modal-content h3 {
   margin: 0;
-  font-weight: 500;
+  font-weight: normal;
   width: calc(100% - 10px);
   text-align: center;
-  color: #FFF;
-  font-weight: 600;
+  color: #000;
 }
 
 .modal-content p {
@@ -650,16 +648,14 @@ html, body {
 
 .modal-content .enter_channel_name {
   border-radius: 5px;
-  border: 2px solid #425AF5;
+  border: 1.5px solid rgb(162, 126, 115);
   outline: none;
-  padding-left: 10px;
-  height: 30px;
+  padding: 6px 0 6px 10px;
 }
 
 .modal-content .enter_channel_name_mention,
 .modal-content .enter_people_name_mention {
-  color: #FFF;
-  font-weight: 600;
+  color: #000;
   font-size: 18px;
 }
 
@@ -669,15 +665,14 @@ html, body {
 
 .modal-content .confirm_button {
   margin: 0 auto;
-  background-color: #3252A8;
+  background-color: rgb(255, 92, 92);
   color: #FFF;
   font-size: 16px;
-  font-weight: 500;
-  height: 40px;
   border-radius: 8px;
-  font-weight: 600;
   width: 100%;
   border: 1.5px solid #FFF;
+  padding: 10px 0;
+  outline: none;
 }
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
@@ -689,24 +684,23 @@ html, body {
 
 .select-box p {
   margin: 0;
-  font-weight: 600;
 }
 
 .select-box .options-container {
-  background: #003e85;
+  background: #F7AD3D;
   color: #FFF;
   max-height: 0;
   width: 100%;
   opacity: 0;
   transition: all 0.4s;
-  border-radius: 8px;
+  border-radius: 5px;
   overflow: hidden;
   order: 1;
   margin-bottom: 10px;
 }
 
 .selected {
-  background: rgba(3, 23, 46, .4);
+  background: rgb(162, 126, 115);
   border-radius: 5px;
   margin: 8px 0;
   color: #FFF;
@@ -739,7 +733,7 @@ html, body {
   max-height: 240px;
   opacity: 1;
   overflow-y: auto;
-  margin-top: 54px;
+  margin-top: 40px;
 }
 
 .select-box .options-container.active + .selected::after {
@@ -747,30 +741,30 @@ html, body {
   top: -20%;
 }
 
- .select-box .options-container::-webkit-scrollbar {
+ /* .select-box .options-container::-webkit-scrollbar {
   width: 8px;
   background: #0d141f;
   border-radius: 0 8px 8px 0;
 }
 
 .select-box .options-container::-webkit-scrollbar-thumb {
-  background: #525861;
+  background: rgb(255, 92, 92);
   border-radius: 0 8px 8px 0;
-}
+} */
 
 .select-box .option,
 .selected {
-  padding: 12px 15px;
+  padding: 8px 0 8px 15px;
   cursor: pointer;
 }
 
 .select-box .option:hover {
-  background: #012D5C;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .select-box label {
   cursor: pointer;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .select-box .option .radio {
@@ -778,18 +772,14 @@ html, body {
 }
 
 /* Searchbox */
-
 .search-box input {
-  height: 45px;
   width: 100%;
-  padding: 12px 7px;
-  font-family: 'Roboto', sans-serif;
+  padding: 6px 12px 6px 15px;
   font-size: 16px;
   position: absolute;
   border-radius: 5px;
   z-index: 100;
-  /* border: 5px solid;
-  border-color: rgba(3, 23, 46, .8); */
+  border: 1.5px solid rgb(162, 126, 115);
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s;
