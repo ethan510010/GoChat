@@ -240,4 +240,5 @@ body, html {
   font-weight: 600;
   margin-top: 15px;
   cursor: pointer;
+  outline: none;
 }
