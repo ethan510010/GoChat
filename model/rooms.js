@@ -57,10 +57,14 @@ const getAllRoomsOfNamespace = async (namespaceId) => {
     on room.namespaceId=namespace.id
     where namespaceId=${namespaceId}
   `);
+  const namespaceName = roomsOfNamespace[0].namespaceName;
   const allRoomsName = roomsOfNamespace.map((eachRoom) => {
     return eachRoom.roomName;
   })
-  return allRoomsName;
+  return {
+    namespaceName,
+    allRoomsName
+  };
 }
 
 const updateRoom = async (roomId, userIdList) => {

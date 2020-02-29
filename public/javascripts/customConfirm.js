@@ -13,6 +13,7 @@ function customDialogConfirmClicked(callback) {
   acceptBtn.addEventListener('click', function() {
     callback();
     closeCustomConfirmWindow();
+    acceptBtn.removeEventListener('click', callback);
   })
 }
 
@@ -21,6 +22,7 @@ function customDialogCancelClicked(callback) {
   cancel.addEventListener('click', function() {
     callback();
     closeCustomConfirmWindow();
+    cancel.removeEventListener('click', callback);
   })
 }
 
@@ -29,4 +31,4 @@ function closeCustomConfirmWindow() {
   dialog.style.top = '-30%';
   dialog.style.opacity = 0;
   document.getElementById('freezeLayer').style.display = 'none';
-}
+} 

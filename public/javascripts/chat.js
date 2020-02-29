@@ -106,21 +106,54 @@ callBtn.addEventListener('click', async function () {
     showCustomAlert('The rooms is still playing a video, Please try again after the call finished');
     return;
   }
-  // 發送訊息告訴在房間的所有人現在房間有視訊在播放
-  socket.emit('roomIsPlaying', {
-    roomId: currentSelectedRoom.roomId,
-    videoPlaying: true
-  })
-  // 依序進行連線
-  console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
-  for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
-    const eachPeerId = allConnectionPeersOfCurrentRoom[i];
-    if (eachPeerId !== currentUserPeerId) {
-      await sleep(500);
-      peer.connect(eachPeerId);
-      const call = peer.call(eachPeerId, window.localstream);
-      console.log('the call', call);
-      callConnections[call.connectionId] = call;
+  if (!isPlayingLocalVideo) {
+    // 跳出一個確認框詢問是否要開啟鏡頭
+    const openCameraConfirm = confirm('You have to turn on the camera before call, Are you sure to open now?');
+    if (openCameraConfirm) {
+      try {
+        await startVideo();
+        // 發送訊息告訴在房間的所有人現在房間有視訊在播放
+        socket.emit('roomIsPlaying', {
+          roomId: currentSelectedRoom.roomId,
+          videoPlaying: true
+        })
+        // 依序進行連線
+        console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
+        for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+          const eachPeerId = allConnectionPeersOfCurrentRoom[i];
+          if (eachPeerId !== currentUserPeerId) {
+            await sleep(500);
+            peer.connect(eachPeerId);
+            const call = peer.call(eachPeerId, window.localstream);
+            console.log('the call', call);
+            callConnections[call.connectionId] = call;
+          }
+        }
+      } catch (error) {
+        showCustomAlert(error.message);
+      }
+    } else {
+      // 把視訊視窗關掉
+      videoDisplayDiv.style.display = 'none';
+    }
+  } else {
+    // 已開啟過鏡頭的話就直接在發送一次連線
+    // 發送訊息告訴在房間的所有人現在房間有視訊在播放
+    socket.emit('roomIsPlaying', {
+      roomId: currentSelectedRoom.roomId,
+      videoPlaying: true
+    })
+    // 依序進行連線
+    console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
+    for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
+      const eachPeerId = allConnectionPeersOfCurrentRoom[i];
+      if (eachPeerId !== currentUserPeerId) {
+        await sleep(500);
+        peer.connect(eachPeerId);
+        const call = peer.call(eachPeerId, window.localstream);
+        console.log('the call', call);
+        callConnections[call.connectionId] = call;
+      }
     }
   }
 })

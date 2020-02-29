@@ -22,7 +22,7 @@ const chatPageContent = async (req, res) => {
     // render 出在該 namespace 底下的所有用戶，但不包含自己
     const allUsersOfNamespaceExclusiceSelf = await getAllUsersOfNamespaceExclusiveSelf(inputNamespaceId, inputUserId);
     // render 出全部現存的房間
-    const allExistedRoomsOfNamespace = await getAllRoomsOfNamespace(inputNamespaceId);
+    const  { namespaceName, allRoomsName }  = await getAllRoomsOfNamespace(inputNamespaceId);
     let userLanguage = '';
     switch (userProfile.selectedLanguage) {
       case 'en':
@@ -46,8 +46,9 @@ const chatPageContent = async (req, res) => {
       userAvatar: uiAvatar,
       rooms: allRoomsOfCurrentUserAndNamespace,
       allUsers: allUsersOfNamespaceExclusiceSelf,
-      allRooms: allExistedRoomsOfNamespace,
+      allRooms: allRoomsName,
       currentNamespaceId: inputNamespaceId,
+      currentNamespaceName: namespaceName,
       userLanguage: userLanguage,
       usersOfRoom: usersOfRoom,
       currentNamespaceDefaultRoom: allRoomsOfCurrentUserAndNamespace[0]

@@ -61,12 +61,14 @@ function resetVideo() {
   const resetLocalVideoTag = document.createElement('video');
   resetLocalVideoTag.setAttribute('id', 'localVideo');
   resetLocalVideoTag.autoplay = true;
+  resetLocalVideoTag.srcObject = null;
   resetLocalVideoTag.playsinline = true;
   resetLocalVideoTag.style.height = 'calc((100% - 60px)/2)';
   const resetRemoteVideoTag = document.createElement('video');
   resetRemoteVideoTag.setAttribute('id', 'remoteVideo');
   resetRemoteVideoTag.autoplay = true;
   resetRemoteVideoTag.playsinline = true;
+  resetRemoteVideoTag.srcObject = null;
   resetRemoteVideoTag.style.height = 'calc((100% - 60px)/2)';
   mainAreaTag.prepend(resetRemoteVideoTag);
   mainAreaTag.prepend(resetLocalVideoTag);
