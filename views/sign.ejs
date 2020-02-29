@@ -42,17 +42,19 @@
           <p class="setting_user_name">Hello, <%= name%></p>
           <div id="setting_area">
             <div id="upper_avatar_area">
-              <img class="user_avatar" src="/images/defaultAvatar.png" alt="">
-              <div class="upload_button_box">
-                <input id="customFileInput" type="file" accept="image/*">
-                <label for="customFileInput" class="button-primary">
-                  <!-- <img class="icon" src="/images/upload.png" alt=""> -->
-                  <span>Upload avatar</span>
-                </label>
+              <div class="avatar_container">
+                <img class="user_avatar" src="/images/defaultAvatar.png" alt="">
+                <div class="toggle_camera">
+                  <label for="avatarSelection">
+                    <img src="/images/camera.png" alt="">
+                  </label>
+                  <input hidden id="avatarSelection" type="file" accept="image/*">
+                </div>
               </div>
+              
             </div>
             <div id="lower_language_area">
-              <p class="userLanguage">preferred language: <%= uiLangauge%></p>
+              <p class="userLanguage">Your preferred language: <%= uiLangauge%></p>
               <div class="select-box">
                 <div class="options-container">
                   <div class="option">
@@ -130,25 +132,16 @@
           <p class="setting_user_name"></p>
           
             <div id="upper_avatar_area">
-              <img class="user_avatar" src="" alt="">
-              <div class="upload_button_box">
-                <input id="customFileInput" type="file" accept="image/*">
-                <label for="customFileInput" class="button-primary">
-                  <!-- <img class="icon" src="/images/upload.png" alt=""> -->
-                  <span>Upload avatar</span>
-                </label>
+              <div class="avatar_container">
+                <img class="user_avatar" src="" alt="">
+                <div class="toggle_camera">
+                  <label for="avatarSelection">
+                    <img src="/images/camera.png" alt="">
+                  </label>
+                  <input hidden id="avatarSelection" type="file" accept="image/*">
+                </div>
               </div>
             </div>
-            <!-- <div id="left_avatar_area">
-              <img class="user_avatar" src="" alt="">
-              <div class="upload_button_box">
-                <input id="customFileInput" type="file" accept="image/*">
-                <label for="customFileInput" class="button-primary">
-                  
-                  <span>Upload avatar</span>
-                </label>
-              </div>
-            </div> -->
             <div id="lower_language_area">
               <p class="userLanguage"></p>
               <div class="select-box">
@@ -177,7 +170,7 @@
               </div>
             </div>
           
-          <input class="enter_button" type="button" value="Enter Chat Page">
+          <input class="enter_button" type="button" value="Enter">
         </div>
       </div>
       <%} %>

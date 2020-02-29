@@ -57,7 +57,7 @@ optionsContainer.addEventListener('click', function(e) {
     .then((validResponse) => {
       if (validResponse.data === 'success') {
         const userLanguageTag = document.querySelector('.userLanguage');
-        userLanguageTag.textContent = `preferred language: ${selectedUILanguage}`;
+        userLanguageTag.textContent = `Your preferred language: ${selectedUILanguage}`;
         selectedParaTag.innerHTML = selectedUILanguage;
         optionsContainer.classList.remove('active');
       }
@@ -65,9 +65,9 @@ optionsContainer.addEventListener('click', function(e) {
   }
 })
 
-// 上傳用戶大頭貼
-const uploadAvatarTag = document.getElementById('customFileInput');
-uploadAvatarTag.addEventListener('change', function(e) {
+// 上傳新的大頭貼
+const editAvatar = document.getElementById('avatarSelection');
+editAvatar.addEventListener('change', function (e) {
   const fileData = e.target.files[0];
   console.log('要上傳的大頭貼資訊', fileData);
   // 上傳打 api
@@ -95,5 +95,4 @@ enterChatRoomBtn.addEventListener('click', function(e) {
   // window.location = `/chat?userId=${userId}`
   // 測試先進到 namespace 頁
   window.location = `/namespace?userId=${userId}`
-})
-
+});
