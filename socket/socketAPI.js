@@ -222,8 +222,11 @@ socketio.getSocketio = async function (server) {
           subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
           // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
           socket.broadcast.emit('newMessageMention', {
+            newMessageRoomTitle: dataFromClient.roomDetail.roomTitle,
             newMessageRoomId: dataFromClient.roomDetail.roomId,
-            messageTime: dataFromClient.messageTime
+            messageTime: dataFromClient.messageTime,
+            newMessageContent: dataFromClient.messageContent,
+            messageFromUser: dataFromClient.userInfo.name
           })
         }
       } catch (error) {

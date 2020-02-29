@@ -387,7 +387,7 @@ socket.on('message', (dataFromServer) => {
 let newMessageAndRoomPair = {};
 let newMessageTimeAndRoomPair = {};
 socket.on('newMessageMention', (newMessageInfo) => {
-  const newMessageRoomId = newMessageInfo.newMessageRoomId;
+  const { newMessageRoomId, newMessageContent, newMessageRoomTitle, messageFromUser }  = newMessageInfo;
   if (currentSelectedRoom.roomId !== newMessageRoomId) {
     // 加上提示標籤
     const roomsDiv = document.querySelector('.upper_section .rooms');
@@ -396,6 +396,8 @@ socket.on('newMessageMention', (newMessageInfo) => {
       const eachRoomDiv = roomsDiv.children[i];
       const eachRoomDivId = parseInt(eachRoomDiv.getAttribute('id').replace('channelId_', ''), 10);
       if (eachRoomDivId === newMessageRoomId) {
+        // 跳出推播
+        showNotification(newMessageContent, newMessageRoomTitle, messageFromUser);
         // UI 加上提示
         let mentionTag = document.getElementById(`mentionId${newMessageRoomId}`);
         if (mentionTag && parseInt(mentionTag.getAttribute('id').replace('mentionId', ''), 10) === newMessageRoomId) {
@@ -687,6 +689,29 @@ function sendMessagageLoadingDiv(messageType) {
 function removeFakeLoadingDiv() {
   if (document.getElementById('loadingTranslation')) {
     chatFlowContent.removeChild(document.getElementById('loadingTranslation'));
+  }
+}
+
+// 挑出推播
+function showNotification(bodyContent, newMessageRoomTitle, messageFromUser) {
+  const notifyConfig = {
+    body: bodyContent
+  }
+  // 代表是其他人收到某人的退群通知
+  if (!('Notification' in window)) {
+    console.log('This browser does not support notification');
+  } else if (Notification.permission === 'granted') {
+    const notification = new Notification(
+      `new message from ${messageFromUser} in ${newMessageRoomTitle}`, 
+      notifyConfig
+    )
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission(function(permission) {
+      if (permission === 'granted') {
+        const notification = new Notification(`new message from ${messageFromUser} in ${newMessageRoomTitle}`, 
+        notifyConfig);
+      }
+    });
   }
 }
 // 如果斷線自動重連
