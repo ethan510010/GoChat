@@ -1,5 +1,5 @@
 body {
-  font-family: 'Arial';
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
   position: relative;
 }
 
@@ -11,7 +11,8 @@ body {
   border-radius: 2px;
   position: absolute;
   top: -500px;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 10px;
   text-align: center;
   z-index: 50;

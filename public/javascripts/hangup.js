@@ -25,7 +25,7 @@ hangupCallBtn.addEventListener('click', function () {
     isWatchingRemoteVideo = false;
     videoDisplayDiv.style.display = 'none';
     // receiveId 重置
-    receiveCallId = undefined;
+    // receiveCallId = undefined;
   }
   resetVideo();
 })
@@ -35,13 +35,13 @@ socket.on('getRoomPlayingVideoOver', (overInfo) => {
   if (overInfo) {
     const { finisedVideoRoomId, roomPlayingVideo } = overInfo;
     roomPlayingVideoRecords[finisedVideoRoomId] = roomPlayingVideo;
-
     if (callConnections[receiveCallId]) {
       callConnections[receiveCallId].close();
       delete callConnections[receiveCallId];
       isWatchingRemoteVideo = false;
-      receiveCallId = undefined;
+      
     }
+    receiveCallId = undefined;
     resetVideo();
   }
 })

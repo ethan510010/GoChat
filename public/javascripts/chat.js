@@ -42,7 +42,6 @@ let peer = new Peer();
 let connectionList = [];
 
 peer.on('open', function () {
-  document.getElementById('displayId').textContent = peer.id;
   // 每一個人專屬的 peerId
   currentUserPeerId = peer.id;
   socket.emit('join', {
@@ -87,7 +86,7 @@ socket.on('allPeersForRoom', (peersInfoFromServer) => {
 
 peer.on('connection', function (connection) {
   // 另外一段傳過來的
-  document.getElementById('connId').value = connection.peer;
+  console.log('received peerId', connection.peer)
 })
 
 peer.on('error', function (error) {

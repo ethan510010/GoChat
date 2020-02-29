@@ -1,6 +1,6 @@
 function showCustomAlert(title) {
   const alertBox = document.getElementById('box');
-  alertBox.style.top = '0';
+  alertBox.style.top = '150px';
   alertBox.style.opacity = 1;
   const alertTitleTag = document.querySelector('#box h3');
   alertTitleTag.textContent = title;
