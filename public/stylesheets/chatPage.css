@@ -255,9 +255,9 @@ html, body {
   align-items: center;
   overflow: auto;
   width: 100%;
-  padding-top: 10px;
-  overflow: auto;
+  padding-top: 10px;  
 }
+
 
 .room_member {
   display: flex;
@@ -882,24 +882,33 @@ html, body {
   flex-direction: column;
   position: relative;
   justify-content: space-between;
-  padding-top: 12px;
+  padding-top: 9px;
 }
 
 #message_flow_area {
   overflow-y: auto;
-  /* background-color: #E6E6E6; */
 }
+
+/* #message_flow_area::-webkit-scrollbar {
+  display: none;
+} */
 
 #resize {
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   cursor: row-resize;
   float: left;
   background-color: #E6E6E6;
-  padding: 5px 0;
+  padding: 3px 0;
+}
+
+#resize .open_draw_area {
+  border-radius: 3px;
+  color: rgb(158, 158, 158);
+  padding: 3px 10px;
 }
 
 #resize img {
@@ -932,6 +941,7 @@ html, body {
   border-radius: 7px;
   justify-content: space-between;
   align-items: center;
+  padding-right: 20px;
 }
 
 #message_flow_area .message_block {
@@ -976,6 +986,15 @@ html, body {
 .messageDetail {
   border-radius: 5px;
   padding: 3px 8px;
+  white-space: pre-wrap;
+}
+
+.messageDetail a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
 }
 
 .messageReceiver .messageDetail {
@@ -1032,6 +1051,10 @@ html, body {
   margin: 0 15px;
 }
 
+#message_flow_area .messageHost .messageAvatar {
+  margin-right: 5px;
+}
+
 #message_flow_area .imageMessage {
   width: auto;
   height: auto;
@@ -1044,7 +1067,13 @@ html, body {
   width: 90%;
   border: 0px;
   outline: none;
+  resize: none;
   padding-left: 15px;
+  line-height: 90%;
+}
+
+#message_window::-webkit-scrollbar {
+  display: none;
 }
 
 #send_image {
@@ -1056,6 +1085,7 @@ html, body {
   width: 35px;
   height: 35px;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 #send_btn {

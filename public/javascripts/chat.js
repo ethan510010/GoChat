@@ -318,11 +318,12 @@ socket.on('changeRoomPeersList', (peersInfoFromServer) => {
   showOnlineMemberUI(roomUsersPair, usersOfRoom);
 })
 // 發送簡單訊息
-const enterMessageInput = document.querySelector('#message_window');
+const enterMessageTextAreaInput = document.querySelector('#message_window');
 const sendMessageBtn = document.querySelector('#send_btn');
 
-enterMessageInput.addEventListener('keypress', function (e) {
-  if (e.keyCode === 13) {
+enterMessageTextAreaInput.addEventListener('keypress', function (e) {
+  // 按下 shift + enter 換行
+  if (e.keyCode === 13 && !e.shiftKey) {
     e.preventDefault();
     sendMessageBtn.click();
   }
@@ -330,7 +331,7 @@ enterMessageInput.addEventListener('keypress', function (e) {
 
 sendMessageBtn.addEventListener('click', function () {
   sendMessageBtn.disabled = true;
-  if (enterMessageInput.value === '' || /^\s+$/gi.test(enterMessageInput.value)) {
+  if (enterMessageTextAreaInput.value === '' || /^\s+$/gi.test(enterMessageTextAreaInput.value)) {
     sendMessageBtn.disabled = false;
     return;
   }
@@ -338,7 +339,7 @@ sendMessageBtn.addEventListener('click', function () {
   socket.emit('clientMessage', {
     roomDetail: currentSelectedRoom,
     userInfo: currentUserDetail,
-    messageContent: enterMessageInput.value,
+    messageContent: enterMessageTextAreaInput.value,
     fileName: '',
     messageTime: Date.now(),
     messageType: 'text'
@@ -369,7 +370,7 @@ sendImageBtn.addEventListener('change', function (e) {
 socket.on('message', (dataFromServer) => {
   //  清空輸入框
   sendMessageBtn.disabled = false;
-  enterMessageInput.value = '';
+  enterMessageTextAreaInput.value = '';
   // 移除掉 fakeDev
   removeFakeLoadingDiv();
   const { roomId, roomTitle } = dataFromServer.roomDetail;

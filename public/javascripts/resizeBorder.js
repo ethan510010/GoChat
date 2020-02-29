@@ -28,4 +28,25 @@ window.onload = function() {
     resizeTag.setCapture && resizeTag.setCapture();
     return false
   }
-}
+};
+
+// let isCanvasOpen = false;
+// const openCanvasButton = document.querySelector('#resize .open_draw_area');
+// openCanvasButton.addEventListener('click', function() {
+//   const resizeTag = document.getElementById('resize');
+//   const chatAreaDiv = document.getElementById('chat_area');
+//   const drawAreaDiv = document.getElementById('draw_area');
+//   const chatContentDiv = document.querySelector('.chat_content');
+//   if (!isCanvasOpen) {
+//     resizeTag.style.top = 20;
+//     chatAreaDiv.style.height = 60 + 'px';
+//     drawAreaDiv.style.height = (chatContentDiv.clientHeight - 20) + 'px';
+//     openCanvasButton.textContent = 'hide draw whiteboard';  
+//   } else {
+//     resizeTag.style.top = 'calc(100% - 60px)';
+//     chatAreaDiv.style.height = 'calc(100% - 60px)';
+//     drawAreaDiv.style.height = (chatContentDiv.clientHeight - 60) + 'px';
+//     openCanvasButton.textContent = 'show draw whiteboard';  
+//   }
+//   isCanvasOpen = !isCanvasOpen;
+// });
