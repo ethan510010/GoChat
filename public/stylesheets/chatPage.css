@@ -158,17 +158,22 @@ html, body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  min-height: 95px;
+  padding: 25px 0;
+}
+
+#profile_area .user_name p {
+  margin: 0;
 }
 
 #profile_area .user_name input {
-  width: calc(90% - 20px);
+  width: 100%;
   font-weight: 600;
   border: none;
   color: rgba(0, 0, 0, 0.4);
   border-bottom: 2px solid rgba(0, 0, 0, 0.4);
   outline: none;
   text-align: center;
+  margin-bottom: 15px;
 }
 
 #profile_area .user_name img {
