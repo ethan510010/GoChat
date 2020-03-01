@@ -424,7 +424,8 @@ html, body {
   color: #FFF;
   padding: 10px;
   /* border-radius: 10px; */
-  max-height: 70%;
+  /* max-height: 70%; */
+  max-height: calc(100% - 120px);
 }
 
 .upper_section .room_header {
@@ -1064,7 +1065,7 @@ html, body {
 }
 
 #message_flow_area .messageHost .messageAvatar {
-  margin-right: 5px;
+  /* margin-right: 5px; */
 }
 
 #message_flow_area .imageMessage {
