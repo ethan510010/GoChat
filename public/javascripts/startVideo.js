@@ -33,12 +33,12 @@ async function startVideo() {
     }
     try {
       // 獲取螢幕
-      // const videoStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+      const videoStream = await navigator.mediaDevices.getDisplayMedia(constraints);
       // 獲取聲音
-      const audioStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      // let tracks = [...videoStream.getTracks(), ...audioStream.getAudioTracks()];
-      // const assembleStream = new MediaStream(tracks);
-      gotMediaStream(audioStream);
+      const audioStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+      let tracks = [...videoStream.getTracks(), ...audioStream.getAudioTracks()];
+      const assembleStream = new MediaStream(tracks);
+      gotMediaStream(assembleStream);
     } catch (error) {
       handleError(error);
     }
