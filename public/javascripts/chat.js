@@ -168,6 +168,7 @@ socket.on('whichRoomPlayingVideo', async (roomPlayingInfo) => {
 // click call (offer and answer is exchanged) 
 let receiveCallId;
 peer.on('call', function (call) {
+  console.log('當前 peer', peer);
   videoDisplayDiv.style.display = 'block';
   showCustomConfirmDialog('Do you want to receive call?');
   customDialogConfirmClicked(async function () {
@@ -528,13 +529,21 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messageDetail');
   if (messageType === 'text') {
-    // 原始訊息 + 翻譯訊息
-    for (let i = 0; i < chatMsgResults.length; i++) {
-      const eachTranslateMessage = chatMsgResults[i];
+    // 原始訊息 + 翻譯訊息，如果chatMsgResults 只有一則那就特別配合 css 處理
+    if (chatMsgResults.length === 1) {
+      const eachTranslateMessage = chatMsgResults[0];
       const eachTranslateTag = document.createElement('p');
-      eachTranslateTag.classList.add(`message${i}`);
+      eachTranslateTag.classList.add(`message1`);
       eachTranslateTag.textContent = eachTranslateMessage;
       messagesDiv.appendChild(eachTranslateTag);
+    } else {
+      for (let i = 0; i < chatMsgResults.length; i++) {
+        const eachTranslateMessage = chatMsgResults[i];
+        const eachTranslateTag = document.createElement('p');
+        eachTranslateTag.classList.add(`message${i}`);
+        eachTranslateTag.textContent = eachTranslateMessage;
+        messagesDiv.appendChild(eachTranslateTag);
+      }
     }
   } else if (messageType === 'image') {
     const messageImageTag = document.createElement('img');
