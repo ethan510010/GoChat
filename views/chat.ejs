@@ -76,13 +76,16 @@
         <%- include('./loader.ejs'); %>
         <div id="message_flow_area"></div>
         <div id="message_input">
-          <textarea name="" id="message_window" cols="30" rows="1" placeholder="Type message ..."></textarea>
-          <!-- <input id="message_window" type="textarea" placeholder="Type message ..."> -->
-          <input id="send_image" type="file" accept="image/*">
-          <label for="send_image">
-            <img class="send_img_msg_icon" src="/images/file.png" alt="">
-          </label>
-          <input id="send_btn" type="image" src="/images/sendMsg.png">
+          <div class="decorationInput">
+            <textarea name="" id="message_window" cols="30" rows="1" placeholder="Type message ..."></textarea>
+            <div class="send_message_btns">
+              <input id="send_image" type="file" accept="image/*">
+              <label for="send_image">
+                <img class="send_img_msg_icon" src="/images/file.png" alt="">
+              </label>
+              <input id="send_btn" type="image" src="/images/sendMsg.png">
+            </div>
+          </div>
         </div>
       </div>
       <div id="resize">

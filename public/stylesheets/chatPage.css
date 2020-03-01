@@ -673,6 +673,7 @@ html, body {
   border: 1.5px solid #FFF;
   padding: 10px 0;
   outline: none;
+  cursor: pointer;
 }
 /* 彈出式視窗 - 會員列表選單 */
 .select-box {
@@ -920,18 +921,32 @@ html, body {
 
 /* 聊天區塊內部 */
 #message_input {
-  width: 98%;
-  margin: 0 auto;
+  /* width: 100%; */
+  /* display: flex; */
+  /* flex-direction: row; */
+  /* padding: 5px; */
+  background-color: #E1E1E1;
+  /* justify-content: space-between; */
+  /* align-items: center; */
+  padding: 0 10px;
+  /* padding-right: 10px;
+  padding-left: 10px; */
+}
+
+#message_input .decorationInput {
+  border-radius: 5px;
+  background-color: #FFF;
   display: flex;
   flex-direction: row;
-  padding: 5px;
-  background-color: #fff;
-  color: #fff;
-  border: 1px solid #E6E6E6;
-  border-radius: 7px;
   justify-content: space-between;
   align-items: center;
-  padding-right: 20px;
+  padding-right: 12px;
+}
+
+#message_input .decorationInput .send_message_btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 #message_flow_area .message_block {
@@ -1054,7 +1069,7 @@ html, body {
 }
 
 #message_window {
-  width: 90%;
+  width: calc(100% - 115px);
   border: 0px;
   outline: none;
   resize: none;

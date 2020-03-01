@@ -35,7 +35,7 @@ header .header_start_button {
 }
 
 .function_button {
-  /* margin-right: 40px; */
+  margin-right: 10px;
   display: flex;
   flex-direction: row;
 }
@@ -47,34 +47,44 @@ header .header_start_button {
 .signin {
   background-color: #A27E73;
   border-radius: 3px;
+  padding: 12px 18px;
 }
 
 .signup {
   background-color: #F7AD3D;
   border-radius: 3px;
-  margin: 0 10px;
+  padding: 12px 18px;
 }
 
 .signin p, 
 .signup p {
   color: #FFF;
-  padding: 12px 18px;
+  margin: 0px;
   font-weight: 500;
+}
+
+#header_sign_up {
+  margin-left: 10px;
 }
 
 .signout {
   background-color: #ff5c5c;
   border-radius: 3px;
-  margin: 0 10px;
+  padding: 12px 18px;
 }
 
 .signout p {
   color: #FFF;
-  padding: 12px 18px;
+  padding: 0px;
+  margin: 0px;
   font-weight: 500;
 }
 
 .namespaceTitle span {
   font-size: 36px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.signoutDiv a {
+  display: flex;
 }
