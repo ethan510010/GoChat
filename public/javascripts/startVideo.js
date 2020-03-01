@@ -46,12 +46,14 @@ async function startVideo() {
 }
 
 function handleError(err) {
+  showCustomAlert(err.message);
   console.log('getUserMedia error:', err);
 }
 
 function gotMediaStream(stream) {
-  window.localstream = stream;
+  
   recStream(stream, 'localVideo');
+  window.localstream = stream;
 }
 
 function recStream(stream, elemid) {
