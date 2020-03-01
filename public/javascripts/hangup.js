@@ -42,6 +42,7 @@ socket.on('getRoomPlayingVideoOver', (overInfo) => {
       
     }
     receiveCallId = undefined;
+    window.localstream = undefined;
     resetVideo();
   }
 })

@@ -11,6 +11,8 @@
 <body>
   <%- include('./customAlert.ejs'); %>
   <%- include('./signoutHeader.ejs'); %>
+  <!-- 整頁 loading -->
+  <%- include('./wholePageLoading.ejs'); %>
   <div class="namespaces_area">
     <% if (namespaces.length > 0) { %>
       <% for (let i = 0; i < namespaces.length; i++) { %>
@@ -44,7 +46,7 @@
       <div class="invite_email_area"></div>
       <input id="invite_btn" type="button" value="invite">
     </div>
-  </div>
+  </div> 
   <script type="text/javascript">
     let currentUser = <%- JSON.stringify(currentUser) %>;
   </script>

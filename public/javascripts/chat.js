@@ -118,6 +118,7 @@ callBtn.addEventListener('click', async function () {
         })
         // 依序進行連線
         console.log('全部連線PeerId', allConnectionPeersOfCurrentRoom);
+        allConnectionPeersOfCurrentRoom = Array.from(new Set(allConnectionPeersOfCurrentRoom));
         for (let i = 0; i < allConnectionPeersOfCurrentRoom.length; i++) {
           const eachPeerId = allConnectionPeersOfCurrentRoom[i];
           if (eachPeerId !== currentUserPeerId) {

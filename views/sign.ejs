@@ -40,7 +40,6 @@
       <div class="set_language_avatar_area loginStatus">
         <div id="user_basic">
           <p class="setting_user_name">Hello, <%= name%></p>
-          <div id="setting_area">
             <div id="upper_avatar_area">
               <div class="avatar_container">
                 <img class="user_avatar" src="/images/defaultAvatar.png" alt="">
@@ -75,12 +74,12 @@
                   </div>
                 </div>
                 <div class="selected">
-                  <p><%= uiLangauge%></p>
+                  <p>Select Language</p>
+                  <img id="decoration_arrow" src="/images/arrow-down.svg" alt="">
                 </div>
               </div>
             </div>
-          </div>
-          <input class="enter_button" type="button" value="Enter Chat Page">
+          <input class="enter_button" type="button" value="Enter">
         </div>
       </div>
       <% } else { %>

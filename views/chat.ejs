@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Chatvas</title>
+  <link rel="shortcut icon" href="#" />
   <link rel="stylesheet" href="/stylesheets/normalize.css">
   <link rel="stylesheet" href="/stylesheets/chatPage.css">
   <link rel="stylesheet" href="/stylesheets/customConfirm.css">
@@ -231,7 +232,7 @@
   <!-- freezeLayer 是 confirm 視窗出現時要讓後面整個都不能點 -->
   <div id="freezeLayer" class="freeze-layer" style="display: none;"></div>
   <div id="dialogCont" class="dlg-container">
-    <div class="dlg-header">Custom Confirm dialog</div>
+    <div class="dlg-header">Call mention</div>
     <div id="dlogBody" class="dlg-body">
     </div>
     <div class="dlg-footer">
@@ -242,6 +243,8 @@
   <%- include('./customAlert.ejs'); %>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
   <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+  <!-- <script src="/javascripts/peer.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.0.0/peerjs.min.js"></script> -->
   <script src="/javascripts/customAlert.js"></script>
   <script type="text/javascript">
     let currentNamespaceId = <%- currentNamespaceId %>;
