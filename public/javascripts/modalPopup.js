@@ -310,15 +310,15 @@ buildChannelBtn.addEventListener('click', function () {
     // 打 api 創建 Room 
     // 先確定有沒有 room 的名稱重複了
     if (allRooms.includes(channelName)) {
-      showCustomAlert(`${channelName}已經存在了，請輸入其他的`);
+      showCustomAlert(`The channel ${channelName} has already existed`);
       return;
     }
     if (channelName === '') {
-      showCustomAlert(`請輸入 Channel 名字`)
+      showCustomAlert(`Please enter channel name`);
       return;
     }
     if (/^\s+$/gi.test(channelName)) {
-      showCustomAlert('Channel 名字不能全為空白');
+      showCustomAlert('Channel name can not be empty');
       return;
     }
     // 新增房間
