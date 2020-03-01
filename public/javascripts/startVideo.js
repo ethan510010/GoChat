@@ -33,12 +33,12 @@ async function startVideo() {
     }
     try {
       // 獲取螢幕
-      const videoStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+      // const videoStream = await navigator.mediaDevices.getDisplayMedia(constraints);
       // 獲取聲音
-      const audioStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      let tracks = [...videoStream.getTracks(), ...audioStream.getAudioTracks()];
-      const assembleStream = new MediaStream(tracks);
-      gotMediaStream(assembleStream);
+      const audioStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      // let tracks = [...videoStream.getTracks(), ...audioStream.getAudioTracks()];
+      // const assembleStream = new MediaStream(tracks);
+      gotMediaStream(audioStream);
     } catch (error) {
       handleError(error);
     }
@@ -46,8 +46,8 @@ async function startVideo() {
 }
 
 function handleError(err) {
-  showCustomAlert(err.message);
-  console.log('getUserMedia error:', err);
+  // showCustomAlert(err.message);
+  console.log('getUserMedia error:', err); 
 }
 
 function gotMediaStream(stream) {
