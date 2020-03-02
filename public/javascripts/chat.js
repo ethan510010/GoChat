@@ -550,7 +550,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     messageImageTag.classList.add('imageMessage');
     messageImageTag.src = chatMsgResults[0];
     const downloadImageLink = document.createElement('a');
-    downloadImageLink.download = true;
+    downloadImageLink.setAttribute('download', 'download');
     downloadImageLink.href = chatMsgResults[0];
     downloadImageLink.appendChild(messageImageTag);
     messagesDiv.append(downloadImageLink);
