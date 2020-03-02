@@ -62,6 +62,12 @@ if (signupBtn) {
 // 一般登入
 const signinUserEmailTag = document.querySelector('.enter_email input');
 const signinUserPasswordTag = document.querySelector('.enter_password input');
+signinUserPasswordTag.addEventListener('keypress', function(e) {
+  if (e.keyCode === 13) {
+    e.preventDefault();
+    signinBtn.click();
+   }
+})
 const signinBtn = document.querySelector('.sign_in_button');
 // 只有被邀請的用戶才會有這個 defaultRoomId
 // const currentUrl = new URL(window.location)
