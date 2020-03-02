@@ -16,21 +16,21 @@ const saveCacheMessage = (fullMessage) => {
   redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
 }
 
-// const listEachRoomMessagesCache = (roomId, page) => {
-//   return new Promise((resolve, reject) => {
-//     const startIndex = page * 30;
-//     const endIndex = (page + 1) * 30 - 1;
-//     redisClient.lrange(`roomId${roomId}`, startIndex, endIndex, function (err, result) {
-//       if (!err) {
-//         resolve(result);
-//       } else {
-//         reject(err);
-//       }
-//     })
-//   })
-// }
+const listEachRoomMessagesCache = (roomId, page) => {
+  return new Promise((resolve, reject) => {
+    const startIndex = page * 30;
+    const endIndex = (page + 1) * 30 - 1;
+    redisClient.lrange(`roomId${roomId}`, startIndex, endIndex, function (err, result) {
+      if (!err) {
+        resolve(result);
+      } else {
+        reject(err);
+      }
+    })
+  })
+}
 
 module.exports = {
   saveCacheMessage,
-  // listEachRoomMessagesCache
+  listEachRoomMessagesCache
 }
