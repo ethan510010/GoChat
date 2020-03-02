@@ -1,7 +1,7 @@
 const { getUsersOfRoom, getUsersOfRoomExclusiveSelf, getAllUsersOfNamespaceExclusiveSelf } = require('../model/users');
 
-const listUsersOfRoom = (socketHandlerObj) => {
-  const { socket, roomUsersPair } = socketHandlerObj;
+const listUsersOfRoom = (socketHandlerObj, roomUsersPair) => {
+  const { socket } = socketHandlerObj;
   socket.on('getUsersOfRoom', async (validRoomId) => {
     // 拿到切換到的房間全部的用戶
     const usersOfRoom = await getUsersOfRoom(validRoomId);

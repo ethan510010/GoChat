@@ -1,4 +1,6 @@
 const { getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas')
+const { handleBufferUpload } = require('./common');
+const { handleRoomCanvasImage } = require('../model/canvas');
 
 const getRoomCanvas = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -32,9 +34,26 @@ const clearCanvas = (socketHandlerObj) => {
   })
 }
 
+const saveEachTimeDrawResult = (socketHandlerObj) => {
+  const { socket } = socketHandlerObj;
+  socket.on('eachTimeDraw', async (eachTimeDrawResult) => {
+    // 結果為一個 base64 的圖片
+    const canvasImagePath = await handleBufferUpload(eachTimeDrawResult.drawPathUrl, `${Date.now()}_canvas${eachTimeDrawResult.roomDetail.roomId}`);
+    try {
+      await handleRoomCanvasImage({
+        roomId: eachTimeDrawResult.roomDetail.roomId,
+        canvasUrl: canvasImagePath
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  })
+}
+
 module.exports = {
   getRoomCanvas,
   drawCanvas,
   eraseCanvas,
-  clearCanvas
+  clearCanvas,
+  saveEachTimeDrawResult
 }

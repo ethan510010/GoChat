@@ -1,12 +1,12 @@
 const { updateUserSelectedRoom } = require('../model/users');
 
 // 加入房間
-const joinRoomHandler = (socketHandlerObj) => {
-  let { socket, roomUsersPair, roomPeerIdList, subNamespace } = socketHandlerObj;
+const joinRoomHandler = (socketHandlerObj, roomUsersPair, roomPeerIdList, currentSelectedRoomId) => {
+  const { socket, subNamespace } = socketHandlerObj;
   socket.on('join', (joinInfo, callback) => {
     const { roomId } = joinInfo.roomInfo;
     const peerId = joinInfo.peerId;
-    socketHandlerObj.currentSelectedRoomId = roomId;
+    currentSelectedRoomId = roomId;
     joinInfo.userInfo.socketId = socket.id;
     // 如果該房間都還沒有會員進入
     if (!roomUsersPair[roomId]) {
@@ -38,8 +38,8 @@ const joinRoomHandler = (socketHandlerObj) => {
 }
 
 // 切換房間
-const changeRoomHandler = (socketHandlerObj) => {
-  let { socket, roomUsersPair, roomPeerIdList, subNamespace, currentSelectedRoomId } = socketHandlerObj;
+const changeRoomHandler = (socketHandlerObj,  roomUsersPair, roomPeerIdList, currentSelectedRoomId) => {
+  const { socket, subNamespace } = socketHandlerObj;
   socket.on('changeRoom', async (roomDetailInfo, callback) => {
     const { roomId } = roomDetailInfo.joinRoomInfo;
     const { userInfo, peerId } = roomDetailInfo;
@@ -100,8 +100,8 @@ const changeRoomHandler = (socketHandlerObj) => {
   });
 }
 
-const disconnectHandler = (socketHandlerObj) => {
-  let { socket, roomUsersPair, roomPeerIdList, currentSelectedRoomId } = socketHandlerObj;
+const disconnectHandler = (socketHandlerObj, roomUsersPair, roomPeerIdList, currentSelectedRoomId) => {
+  const { socket } = socketHandlerObj;
   socket.on('disconnect', () => {
     console.log('離開前的 roomID', currentSelectedRoomId)
     if (roomUsersPair[currentSelectedRoomId]) {
