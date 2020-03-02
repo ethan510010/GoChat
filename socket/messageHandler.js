@@ -2,6 +2,7 @@ const { handleBufferUpload } = require('./common');
 const { insertChatMessage } = require('../model/chatContent');
 const { translationPromise } = require('../common/common');
 const { saveTranslatedContent } = require('../model/message');
+const { saveCacheMessage } = require('../db/redis');
 
 const messageHandler = (socketHandlerObj) => {
   const { subNamespace, socket } = socketHandlerObj;
