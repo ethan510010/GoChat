@@ -1,20 +1,20 @@
-// const { redisConfig } = require('../config/redis');
-// const redis = require('redis');
-// const redisClient = redis.createClient(redisConfig);
+const { redisConfig } = require('../config/redis');
+const redis = require('redis');
+const redisClient = redis.createClient(redisConfig);
 
-// redisClient.on('connect', () => {
-//   console.log('redis connection 成功');
-// })
+redisClient.on('connect', () => {
+  console.log('redis connection 成功');
+})
 
-// redisClient.on('error', (err) => {
-//   console.log('redis connection 錯誤', err);
-// })
+redisClient.on('error', (err) => {
+  console.log('redis connection 錯誤', err);
+})
 
-// const saveCacheMessage = (fullMessage) => {
-//   // 也把訊息存到 redis
-//   redisClient.lpush(`roomId${fullMessage.roomId}`, JSON.stringify(fullMessage));
-//   redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
-// }
+const saveCacheMessage = (fullMessage) => {
+  // 也把訊息存到 redis
+  redisClient.lpush(`roomId${fullMessage.roomId}`, JSON.stringify(fullMessage));
+  redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
+}
 
 // const listEachRoomMessagesCache = (roomId, page) => {
 //   return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@
 //   })
 // }
 
-// module.exports = {
-//   saveCacheMessage,
-//   listEachRoomMessagesCache
-// }
+module.exports = {
+  saveCacheMessage,
+  // listEachRoomMessagesCache
+}

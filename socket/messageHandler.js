@@ -7,7 +7,7 @@ const messageHandler = (socketHandlerObj) => {
   const { subNamespace, socket } = socketHandlerObj;
   socket.on('clientMessage', async (dataFromClient) => {
     // 用來處理要存到 redis cache 的每一筆資料
-    // let messageRedisCache = {};
+    let messageRedisCache = {};
     // 儲存訊息到 mySQL
     let messageObj = {
       createdTime: dataFromClient.messageTime,
@@ -41,7 +41,7 @@ const messageHandler = (socketHandlerObj) => {
               translatedContent: eachTransResult
             });
             dataFromClient[eachLanguage] = eachTransResult;
-            // messageRedisCache[eachLanguage] = eachTransResult;
+            messageRedisCache[eachLanguage] = eachTransResult;
           }
         } else if (dataFromClient.messageType === 'image') {
           for (let i = 0; i < languageArrangement.length; i++) {
@@ -51,24 +51,24 @@ const messageHandler = (socketHandlerObj) => {
               language: eachLanguage,
               translatedContent: messageObj.messageContent
             });
-            // messageRedisCache[eachLanguage] = messageObj.messageContent;
+            messageRedisCache[eachLanguage] = messageObj.messageContent;
           }
         }
 
         // 組裝 redis cache 結構 (翻譯的部分在上面組裝)
-        // messageRedisCache.messageContent = messageObj.messageContent;
-        // messageRedisCache.createdTime = messageObj.createdTime,
-        //   messageRedisCache.userId = messageObj.userId;
-        // messageRedisCache.messageType = messageObj.messageType;
-        // messageRedisCache.messageId = createMessageResult.insertId;
-        // messageRedisCache.provider = dataFromClient.userInfo.provider;
-        // messageRedisCache.name = dataFromClient.userInfo.name;
-        // messageRedisCache.email = dataFromClient.userInfo.email;
-        // messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
-        // messageRedisCache.roomId = dataFromClient.roomDetail.roomId;
-        // console.log('組裝的 cache 訊息', messageRedisCache);
+        messageRedisCache.messageContent = messageObj.messageContent;
+        messageRedisCache.createdTime = messageObj.createdTime,
+        messageRedisCache.userId = messageObj.userId;
+        messageRedisCache.messageType = messageObj.messageType;
+        messageRedisCache.messageId = createMessageResult.insertId;
+        messageRedisCache.provider = dataFromClient.userInfo.provider;
+        messageRedisCache.name = dataFromClient.userInfo.name;
+        messageRedisCache.email = dataFromClient.userInfo.email;
+        messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
+        messageRedisCache.roomId = dataFromClient.roomDetail.roomId;
+        console.log('組裝的 cache 訊息', messageRedisCache);
         // // 儲存成功發送出去，並存到 redis
-        // saveCacheMessage(messageRedisCache);
+        saveCacheMessage(messageRedisCache);
         subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
         socket.broadcast.emit('newMessageMention', {

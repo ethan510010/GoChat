@@ -1,6 +1,6 @@
 const socket_io = require('socket.io');
 const { updateUserSelectedRoom } = require('../model/users');
-// const { saveCacheMessage } = require('../db/redis');
+const { saveCacheMessage } = require('../db/redis');
 const { changeRoomHandler, joinRoomHandler, disconnectHandler } = require('./recordRoomAndUser');
 const { messageHandler } = require('./messageHandler');
 const { getRoomCanvas, drawCanvas, eraseCanvas, clearCanvas, saveEachTimeDrawResult } = require('./canvasHandler');
