@@ -13,6 +13,14 @@ function validateEmail(email) {
 const signupUserNameInputTag = document.querySelector('.enter_username input');
 const signupUserEmailTag = document.querySelector('.enter_email_for_signup input');
 const signupUserPasswordTag = document.querySelector('.enter_password_for_signup input');
+if (signupUserPasswordTag) {
+  signupUserPasswordTag.addEventListener('keypress', function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      signupBtn.click();
+     }
+  })  
+}
 const signupBtn = document.querySelector('.signup_btn');
 
 if (signupBtn) {
@@ -62,12 +70,14 @@ if (signupBtn) {
 // 一般登入
 const signinUserEmailTag = document.querySelector('.enter_email input');
 const signinUserPasswordTag = document.querySelector('.enter_password input');
-signinUserPasswordTag.addEventListener('keypress', function(e) {
-  if (e.keyCode === 13) {
-    e.preventDefault();
-    signinBtn.click();
-   }
-})
+if (signinUserPasswordTag) {
+  signinUserPasswordTag.addEventListener('keypress', function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      signinBtn.click();
+     }
+  })  
+}
 const signinBtn = document.querySelector('.sign_in_button');
 // 只有被邀請的用戶才會有這個 defaultRoomId
 // const currentUrl = new URL(window.location)

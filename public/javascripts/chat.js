@@ -369,16 +369,16 @@ sendImageBtn.addEventListener('change', function (e) {
 
 // 接收 Server 端發過來的 message 事件
 socket.on('message', (dataFromServer) => {
-  //  清空輸入框
-  sendMessageBtn.disabled = false;
-  enterMessageTextAreaInput.value = '';
-  // 移除掉 fakeDev
-  removeFakeLoadingDiv();
-  const { roomId, roomTitle } = dataFromServer.roomDetail;
-  // console.log('房間資訊', roomId, roomTitle)
   const { messageTime, messageContent, messageType, messageId } = dataFromServer;
   const { avatarUrl, name, userId } = dataFromServer.userInfo;
-
+  // 這邊的 userId 代表的是發訊息的人的 id
+  if (userId === currentUserDetail.userId) {
+    //  清空輸入框
+    sendMessageBtn.disabled = false;
+    enterMessageTextAreaInput.value = '';
+    // 移除掉 fakeDev
+    removeFakeLoadingDiv();
+  }
   // 開啟自動捲動到底部
   shouldAutoScrollToBottom = true;
   const messageWords = Array.from(new Set([messageContent, dataFromServer[currentUserDetail.selectedLanguage]]));
@@ -389,7 +389,7 @@ socket.on('message', (dataFromServer) => {
 let newMessageAndRoomPair = {};
 let newMessageTimeAndRoomPair = {};
 socket.on('newMessageMention', (newMessageInfo) => {
-  const { newMessageRoomId, newMessageContent, newMessageRoomTitle, messageFromUser }  = newMessageInfo;
+  const { newMessageRoomId, newMessageContent, newMessageRoomTitle, messageFromUser } = newMessageInfo;
   if (currentSelectedRoom.roomId !== newMessageRoomId) {
     // 加上提示標籤
     const roomsDiv = document.querySelector('.upper_section .rooms');
@@ -712,14 +712,14 @@ function showNotification(bodyContent, newMessageRoomTitle, messageFromUser) {
     console.log('This browser does not support notification');
   } else if (Notification.permission === 'granted') {
     const notification = new Notification(
-      `new message from ${messageFromUser} in ${newMessageRoomTitle}`, 
+      `new message from ${messageFromUser} in ${newMessageRoomTitle}`,
       notifyConfig
     )
   } else if (Notification.permission !== 'denied') {
-    Notification.requestPermission(function(permission) {
+    Notification.requestPermission(function (permission) {
       if (permission === 'granted') {
-        const notification = new Notification(`new message from ${messageFromUser} in ${newMessageRoomTitle}`, 
-        notifyConfig);
+        const notification = new Notification(`new message from ${messageFromUser} in ${newMessageRoomTitle}`,
+          notifyConfig);
       }
     });
   }
