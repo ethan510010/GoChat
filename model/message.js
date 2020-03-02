@@ -1,5 +1,5 @@
 const { exec, execWithParaObj } = require('../db/mysql');
-// const { listEachRoomMessagesCache }= require('../db/redis');
+const { listEachRoomMessagesCache }= require('../db/redis');
 
 const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge, page) => {
   // const messages = await exec(`
