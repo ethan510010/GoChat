@@ -1,4 +1,4 @@
-const { exec, createNameSpaceTransaction, updateNamespaceTransaction, createConnection,
+const { exec, createConnection,
   startTransaction,
   query,
   commit } = require('../db/mysql');
@@ -45,15 +45,29 @@ const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespa
 
 // 更新 namespace
 const renewNamespace = async (namespaceId, namespaceName) => {
-  const { defaultRoomId } = await updateNamespaceTransaction(namespaceName, `
-    select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
-    inner join namespace
-    on room.namespaceId=namespace.id
-    where namespaceId=${namespaceId} order by roomId
-  `, `
-    update namespace set namespaceName=? where id=${namespaceId}
-  `)
-  return defaultRoomId;
+  const connection = await createConnection();
+  await startTransaction(connection);
+  const selectDefaulRoomResults = await query(connection, `select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
+  inner join namespace
+  on room.namespaceId=namespace.id
+  where namespaceId=${namespaceId} order by roomId`);
+  if (selectDefaulRoomResults.length > 0) {
+    const defaultRoomId = selectDefaulRoomResults[0].roomId;
+    await query(connection, `update namespace set namespaceName=? where id=${namespaceId}`, [namespaceName]);
+    const commitResult = await commit(connection, {
+      defaultRoomId: defaultRoomId
+    });
+    return commitResult;
+  }
+  // const { defaultRoomId } = await updateNamespaceTransaction(namespaceName, `
+  //   select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
+  //   inner join namespace
+  //   on room.namespaceId=namespace.id
+  //   where namespaceId=${namespaceId} order by roomId
+  // `, `
+  //   update namespace set namespaceName=? where id=${namespaceId}
+  // `)
+  // return defaultRoomId;
 }
 
 const listAllNamespaces = async () => {

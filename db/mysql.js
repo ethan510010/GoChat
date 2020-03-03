@@ -506,136 +506,136 @@ function updateGeneralUserTransaction(updateGeneralUserSQL, insertRoomJunctionSQ
 // }
 
 // create a namespace and binding general room transaction
-function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNamespaceUserId) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        reject(err);
-        return;
-      }
-      connection.beginTransaction((transactionErr) => {
-        if (transactionErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(transactionErr);
-          })
-        }
-        connection.query(createNamespaceSQL, [namespaceName], (err, result) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              reject(err);
-            })
-          }
-          const newNamespaceId = result.insertId;
-          connection.query(`
-            insert into room 
-            set name='general', 
-            namespaceId=${newNamespaceId}
-            `, (insertRoomErr, result) => {
-            if (insertRoomErr) {
-              return connection.rollback(() => {
-                connection.release();
-                reject(insertNamespaceErr);
-              })
-            }
-            // 新的 namespace 預設的 general room 的 id
-            const newNamespaceGeneralRoomId = result.insertId;
-            connection.query(`update user set 
-                  last_selected_room_id=${newNamespaceGeneralRoomId} 
-                  where id=${createNamespaceUserId}`, (updateErr, result) => {
-              if (updateErr) {
-                return connection.rollback(() => {
-                  connection.release();
-                  reject(updateErr);
-                })
-              }
-              connection.query(`insert into user_room_junction 
-                    set roomId=${newNamespaceGeneralRoomId}, userId=${createNamespaceUserId}`,
-                (insertErr, result) => {
-                  if (insertErr) {
-                    return connection.rollback(() => {
-                      connection.release();
-                      reject(insertErr);
-                    })
-                  }
-                  connection.commit((commitErr) => {
-                    if (commitErr) {
-                      return connection.rollback(() => {
-                        connection.release();
-                        reject(commitErr);
-                      })
-                    }
-                    console.log('新增 namespace 及綁定預設房間成功')
-                    resolve({
-                      newNamespaceId: newNamespaceId,
-                      newDefaultRoomId: newNamespaceGeneralRoomId,
-                      newNamespaceName: namespaceName
-                    })
-                    connection.release();
-                  })
-                })
-            })
-          })
-        })
-      })
-    })
-  })
-}
+// function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNamespaceUserId) {
+//   return new Promise((resolve, reject) => {
+//     mySQLPool.getConnection((err, connection) => {
+//       if (err) {
+//         connection.release();
+//         reject(err);
+//         return;
+//       }
+//       connection.beginTransaction((transactionErr) => {
+//         if (transactionErr) {
+//           return connection.rollback(() => {
+//             connection.release();
+//             reject(transactionErr);
+//           })
+//         }
+//         connection.query(createNamespaceSQL, [namespaceName], (err, result) => {
+//           if (err) {
+//             return connection.rollback(() => {
+//               connection.release();
+//               reject(err);
+//             })
+//           }
+//           const newNamespaceId = result.insertId;
+//           connection.query(`
+//             insert into room 
+//             set name='general', 
+//             namespaceId=${newNamespaceId}
+//             `, (insertRoomErr, result) => {
+//             if (insertRoomErr) {
+//               return connection.rollback(() => {
+//                 connection.release();
+//                 reject(insertNamespaceErr);
+//               })
+//             }
+//             // 新的 namespace 預設的 general room 的 id
+//             const newNamespaceGeneralRoomId = result.insertId;
+//             connection.query(`update user set 
+//                   last_selected_room_id=${newNamespaceGeneralRoomId} 
+//                   where id=${createNamespaceUserId}`, (updateErr, result) => {
+//               if (updateErr) {
+//                 return connection.rollback(() => {
+//                   connection.release();
+//                   reject(updateErr);
+//                 })
+//               }
+//               connection.query(`insert into user_room_junction 
+//                     set roomId=${newNamespaceGeneralRoomId}, userId=${createNamespaceUserId}`,
+//                 (insertErr, result) => {
+//                   if (insertErr) {
+//                     return connection.rollback(() => {
+//                       connection.release();
+//                       reject(insertErr);
+//                     })
+//                   }
+//                   connection.commit((commitErr) => {
+//                     if (commitErr) {
+//                       return connection.rollback(() => {
+//                         connection.release();
+//                         reject(commitErr);
+//                       })
+//                     }
+//                     console.log('新增 namespace 及綁定預設房間成功')
+//                     resolve({
+//                       newNamespaceId: newNamespaceId,
+//                       newDefaultRoomId: newNamespaceGeneralRoomId,
+//                       newNamespaceName: namespaceName
+//                     })
+//                     connection.release();
+//                   })
+//                 })
+//             })
+//           })
+//         })
+//       })
+//     })
+//   })
+// }
 
 // update namespace transaction
-function updateNamespaceTransaction(namespaceName, selectDefaultRoomSQL, updateNamespaceSQL) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        reject(err);
-        return;
-      }
-      connection.beginTransaction((transactionErr) => {
-        if (transactionErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(transactionErr);
-          })
-        }
-        connection.query(selectDefaultRoomSQL, (err, result) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              reject(err);
-            })
-          }
-          if (result.length > 0) {
-            const defaultRoomId = result[0].roomId;
-            connection.query(updateNamespaceSQL, [namespaceName], (err, result) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  reject(err);
-                })
-              }
-              connection.commit((commitErr) => {
-                if (commitErr) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(commitErr);
-                  })
-                }
-                resolve({
-                  defaultRoomId: defaultRoomId
-                })
-                connection.release();
-                console.log('更新 namespace 成功');
-              })
-            })
-          }
-        })
-      })
-    })
-  })
-}
+// function updateNamespaceTransaction(namespaceName, selectDefaultRoomSQL, updateNamespaceSQL) {
+//   return new Promise((resolve, reject) => {
+//     mySQLPool.getConnection((err, connection) => {
+//       if (err) {
+//         connection.release();
+//         reject(err);
+//         return;
+//       }
+//       connection.beginTransaction((transactionErr) => {
+//         if (transactionErr) {
+//           return connection.rollback(() => {
+//             connection.release();
+//             reject(transactionErr);
+//           })
+//         }
+//         connection.query(selectDefaultRoomSQL, (err, result) => {
+//           if (err) {
+//             return connection.rollback(() => {
+//               connection.release();
+//               reject(err);
+//             })
+//           }
+//           if (result.length > 0) {
+//             const defaultRoomId = result[0].roomId;
+//             connection.query(updateNamespaceSQL, [namespaceName], (err, result) => {
+//               if (err) {
+//                 return connection.rollback(() => {
+//                   connection.release();
+//                   reject(err);
+//                 })
+//               }
+//               connection.commit((commitErr) => {
+//                 if (commitErr) {
+//                   return connection.rollback(() => {
+//                     connection.release();
+//                     reject(commitErr);
+//                   })
+//                 }
+//                 resolve({
+//                   defaultRoomId: defaultRoomId
+//                 })
+//                 connection.release();
+//                 console.log('更新 namespace 成功');
+//               })
+//             })
+//           }
+//         })
+//       })
+//     })
+//   })
+// }
 
 function updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId) {
   return new Promise((resolve, reject) => {
@@ -674,7 +674,7 @@ function updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId) {
               connection.query(`
               UPDATE user 
               SET last_selected_room_id=${namespaceGeneralRoomId},
-              last_selected_namespace_id=${namespaceId}`, (updateErr, result) => {
+              last_selected_namespace_id=${namespaceId} where id=${userId}`, (updateErr, result) => {
                 if (updateErr) {
                   return connection.rollback(() => {
                     connection.release();
@@ -886,8 +886,8 @@ module.exports = {
   // createRoomTransaction,
   // updateRoomMember,
   // handleRoomCanvas,
-  createNameSpaceTransaction,
-  updateNamespaceTransaction,
+  // createNameSpaceTransaction,
+  // updateNamespaceTransaction,
   updateGeneralUserTransaction,
   updateUserNameOrAvatarTransaction,
   updateUserSelectedNamespaceAndRoomTransaction,
