@@ -688,7 +688,7 @@ function updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId) {
               connection.query(`
               UPDATE user 
               SET last_selected_room_id=${namespaceGeneralRoomId},
-              last_selected_namespace_id=${namespaceId}`, (updateErr, result) => {
+              last_selected_namespace_id=${namespaceId} where id=${userId}`, (updateErr, result) => {
                 if (updateErr) {
                   return connection.rollback(() => {
                     connection.release();
