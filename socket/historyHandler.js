@@ -6,7 +6,6 @@ const getHistory = (socketHandlerObj) => {
     const { roomId, userSelectedLanguge, page, changeRoomMode } = dataFromClient;
     // 先從 redis 取，如果 redis 沒有再從 mySQL 取
     const messagesCache = await getMessagesCache(roomId, userSelectedLanguge, page);
-    console.log('快取歷史訊息', messagesCache);
     const messages = await listSpecifiedRoomMessages(roomId, userSelectedLanguge, page);
     // socket.emit('showHistory', {
     //   messages,
