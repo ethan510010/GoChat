@@ -7,7 +7,7 @@ const listUsersOfRoom = (socketHandlerObj, roomUsersPair) => {
     const usersOfRoom = await getUsersOfRoom(validRoomId);
     socket.emit('showUsersOfRoom', {
       usersOfRoom,
-      roomUsersPair
+      roomUsersPair: socketHandlerObj.roomUsersPair
     });
   })
 }

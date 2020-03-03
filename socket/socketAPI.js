@@ -1,5 +1,4 @@
 const socket_io = require('socket.io');
-const { updateUserSelectedRoom } = require('../model/users');
 const { changeRoomHandler, joinRoomHandler, disconnectHandler } = require('./recordRoomAndUser');
 const { messageHandler } = require('./messageHandler');
 const { getRoomCanvas, drawCanvas, eraseCanvas, clearCanvas, saveEachTimeDrawResult } = require('./canvasHandler');
@@ -24,11 +23,10 @@ socketio.getSocketio = async function (server) {
     // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
     // let currentSelectedRoomId = 0;
     // 有人連線進來
-    const subNamespace = socket.nsp;
     // 包一個共用物件
     const socketHandlerObj = {
       socket: socket,
-      subNamespace: subNamespace,
+      subNamespace: socket.nsp,
       currentSelectedRoomId: 0,
       roomPeerIdList: roomPeerIdList,
       roomUsersPair: roomUsersPair
@@ -37,13 +35,12 @@ socketio.getSocketio = async function (server) {
     joinRoomHandler(socketHandlerObj);
     // 更換房間的邏輯
     changeRoomHandler(socketHandlerObj);
-
     // 發送訊息邏輯處理
     messageHandler(socketHandlerObj);
     // 房間歷史訊息
     getHistory(socketHandlerObj);
     // 獲取房間的用戶
-    listUsersOfRoom(socketHandlerObj, roomUsersPair);
+    listUsersOfRoom(socketHandlerObj);
     // 獲取所有除了自己以外在 namespace 底下的用戶
     searchAllUsersExclusiveSelfInNamespace(socketHandlerObj);
     // canvas 歷史畫面
@@ -60,7 +57,6 @@ socketio.getSocketio = async function (server) {
     roomIsPlayingHandler(socketHandlerObj);
     // 斷線處理 
     disconnectHandler(socketHandlerObj);
-
     // 取得現在在 namespaceId 底下但不在該房間下的用戶
     searchUsersUnderNamespaceAndNotRoom(socketHandlerObj);
     // 新增房間
