@@ -9,7 +9,6 @@ const multerS3 = require('multer-s3');
 require('dotenv').config();
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var roomsRouter = require('./routes/rooms');
 var languageRouter = require('./routes/language');
 var userLanguageRouter = require('./routes/userLanguage');
 var namespaceRouter = require('./routes/namespace');
@@ -58,7 +57,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/rooms', roomsRouter);
 app.use('/language', languageRouter);
 app.use('/userLanguage', userLanguageRouter);
 app.use('/namespace', namespaceRouter);

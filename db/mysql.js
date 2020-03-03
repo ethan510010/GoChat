@@ -29,59 +29,59 @@ function execWithParaObj(sql, paraObj) {
 }
 
 // Create Room and Binding user
-function createRoomTransaction(roomSQL, junstionSQL, userIdList, roomName) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        reject(err);
-        return;
-      }
-      connection.beginTransaction((transactionErr) => {
-        if (transactionErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(transactionErr);
-          })
-        }
-        connection.query(roomSQL, [roomName], (err, result) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              reject(err);
-            })
-          }
-          const roomId = result.insertId;
-          for (let index = 0; index < userIdList.length; index++) {
-            const eachUserId = userIdList[index];
-            connection.query(junstionSQL, [roomId, eachUserId], (err, result) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  reject(err);
-                })
-              }
-            })
-          }
-          connection.commit((commitErr) => {
-            if (commitErr) {
-              return connection.rollback(() => {
-                connection.release();
-                reject(commitErr);
-              })
-            }
-            resolve({
-              channelId: roomId,
-              allUsers: userIdList
-            });
-            connection.release();
-            console.log('新增 Room 及綁定 User 成功');
-          })
-        })
-      })
-    })
-  })
-}
+// function createRoomTransaction(roomSQL, junstionSQL, userIdList, roomName) {
+//   return new Promise((resolve, reject) => {
+//     mySQLPool.getConnection((err, connection) => {
+//       if (err) {
+//         connection.release();
+//         reject(err);
+//         return;
+//       }
+//       connection.beginTransaction((transactionErr) => {
+//         if (transactionErr) {
+//           return connection.rollback(() => {
+//             connection.release();
+//             reject(transactionErr);
+//           })
+//         }
+//         connection.query(roomSQL, [roomName], (err, result) => {
+//           if (err) {
+//             return connection.rollback(() => {
+//               connection.release();
+//               reject(err);
+//             })
+//           }
+//           const roomId = result.insertId;
+//           for (let index = 0; index < userIdList.length; index++) {
+//             const eachUserId = userIdList[index];
+//             connection.query(junstionSQL, [roomId, eachUserId], (err, result) => {
+//               if (err) {
+//                 return connection.rollback(() => {
+//                   connection.release();
+//                   reject(err);
+//                 })
+//               }
+//             })
+//           }
+//           connection.commit((commitErr) => {
+//             if (commitErr) {
+//               return connection.rollback(() => {
+//                 connection.release();
+//                 reject(commitErr);
+//               })
+//             }
+//             resolve({
+//               channelId: roomId,
+//               allUsers: userIdList
+//             });
+//             connection.release();
+//             console.log('新增 Room 及綁定 User 成功');
+//           })
+//         })
+//       })
+//     })
+//   })
+// }
 
 // Create User use
 function createGeneralUser(userBasicSQL, userDetailsSQL, userInfoObj) {
@@ -384,140 +384,126 @@ function updateGeneralUserTransaction(updateGeneralUserSQL, insertRoomJunctionSQ
   })
 }
 
-// 儲存聊天訊息
-function createMessageRecord(insertMsgSQL, messageObj) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.query(insertMsgSQL,
-      [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId, messageObj.messageType],
-      (err, result) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(result);
-      })
-  })
-}
 
 // 更新房間用戶
-function updateRoomMember(updateRoomSQL, roomId, userIdList) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        reject(err);
-        return;
-      }
-      connection.beginTransaction((transactionErr) => {
-        if (transactionErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(transactionErr);
-          })
-        }
-        for (let i = 0; i < userIdList.length; i++) {
-          const userId = userIdList[i];
-          connection.query(updateRoomSQL, [roomId, userId], (err, result) => {
-            if (err) {
-              return connection.rollback(() => {
-                connection.release();
-                reject(err);
-              })
-            }
-          });
-        }
-        connection.commit((commitErr) => {
-          if (commitErr) {
-            return connection.rollback(() => {
-              connection.release();
-              reject(commitErr);
-            })
-          }
-          resolve({
-            roomId: roomId,
-            userIdList: userIdList
-          });
-          connection.release();
-          console.log('更新房間用戶成功');
-        })
-      })
-    })
-  })
-}
+// function updateRoomMember(updateRoomSQL, roomId, userIdList) {
+//   return new Promise((resolve, reject) => {
+//     mySQLPool.getConnection((err, connection) => {
+//       if (err) {
+//         connection.release();
+//         reject(err);
+//         return;
+//       }
+//       connection.beginTransaction((transactionErr) => {
+//         if (transactionErr) {
+//           return connection.rollback(() => {
+//             connection.release();
+//             reject(transactionErr);
+//           })
+//         }
+//         for (let i = 0; i < userIdList.length; i++) {
+//           const userId = userIdList[i];
+//           connection.query(updateRoomSQL, [roomId, userId], (err, result) => {
+//             if (err) {
+//               return connection.rollback(() => {
+//                 connection.release();
+//                 reject(err);
+//               })
+//             }
+//           });
+//         }
+//         connection.commit((commitErr) => {
+//           if (commitErr) {
+//             return connection.rollback(() => {
+//               connection.release();
+//               reject(commitErr);
+//             })
+//           }
+//           resolve({
+//             roomId: roomId,
+//             userIdList: userIdList
+//           });
+//           connection.release();
+//           console.log('更新房間用戶成功');
+//         })
+//       })
+//     })
+//   })
+// }
 
 // canvasTransaction 
-function handleRoomCanvas(readQuery, insertQuery, updateQuery) {
-  return new Promise((resolve, reject) => {
-    mySQLPool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        reject(err);
-        return;
-      }
-      connection.beginTransaction((transactionErr) => {
-        if (transactionErr) {
-          return connection.rollback(() => {
-            connection.release();
-            reject(transactionErr);
-          })
-        }
-        connection.query(readQuery, (err, result) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              reject(err);
-            })
-          }
-          if (result.length === 0) {
-            connection.query(insertQuery, (err, result) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  reject(err);
-                })
-              }
-              connection.commit((commitErr) => {
-                if (commitErr) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(commitErr);
-                  })
-                }
-                resolve({
-                  insertResult: result
-                })
-                connection.release();
-                console.log('儲存 canvas 成功');
-              })
-            })
-          } else {
-            connection.query(updateQuery, (err, result) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  reject(err);
-                })
-              }
-              connection.commit((commitErr) => {
-                if (commitErr) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    reject(commitErr);
-                  })
-                }
-                resolve({
-                  updateResult: result
-                })
-                connection.release();
-                console.log('更新 canvas 成功');
-              })
-            })
-          }
-        })
-      })
-    })
-  })
-}
+// function handleRoomCanvas(readQuery, insertQuery, updateQuery) {
+//   return new Promise((resolve, reject) => {
+//     mySQLPool.getConnection((err, connection) => {
+//       if (err) {
+//         connection.release();
+//         reject(err);
+//         return;
+//       }
+//       connection.beginTransaction((transactionErr) => {
+//         if (transactionErr) {
+//           return connection.rollback(() => {
+//             connection.release();
+//             reject(transactionErr);
+//           })
+//         }
+//         connection.query(readQuery, (err, result) => {
+//           if (err) {
+//             return connection.rollback(() => {
+//               connection.release();
+//               reject(err);
+//             })
+//           }
+//           if (result.length === 0) {
+//             connection.query(insertQuery, (err, result) => {
+//               if (err) {
+//                 return connection.rollback(() => {
+//                   connection.release();
+//                   reject(err);
+//                 })
+//               }
+//               connection.commit((commitErr) => {
+//                 if (commitErr) {
+//                   return connection.rollback(() => {
+//                     connection.release();
+//                     reject(commitErr);
+//                   })
+//                 }
+//                 resolve({
+//                   insertResult: result
+//                 })
+//                 connection.release();
+//                 console.log('儲存 canvas 成功');
+//               })
+//             })
+//           } else {
+//             connection.query(updateQuery, (err, result) => {
+//               if (err) {
+//                 return connection.rollback(() => {
+//                   connection.release();
+//                   reject(err);
+//                 })
+//               }
+//               connection.commit((commitErr) => {
+//                 if (commitErr) {
+//                   return connection.rollback(() => {
+//                     connection.release();
+//                     reject(commitErr);
+//                   })
+//                 }
+//                 resolve({
+//                   updateResult: result
+//                 })
+//                 connection.release();
+//                 console.log('更新 canvas 成功');
+//               })
+//             })
+//           }
+//         })
+//       })
+//     })
+//   })
+// }
 
 // create a namespace and binding general room transaction
 function createNameSpaceTransaction(createNamespaceSQL, namespaceName, createNamespaceUserId) {
@@ -818,7 +804,7 @@ function updateActiveTokenTransaction(
               }
               resolve({
                 userId: result[0].userId,
-                userEmail: result[0].email, 
+                userEmail: result[0].email,
                 userName: result[0].name,
                 accessToken: result[0].accessToken,
                 selectedLanguage: result[0].selectedLanguage
@@ -833,20 +819,81 @@ function updateActiveTokenTransaction(
   })
 }
 
+// 測試封裝 transaction
+function createConnection() {
+  return new Promise((resolve, reject) => {
+    mySQLPool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        reject(err);
+        return;
+      }
+      resolve(connection);
+    })
+  })
+}
+
+function startTransaction(connection) {
+  return new Promise((resolve, reject) => {
+    connection.beginTransaction((transactionErr) => {
+      if (transactionErr) {
+        return connection.rollback(() => {
+          connection.release();
+          reject(transactionErr);
+        })
+      }
+      resolve();
+    })
+  })
+}
+
+function query(connection, sql, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, (err, result) => {
+      if (err) {
+        return connection.rollback(() => {
+          connection.release();
+          reject(err);
+        })
+      }
+      resolve(result);
+    })
+  })
+}
+
+function commit(connection, customResult) {
+  return new Promise((resolve, reject) => {
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        return connection.rollback(() => {
+          connection.release();
+          reject(commitErr);
+        })
+      }
+      resolve(customResult);
+      connection.release();
+      console.log('transaction 完成');
+    })
+  })
+}
+
 module.exports = {
   exec,
   execWithParaObj,
   createGeneralUser,
   updateFBUserInfo,
   escape: mySQL.escape,
-  createRoomTransaction,
-  createMessageRecord,
-  updateRoomMember,
-  handleRoomCanvas,
+  // createRoomTransaction,
+  // updateRoomMember,
+  // handleRoomCanvas,
   createNameSpaceTransaction,
   updateNamespaceTransaction,
   updateGeneralUserTransaction,
   updateUserNameOrAvatarTransaction,
   updateUserSelectedNamespaceAndRoomTransaction,
-  updateActiveTokenTransaction
+  updateActiveTokenTransaction,
+  createConnection,
+  startTransaction,
+  query,
+  commit
 }

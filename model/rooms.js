@@ -1,4 +1,7 @@
-const { exec, createRoomTransaction, updateRoomMember } = require('../db/mysql');
+const { exec, createConnection,
+  startTransaction,
+  query,
+  commit } = require('../db/mysql');
 
 const insertNewRoom = async (roomName, namespaceId, userIdList) => {
   const insertRoomSQL = `
@@ -10,11 +13,21 @@ const insertNewRoom = async (roomName, namespaceId, userIdList) => {
     userId=?
   `
   try {
-    const createNewRoomResult = await createRoomTransaction(insertRoomSQL, userRoomJuntionSQL, userIdList, roomName);  
-    createNewRoomResult.bindingNamespaceId = namespaceId;
-    return createNewRoomResult
+    const connection = await createConnection();  
+    await startTransaction(connection);
+    const insertRoomResult = await query(connection, insertRoomSQL, [roomName]);
+    const roomId = insertRoomResult.insertId;
+    for (let i = 0; i < userIdList.length; i++) {
+      const eachUserId = userIdList[i];
+      await query(connection, userRoomJuntionSQL, [roomId, eachUserId]);
+    }
+    const createNewRoomResult = await commit(connection, {
+      channelId: roomId,
+      allUsers: userIdList
+    });
+    return createNewRoomResult;
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
 }
 
@@ -72,8 +85,21 @@ const updateRoom = async (roomId, userIdList) => {
     insert into user_room_junction
     set roomId=?, userId=?
   `;
-  const updateRoomMemberResult = await updateRoomMember(updateRoomMemberSQL, roomId, userIdList);
-  return updateRoomMemberResult;
+  try {
+    const connection = await createConnection();  
+    await startTransaction(connection);
+    for (let i = 0; i < userIdList.length; i++) {
+      const userId = userIdList[i];
+      await query(connection, updateRoomMemberSQL, [roomId, userId]);  
+    }
+    const updateRoomMemberResult = await commit(connection, {
+      roomId: roomId,
+      userIdList: userIdList
+    });
+    return updateRoomMemberResult;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const userLeaveRoom = async (roomId, userId) => {

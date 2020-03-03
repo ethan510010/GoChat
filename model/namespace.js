@@ -1,4 +1,7 @@
-const { exec, execWithParaObj, createNameSpaceTransaction, updateNamespaceTransaction } = require('../db/mysql');
+const { exec, createNameSpaceTransaction, updateNamespaceTransaction, createConnection,
+  startTransaction,
+  query,
+  commit } = require('../db/mysql');
 
 const getNamespacesForUser = async (userId) => {
   const namespacesOfUser = await exec(`
@@ -12,9 +15,9 @@ const getNamespacesForUser = async (userId) => {
     // 為系統預設的
     console.log(namespacesOfUser)
     if (namespacesOfUser[0].namespaceId === 1) {
-      namespacesOfUser.splice(0, 1);  
+      namespacesOfUser.splice(0, 1);
     }
-    return namespacesOfUser; 
+    return namespacesOfUser;
   } else {
     return [];
   }
@@ -22,8 +25,22 @@ const getNamespacesForUser = async (userId) => {
 
 // 每個新建的 namespace 都會綁定一個 general room，而且創建 namespace 的人 DB 也要綁定該 namespace
 const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespaceUserId) => {
-  const insertNamespaceResult = await createNameSpaceTransaction('insert into namespace set namespaceName=?', namespaceName, createNamespaceUserId);
-  return insertNamespaceResult;
+  const connection = await createConnection();
+  await startTransaction(connection);
+  const createNamespaceResult = await query(connection, 'insert into namespace set namespaceName=?', [namespaceName]);
+  const createNamespaceId = createNamespaceResult.insertId;
+  const newNamespaceGeneralRoomResult = await query(connection, `insert into room set name='general', namespaceId=${createNamespaceId}`);
+  const newNamespaceGeneralRoomId = newNamespaceGeneralRoomResult.insertId;
+  await query(connection, `update user set last_selected_room_id=${newNamespaceGeneralRoomId} where id=${createNamespaceUserId}`);
+  await query(connection, `insert into user_room_junction set roomId=${newNamespaceGeneralRoomId}, userId=${createNamespaceUserId}`);
+  const commitResult = await commit(connection, {
+    newNamespaceId: createNamespaceId,
+    newDefaultRoomId: newNamespaceGeneralRoomId,
+    newNamespaceName: namespaceName
+  });
+  return commitResult;
+  // const insertNamespaceResult = await createNameSpaceTransaction('insert into namespace set namespaceName=?', namespaceName, createNamespaceUserId);
+  // return insertNamespaceResult;
 }
 
 // 更新 namespace
