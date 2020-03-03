@@ -153,7 +153,9 @@ inviteButton.addEventListener('click', async function() {
     // 結束 loading
     hideLoading();
     if (sendEmailResult) {
-      showCustomAlert('invited email successfully sent');
+      if (emailList.length > 0) {
+        showCustomAlert('invited email successfully sent');  
+      }
     }
   }
 })

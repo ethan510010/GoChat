@@ -54,10 +54,10 @@ const renewNamespace = async (namespaceId, namespaceName) => {
   if (selectDefaulRoomResults.length > 0) {
     const defaultRoomId = selectDefaulRoomResults[0].roomId;
     await query(connection, `update namespace set namespaceName=? where id=${namespaceId}`, [namespaceName]);
-    const commitResult = await commit(connection, {
+    await commit(connection, {
       defaultRoomId: defaultRoomId
     });
-    return commitResult;
+    return defaultRoomId;
   }
   // const { defaultRoomId } = await updateNamespaceTransaction(namespaceName, `
   //   select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
