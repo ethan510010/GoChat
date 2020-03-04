@@ -83,6 +83,7 @@ const getAllRoomsOfNamespace = async (namespaceId) => {
 }
 
 const updateRoom = async (roomId, userIdList) => {
+  const searchRepeatedUserSQL = `select * from user_room_junction where roomId=? and userId in (?) for update`;
   const updateRoomMemberSQL = `
     insert into user_room_junction
     set roomId=?, userId=?
@@ -90,8 +91,16 @@ const updateRoom = async (roomId, userIdList) => {
   try {
     const connection = await createConnection();  
     await startTransaction(connection);
-    for (let i = 0; i < userIdList.length; i++) {
-      const userId = userIdList[i];
+    const searchedUsers = await query(connection, searchRepeatedUserSQL, [roomId, userIdList]);
+    const searchedUserIdList = searchedUsers.map((user) => {
+      return user.userId;
+    });
+    // userIdList 與撈出來的比對取差集，差集才是真的要進 DB 的 user
+    const shouldInsertUserList = userIdList.filter((userId) => {
+      return (searchedUserIdList.indexOf(userId) === -1);
+    })
+    for (let i = 0; i < shouldInsertUserList.length; i++) {
+      const userId = shouldInsertUserList[i];
       await query(connection, updateRoomMemberSQL, [roomId, userId]);  
     }
     const updateRoomMemberResult = await commit(connection, {
