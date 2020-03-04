@@ -113,8 +113,6 @@ const insertUser = async (
   } catch (error) {
     console.log(error);
   }
-  // const insertUserResult = await createGeneralUser(insertUserBasicSQL, insertUserDetailSQL, userInfoObj);
-  // return insertUserResult;
 }
 
 const updateUserFBInfo = async (
@@ -186,8 +184,6 @@ const updateUserFBInfo = async (
   }
   const commitResult = await commit(connection, (userInfoObj.userId))
   return commitResult;
-  // const updateFBResult = await updateFBUserInfo(updateGeneralUserInfoSQL, updateFBUserDetailsSQL, userInfoObj);
-  // return updateFBResult;
 }
 
 const checkExistingUserEmail = async (email) => {
@@ -297,16 +293,6 @@ const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
       }
     }
   }
-  // const updateResult = await updateGeneralUserTransaction(`UPDATE user SET
-  // access_token=?,
-  // expired_date=?
-  // WHERE id=${id}`,
-  //   `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
-  // if (updateResult) {
-  //   return true;
-  // } else {
-  //   return false;
-  // }
 }
 
 const getUserProfileByToken = async (token) => {
@@ -457,13 +443,6 @@ const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
       await query(connection, `update fb_info SET fb_name=? where userId=${userId}`, [newUserName]);
     }
     return await commit(connection, { updateInfo: newUserName })
-    // const updateResult = await updateUserNameOrAvatarTransaction(
-    //   `select provider from user where id = ${userId}`,
-    //   `update fb_info SET fb_name=? where userId=${userId}`,
-    //   `update general_user_info SET name=? where userId=${userId}`,
-    //   newUserName
-    // );
-    // return updateResult;
   }
 
   if (userAvatar) {
@@ -475,13 +454,6 @@ const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
       await query(connection, `update fb_info SET fb_avatar_url=? where userId=${userId}`, [userAvatar]);
     }
     return await commit(connection, { updateInfo: userAvatar })
-    // const updateResult = await updateUserNameOrAvatarTransaction(
-    //   `select provider from user where id = ${userId}`,
-    //   `update fb_info SET fb_avatar_url=? where userId=${userId}`,
-    //   `update general_user_info SET avatarUrl=? where userId=${userId}`,
-    //   userAvatar
-    // );
-    // return updateResult;
   }
 }
 
@@ -523,12 +495,6 @@ const updateUserLastNamespace = async (userId, namespaceId) => {
         namespaceId
       }
     }
-    // const updateResult = await updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId);
-    // if (updateResult) {
-    //   return {
-    //     namespaceId
-    //   }
-    // }
   } else {
     return {
       namespaceId
@@ -626,20 +592,6 @@ const activateGeneralUser = async (activeToken) => {
     selectedLanguage: userInfoResults[0].selectedLanguage
   });
   return commitResult;
-  // const userInfo = await updateActiveTokenTransaction(
-  //   `UPDATE 
-  //   general_user_info SET isActive=1
-  //   where activeToken=?`,
-  //   activeToken,
-  //   `SELECT 
-  //   general_user_info.userId as userId, 
-  //   general_user_info.email as email, 
-  //   general_user_info.name as name, 
-  //   user.selected_language as selectedLanguage,
-  //   user.access_token as accessToken from general_user_info 
-  //   inner join user on general_user_info.userId=user.id 
-  //   where activeToken=?`);
-  // return userInfo;
 }
 
 module.exports = {

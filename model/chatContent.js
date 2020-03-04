@@ -1,6 +1,6 @@
 const { execWithParaObj } = require('../db/mysql');
 
-const insertChatMessage = async (messageObj, languageListForEachRoom) => {
+const insertChatMessage = async (messageObj) => {
   const insertMessageResult = await execWithParaObj(`insert into message 
   set createdTime=?, 
   messageContent=?, 

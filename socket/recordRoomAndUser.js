@@ -128,6 +128,11 @@ const disconnectHandler = (socketHandlerObj) => {
       }
     }
     console.log('有重整後的房間peer配對', socketHandlerObj.roomPeerIdList)
+    // 因為斷線 (可能是因為網路斷線，或是用戶切換回 namespace 頁必須讓上線顯示消失)
+    socketHandlerObj.subNamespace.emit('allPeersForRoom', {
+      roomUsersPair: socketHandlerObj.roomUsersPair,
+      peersRoomPair: socketHandlerObj.roomPeerIdList
+    })
   })
 }
 

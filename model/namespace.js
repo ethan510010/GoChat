@@ -1,4 +1,6 @@
-const { exec, createConnection,
+const { 
+  exec, 
+  createConnection,
   startTransaction,
   query,
   commit } = require('../db/mysql');
@@ -39,8 +41,6 @@ const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespa
     newNamespaceName: namespaceName
   });
   return commitResult;
-  // const insertNamespaceResult = await createNameSpaceTransaction('insert into namespace set namespaceName=?', namespaceName, createNamespaceUserId);
-  // return insertNamespaceResult;
 }
 
 // 更新 namespace
@@ -59,15 +59,6 @@ const renewNamespace = async (namespaceId, namespaceName) => {
     });
     return defaultRoomId;
   }
-  // const { defaultRoomId } = await updateNamespaceTransaction(namespaceName, `
-  //   select room.id as roomId, room.name as roomName, namespace.id as namespaceId, namespace.namespaceName from room
-  //   inner join namespace
-  //   on room.namespaceId=namespace.id
-  //   where namespaceId=${namespaceId} order by roomId
-  // `, `
-  //   update namespace set namespaceName=? where id=${namespaceId}
-  // `)
-  // return defaultRoomId;
 }
 
 const listAllNamespaces = async () => {

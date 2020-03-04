@@ -1,4 +1,6 @@
-const { exec, createConnection,
+const { 
+  exec, 
+  createConnection,
   startTransaction,
   query,
   commit } = require('../db/mysql');
@@ -22,8 +24,6 @@ const handleRoomCanvasImage = async (canvasObj) => {
       updateResult: result
     })
   }
-  // const canvasResult = await handleRoomCanvas(readQuery, insertQuery, updateQuery);
-  // return canvasResult;
 }
 
 const getRoomCanvasImg = async (roomId) => {
