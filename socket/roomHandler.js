@@ -20,11 +20,17 @@ const updateRoomMember = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('updateRoomMember', async (updateInfo, callback) => {
     const { inviterUserId, room, userList, newAddedMemberIdList } = updateInfo;
-    await updateRoom(room.roomId, newAddedMemberIdList);
+    const { shouldInsertUserIdList } = await updateRoom(room.roomId, newAddedMemberIdList);
+    // userList 是返回給邀請發起人的
+    // 取交集是真的要返回給被邀請人的
+    const validUserList = userList.filter((user) => {
+      return (shouldInsertUserIdList.indexOf(user.userId) > -1);
+    })
     subNamespace.emit('receiveUpdateNewMember', {
       inviterUserId,
       room,
-      userList
+      userList,
+      validUserList
     })
     callback({
       updateFinished: true

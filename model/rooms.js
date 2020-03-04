@@ -96,14 +96,15 @@ const updateRoom = async (roomId, userIdList) => {
       return user.userId;
     });
     // userIdList 與撈出來的比對取差集，差集才是真的要進 DB 的 user
-    const shouldInsertUserList = userIdList.filter((userId) => {
+    const shouldInsertUserIdList = userIdList.filter((userId) => {
       return (searchedUserIdList.indexOf(userId) === -1);
     })
-    for (let i = 0; i < shouldInsertUserList.length; i++) {
-      const userId = shouldInsertUserList[i];
+    for (let i = 0; i < shouldInsertUserIdList.length; i++) {
+      const userId = shouldInsertUserIdList[i];
       await query(connection, updateRoomMemberSQL, [roomId, userId]);  
     }
     const updateRoomMemberResult = await commit(connection, {
+      shouldInsertUserIdList: shouldInsertUserIdList,
       roomId: roomId,
       userIdList: userIdList
     });

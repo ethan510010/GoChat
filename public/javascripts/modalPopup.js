@@ -358,7 +358,7 @@ socket.on('newRoomCreated', (newRoomInfo) => {
 
 // 接收到被邀請到房間
 socket.on('receiveUpdateNewMember', (infoFromServer) => {
-  const { room, userList, inviterUserId } = infoFromServer;
+  const { room, userList, inviterUserId, validUserList } = infoFromServer;
   // 主邀請者，處理上線用戶區塊的 UI
   if (inviterUserId === currentUserDetail.userId) {
     const onlineMembersDiv = document.getElementById('online_members');
@@ -378,8 +378,8 @@ socket.on('receiveUpdateNewMember', (infoFromServer) => {
     return;
   }
   // 被邀請的人都要看到
-  for (let i = 0; i < userList.length; i++) {
-    const beAddedUser = userList[i];
+  for (let i = 0; i < validUserList.length; i++) {
+    const beAddedUser = validUserList[i];
     if (beAddedUser.userId === currentUserDetail.userId) {
       // 新增 Room 到畫面上
       const roomListArea = document.querySelector('.side_pad .upper_section .rooms');
