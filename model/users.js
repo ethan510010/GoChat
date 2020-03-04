@@ -1,12 +1,9 @@
 const {
-  createGeneralUser,
   exec,
-  escape,
-  updateFBUserInfo,
-  updateGeneralUserTransaction,
-  updateUserSelectedNamespaceAndRoomTransaction,
-  updateUserNameOrAvatarTransaction,
-  updateActiveTokenTransaction } = require('../db/mysql')
+  createConnection,
+  startTransaction,
+  query,
+  commit } = require('../db/mysql')
 
 const insertUser = async (
   accessToken,
@@ -50,8 +47,8 @@ const insertUser = async (
   }
   let insertUserDetailSQL = '';
   if (provider === 'native') {
-      if (activeToken) {
-        insertUserDetailSQL = `
+    if (activeToken) {
+      insertUserDetailSQL = `
         INSERT INTO general_user_info SET
         avatarUrl=?,
         email=?,
@@ -59,15 +56,15 @@ const insertUser = async (
         name=?,
         userId=?,
         activeToken=?`;
-      } else {
-        insertUserDetailSQL = `
+    } else {
+      insertUserDetailSQL = `
         INSERT INTO general_user_info SET
         avatarUrl=?,
         email=?,
         password=?,
         name=?,
         userId=?`;
-      }
+    }
   } else if (provider === 'facebook') {
     insertUserDetailSQL = `
       INSERT INTO fb_info SET
@@ -77,8 +74,47 @@ const insertUser = async (
       userId=?`;
   }
 
-  const insertUserResult = await createGeneralUser(insertUserBasicSQL, insertUserDetailSQL, userInfoObj);
-  return insertUserResult;
+  try {
+    const connection = await createConnection();
+    await startTransaction(connection);
+    const insertUserResult = await query(connection, insertUserBasicSQL, [userInfoObj.accessToken,
+    userInfoObj.fbAccessToken,
+    userInfoObj.provider,
+    userInfoObj.expiredDate,
+    userInfoObj.beInvitedRoomId]);
+    const userId = insertUserResult.insertId;
+    // 要帶進去的參數根據 provider 變換
+    let parameters = [];
+    switch (userInfoObj.provider) {
+      case 'native':
+        parameters = [
+          userInfoObj.avatarUrl,
+          userInfoObj.email,
+          userInfoObj.password,
+          userInfoObj.name,
+          userId,
+          userInfoObj.activeToken]
+        break;
+      case 'facebook':
+        parameters = [userInfoObj.avatarUrl, userInfoObj.name, userInfoObj.email, userId]
+        break;
+    }
+    await query(connection, insertUserDetailSQL, parameters);
+    // 每個新創建的用戶都會被綁定到 general 這個 room，這個 room 的 id 都是 1
+    // 但如果是被邀請的人，下面的 roomId 就不是1，而是被邀請的 roomId
+    let userRoomJunctionRoomId = userInfoObj.beInvitedRoomId ? userInfoObj.beInvitedRoomId : 1;
+    await query(connection, `insert into user_room_junction set roomId=${userRoomJunctionRoomId}, userId=${userId}`);
+    const userInfoList = await query(connection, `SELECT user.selected_language as selectedLanguage from user where id=${userId}`);
+    const commitResult = await commit(connection, {
+      userId: userId,
+      selectedLanguage: userInfoList[0].selectedLanguage
+    });
+    return commitResult;
+  } catch (error) {
+    console.log(error);
+  }
+  // const insertUserResult = await createGeneralUser(insertUserBasicSQL, insertUserDetailSQL, userInfoObj);
+  // return insertUserResult;
 }
 
 const updateUserFBInfo = async (
@@ -130,8 +166,28 @@ const updateUserFBInfo = async (
     fb_email=?
     where userId=${userId}
   `
-  const updateFBResult = await updateFBUserInfo(updateGeneralUserInfoSQL, updateFBUserDetailsSQL, userInfoObj);
-  return updateFBResult;
+  const connection = await createConnection();
+  await startTransaction(connection);
+  await query(connection, updateGeneralUserInfoSQL, [userInfoObj.accessToken,
+  userInfoObj.fbAccessToken,
+  userInfoObj.provider,
+  userInfoObj.expiredDate,
+  userInfoObj.beInvitedRoomId]);
+  await query(connection, updateFBUserDetailsSQL, [userInfoObj.avatarUrl, userInfoObj.fbUserName, userInfoObj.fbEmail]);
+  // 如果有 beInvitedRoomId (beInvitedRoomId 不是 undefined)，代表是被邀請的，
+  // 就必須再 insert 到 user_room_junction 這張 table，但是如果該用戶已經被綁定到該 room 過，就不應該再重複插入 (擋掉使用者又是從信件中按連結)
+  // 否則代表是一般 FB 重新登入，就不需此步驟
+  if (userInfoObj.beInvitedRoomId) {
+    const searchResults = await query(connection, `select * from user_room_junction where userId=${userInfoObj.userId} and roomId=${userInfoObj.beInvitedRoomId}`);
+    // 代表不存在，要再 insert
+    if (searchResults.length <= 0) {
+      await query(connection, `insert into user_room_junction set roomId=${userInfoObj.beInvitedRoomId}, userId=${userInfoObj.userId}`);
+    }
+  }
+  const commitResult = await commit(connection, (userInfoObj.userId))
+  return commitResult;
+  // const updateFBResult = await updateFBUserInfo(updateGeneralUserInfoSQL, updateFBUserDetailsSQL, userInfoObj);
+  // return updateFBResult;
 }
 
 const checkExistingUserEmail = async (email) => {
@@ -208,16 +264,49 @@ const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
     expiredTime: expiredTime,
     beInvitedRoomId: beInvitedRoomId
   }
-  const updateResult = await updateGeneralUserTransaction(`UPDATE user SET
-  access_token=?,
-  expired_date=?
-  WHERE id=${id}`,
-    `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
-  if (updateResult) {
-    return true;
+  const connection = await createConnection();
+  await startTransaction(connection);
+  await query(connection, `UPDATE user SET access_token=?, expired_date=? WHERE id=${id}`, [userObj.token, userObj.expiredTime]);
+  // 區分是否為被邀清進 namespace
+  // 沒有 beInvitedRoomId 代表為一般重新登入
+  if (!userObj.beInvitedRoomId) {
+    const updateResult = await commit(connection, userObj.userId);
+    if (updateResult) {
+      return true;
+    } else {
+      return false;
+    }
+    // 有 beInvitedRoomId 代表為有被邀請的重新登入，但要先確定是不是已經被綁定過到該房間裡面了 (這個是要擋使用者自己從信中點邀請連結避免重複 insert)
   } else {
-    return false;
+    const searchResults = await query(connection, `select * from user_room_junction where roomId=${userObj.beInvitedRoomId} and userId=${userObj.userId}`);
+    // 代表該用戶已經被綁定到該房間了
+    if (searchResults.length > 0) {
+      const commitResult = await commit(connection, userObj.userId);
+      if (commitResult) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      await query(connection, `INSERT INTO user_room_junction SET userId=?, roomId=?`, [userObj.userId, userObj.beInvitedRoomId]);
+      const commitResult = await commit(connection, userObj.userId);
+      if (commitResult) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
+  // const updateResult = await updateGeneralUserTransaction(`UPDATE user SET
+  // access_token=?,
+  // expired_date=?
+  // WHERE id=${id}`,
+  //   `INSERT INTO user_room_junction SET userId=?, roomId=?`, userObj);
+  // if (updateResult) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
 }
 
 const getUserProfileByToken = async (token) => {
@@ -357,24 +446,42 @@ const getAllUsersOfNamespaceExclusiveSelf = async (namespaceId, selfUserId) => {
 
 const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
   // userName 及 userAvatar 一次只會有一個更新
+  const connection = await createConnection();
+  await startTransaction(connection);
   if (newUserName) {
-    const updateResult = await updateUserNameOrAvatarTransaction(
-      `select provider from user where id = ${userId}`,
-      `update fb_info SET fb_name=? where userId=${userId}`,
-      `update general_user_info SET name=? where userId=${userId}`,
-      newUserName
-    );
-    return updateResult;
+    const userInfoList = await query(connection, `select provider from user where id = ${userId}`);
+    const provider = userInfoList[0].provider;
+    if (provider === 'native') {
+      await query(connection, `update general_user_info SET name=? where userId=${userId}`, [newUserName]);
+    } else if (provider === 'facebook') {
+      await query(connection, `update fb_info SET fb_name=? where userId=${userId}`, [newUserName]);
+    }
+    return await commit(connection, { updateInfo: newUserName })
+    // const updateResult = await updateUserNameOrAvatarTransaction(
+    //   `select provider from user where id = ${userId}`,
+    //   `update fb_info SET fb_name=? where userId=${userId}`,
+    //   `update general_user_info SET name=? where userId=${userId}`,
+    //   newUserName
+    // );
+    // return updateResult;
   }
 
   if (userAvatar) {
-    const updateResult = await updateUserNameOrAvatarTransaction(
-      `select provider from user where id = ${userId}`,
-      `update fb_info SET fb_avatar_url=? where userId=${userId}`,
-      `update general_user_info SET avatarUrl=? where userId=${userId}`,
-      userAvatar
-    );
-    return updateResult;
+    const userInfoList = await query(connection, `select provider from user where id = ${userId}`);
+    const provider = userInfoList[0].provider;
+    if (provider === 'native') {
+      await query(connection, `update general_user_info SET avatarUrl=? where userId=${userId}`, [userAvatar]);
+    } else if (provider === 'facebook') {
+      await query(connection, `update fb_info SET fb_avatar_url=? where userId=${userId}`, [userAvatar]);
+    }
+    return await commit(connection, { updateInfo: userAvatar })
+    // const updateResult = await updateUserNameOrAvatarTransaction(
+    //   `select provider from user where id = ${userId}`,
+    //   `update fb_info SET fb_avatar_url=? where userId=${userId}`,
+    //   `update general_user_info SET avatarUrl=? where userId=${userId}`,
+    //   userAvatar
+    // );
+    // return updateResult;
   }
 }
 
@@ -400,12 +507,28 @@ const updateUserLastNamespace = async (userId, namespaceId) => {
   // 如果新選擇的與當前的 namespaceId 不一致，就更新 user 選擇的 namespace 及 
   // user 最後選擇的 roomId 綁定到新的 namespace 底下的 general room
   if (userLatestSelectedNamespaceId[0] && userLatestSelectedNamespaceId[0].lastSelectedNamespaceId !== parseInt(namespaceId, 10)) {
-    const updateResult = await updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId);
-    if (updateResult) {
+    const connection = await createConnection();
+    await startTransaction(connection);
+    const searchResults = await query(connection, `SELECT room.id as roomId, room.name as roomName, namespaceId, namespaceName from namespace inner join room on namespace.id=room.namespaceId where namespaceId=${namespaceId} order by roomId`);
+    if (searchResults.length > 0) {
+      // 因為有按照 roomId 排序，所以第一個就是 general room
+      const namespaceGeneralRoomId = searchResults[0].roomId;
+      await query(connection, `UPDATE user SET last_selected_room_id=${namespaceGeneralRoomId}, last_selected_namespace_id=${namespaceId} where id=${userId}`);
+    }
+    const commitResult = await commit(connection, {
+      namespaceId: namespaceId
+    });
+    if (commitResult) {
       return {
         namespaceId
       }
     }
+    // const updateResult = await updateUserSelectedNamespaceAndRoomTransaction(userId, namespaceId);
+    // if (updateResult) {
+    //   return {
+    //     namespaceId
+    //   }
+    // }
   } else {
     return {
       namespaceId
@@ -484,20 +607,39 @@ const searchUserTokenExpiredTime = async (token, userId) => {
 }
 
 const activateGeneralUser = async (activeToken) => {
-  const userInfo = await updateActiveTokenTransaction(
-    `UPDATE 
-    general_user_info SET isActive=1
-    where activeToken=?`, 
-    activeToken,
-    `SELECT 
+  const connection = await createConnection();
+  await startTransaction(connection);
+  await query(connection, `UPDATE general_user_info SET isActive=1 where activeToken=?`, [activeToken]);
+  const userInfoResults = await query(connection, `SELECT 
     general_user_info.userId as userId, 
     general_user_info.email as email, 
     general_user_info.name as name, 
     user.selected_language as selectedLanguage,
     user.access_token as accessToken from general_user_info 
     inner join user on general_user_info.userId=user.id 
-    where activeToken=?`);
-  return userInfo;
+    where activeToken=?`, [activeToken]);
+  const commitResult = await commit(connection, {
+    userId: userInfoResults[0].userId,
+    userEmail: userInfoResults[0].email,
+    userName: userInfoResults[0].name,
+    accessToken: userInfoResults[0].accessToken,
+    selectedLanguage: userInfoResults[0].selectedLanguage
+  });
+  return commitResult;
+  // const userInfo = await updateActiveTokenTransaction(
+  //   `UPDATE 
+  //   general_user_info SET isActive=1
+  //   where activeToken=?`,
+  //   activeToken,
+  //   `SELECT 
+  //   general_user_info.userId as userId, 
+  //   general_user_info.email as email, 
+  //   general_user_info.name as name, 
+  //   user.selected_language as selectedLanguage,
+  //   user.access_token as accessToken from general_user_info 
+  //   inner join user on general_user_info.userId=user.id 
+  //   where activeToken=?`);
+  // return userInfo;
 }
 
 module.exports = {
