@@ -70,7 +70,7 @@ body, html {
   align-items: center;
   justify-content: center;
   max-width: 60%;
-  min-width: 45%;
+  min-width: 55%;
 }
 
 .sign_in_block {
@@ -109,7 +109,7 @@ body, html {
 .facebook_login_area,
 .google_login_area
 {
-  width: 80%;
+  width: 90%;
 }
 
 .sign_in_block input {
