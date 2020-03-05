@@ -13,7 +13,7 @@ const namespacePage = async (req, res) => {
       namespaces: validNamespaces
     })
   } catch (error) {
-    throw error;
+    res.status(500).send('Server error');
   }
 }
 
@@ -79,12 +79,16 @@ const invitePeopleToNamespace = async (req, res) => {
       subject: `You are invited to join Interchatvas by ${invitor}`,
       text: `Your Interchatvas link: ${inviteUrl}`
     }
-    // 因為 nodemailer 用 promiseAll 太密集送會有問題，讓每一次送 email 間隔 1.5s
-    await sleep(1500);
-    const sendResult = await sendEmail(transporter, mailOptions);
+    try {
+      // 因為 nodemailer 用 promiseAll 太密集送會有問題，讓每一次送 email 間隔 1.5s
+      await sleep(1500);
+      const sendResult = await sendEmail(transporter, mailOptions);  
+      sendEmailPromiseList.push(sendResult);
+    } catch (error) {
+      console.log(error);
+    }
     // const eachEmailPromise = sendEmail(transporter, mailOptions)
     // sendEmailPromiseList.push(eachEmailPromise);
-    sendEmailPromiseList.push(sendResult);
   }
 
   res.status(200).send({

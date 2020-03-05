@@ -6,8 +6,12 @@ const getRoomCanvas = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
   socket.on('getRoomCanvas', async (dataFromClient) => {
     const { roomId } = dataFromClient;
-    const canvasUrl = await getRoomCanvasImg(roomId);
-    socket.emit('showCanvas', { canvasUrl, roomId });
+    try {
+      const canvasUrl = await getRoomCanvasImg(roomId);
+      socket.emit('showCanvas', { canvasUrl, roomId });
+    } catch (error) {
+      socket.emit('customError', error);
+    }
   })
 }
 
@@ -28,24 +32,28 @@ const eraseCanvas = (socketHandlerObj) => {
 const clearCanvas = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('canvasClear', async (clearCanvasMsg) => {
-    // 把 DB 中該圖刪掉
-    await deleteRoomCanvas(clearCanvasMsg.roomDetail.roomId);
-    subNamespace.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
+    try {
+      // 把 DB 中該圖刪掉
+      await deleteRoomCanvas(clearCanvasMsg.roomDetail.roomId);
+      subNamespace.to(clearCanvasMsg.roomDetail.roomId).emit('clearDrawContent', clearCanvasMsg);
+    } catch (error) {
+      subNamespace.to(clearCanvasMsg.roomDetail.roomId).emit('customError', error);
+    }
   })
 }
 
 const saveEachTimeDrawResult = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
   socket.on('eachTimeDraw', async (eachTimeDrawResult) => {
-    // 結果為一個 base64 的圖片
-    const canvasImagePath = await handleBufferUpload(eachTimeDrawResult.drawPathUrl, `${Date.now()}_canvas${eachTimeDrawResult.roomDetail.roomId}`);
     try {
+      // 結果為一個 base64 的圖片
+      const canvasImagePath = await handleBufferUpload(eachTimeDrawResult.drawPathUrl, `${Date.now()}_canvas${eachTimeDrawResult.roomDetail.roomId}`);
       await handleRoomCanvasImage({
         roomId: eachTimeDrawResult.roomDetail.roomId,
         canvasUrl: canvasImagePath
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   })
 }

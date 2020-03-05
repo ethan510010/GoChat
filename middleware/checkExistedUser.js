@@ -5,7 +5,7 @@ const checkExistedUser = async (req, res, next) => {
   const { email } = req.body;
   const hasAlreadyExisted = await checkExistingUserEmail(email);
   if (hasAlreadyExisted) {
-    res.json({
+    res.status(200).json({
       data: '該用戶已存在'
     })
   } else {

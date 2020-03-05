@@ -81,7 +81,7 @@ const messageHandler = (socketHandlerObj) => {
         })
       }
     } catch (error) {
-      throw error;
+      socket.emit('customError', error);
     }
   })
 }

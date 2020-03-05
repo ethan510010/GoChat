@@ -42,60 +42,64 @@ const changeRoomHandler = (socketHandlerObj) => {
     const { roomId } = roomDetailInfo.joinRoomInfo;
     const { userInfo, peerId } = roomDetailInfo;
     // 更新使用者最後選到的房間
-    const updateRoomResult = await updateUserSelectedRoom(userInfo.userId, roomId);
-    if (updateRoomResult) {
-      socketHandlerObj.currentSelectedRoomId = roomId;
-      // 如果該房間都還沒有會員進入
-      if (!socketHandlerObj.roomUsersPair[roomId]) {
-        socketHandlerObj.roomUsersPair[roomId] = [];
-      }
-      // 配合 webRTC 生成
-      if (!socketHandlerObj.roomPeerIdList[roomId]) {
-        socketHandlerObj.roomPeerIdList[roomId] = [];
-      }
-      userInfo.socketId = socketHandlerObj.socket.id;
-      // 房間加入切換到的人
-      socketHandlerObj.roomUsersPair[roomId].push(userInfo);
-      socketHandlerObj.roomPeerIdList[roomId].push({
-        peerId: peerId,
-        user: userInfo
-      })
-      socketHandlerObj.socket.join(roomId);
-      // 2. 離開舊房間的處理
-      const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
-      if (socketHandlerObj.roomUsersPair[leaveRoomId]) {
-        // 移除
-        const removeIndex = socketHandlerObj.roomUsersPair[leaveRoomId].findIndex(user => {
-          return user.userId === userInfo.userId
+    try {
+      const updateRoomResult = await updateUserSelectedRoom(userInfo.userId, roomId);
+      if (updateRoomResult) {
+        socketHandlerObj.currentSelectedRoomId = roomId;
+        // 如果該房間都還沒有會員進入
+        if (!socketHandlerObj.roomUsersPair[roomId]) {
+          socketHandlerObj.roomUsersPair[roomId] = [];
+        }
+        // 配合 webRTC 生成
+        if (!socketHandlerObj.roomPeerIdList[roomId]) {
+          socketHandlerObj.roomPeerIdList[roomId] = [];
+        }
+        userInfo.socketId = socketHandlerObj.socket.id;
+        // 房間加入切換到的人
+        socketHandlerObj.roomUsersPair[roomId].push(userInfo);
+        socketHandlerObj.roomPeerIdList[roomId].push({
+          peerId: peerId,
+          user: userInfo
         })
-        if (removeIndex !== -1) {
-          socketHandlerObj.roomUsersPair[leaveRoomId].splice(removeIndex, 1);
-          console.log('剛剛移除後房間剩下的', socketHandlerObj.roomUsersPair)
-          socketHandlerObj.socket.leave(leaveRoomId);
+        socketHandlerObj.socket.join(roomId);
+        // 2. 離開舊房間的處理
+        const leaveRoomId = roomDetailInfo.lastChooseRoom.roomId;
+        if (socketHandlerObj.roomUsersPair[leaveRoomId]) {
+          // 移除
+          const removeIndex = socketHandlerObj.roomUsersPair[leaveRoomId].findIndex(user => {
+            return user.userId === userInfo.userId
+          })
+          if (removeIndex !== -1) {
+            socketHandlerObj.roomUsersPair[leaveRoomId].splice(removeIndex, 1);
+            console.log('剛剛移除後房間剩下的', socketHandlerObj.roomUsersPair)
+            socketHandlerObj.socket.leave(leaveRoomId);
+          }
         }
-      }
-  
-      // 移除 WebRTC 裡面的配對 peerId
-      if (socketHandlerObj.roomPeerIdList[leaveRoomId]) {
-        const removeIndex = socketHandlerObj.roomPeerIdList[leaveRoomId].findIndex(eachPeerDetailInfo => {
-          return eachPeerDetailInfo.user.userId === roomDetailInfo.userInfo.userId;
+
+        // 移除 WebRTC 裡面的配對 peerId
+        if (socketHandlerObj.roomPeerIdList[leaveRoomId]) {
+          const removeIndex = socketHandlerObj.roomPeerIdList[leaveRoomId].findIndex(eachPeerDetailInfo => {
+            return eachPeerDetailInfo.user.userId === roomDetailInfo.userInfo.userId;
+          });
+          if (removeIndex !== -1) {
+            socketHandlerObj.roomPeerIdList[leaveRoomId].splice(removeIndex, 1);
+          }
+        }
+        console.log('離開房間後剩下的 peer', socketHandlerObj.roomPeerIdList);
+        // 代表都完成了
+        callback({
+          acknowledged: true
         });
-        if (removeIndex !== -1) {
-          socketHandlerObj.roomPeerIdList[leaveRoomId].splice(removeIndex, 1);
-        }
+        // 全部的人都廣播
+        const roomUsersPair = socketHandlerObj.roomUsersPair;
+        const roomPeerIdList = socketHandlerObj.roomPeerIdList;
+        socketHandlerObj.subNamespace.emit('changeRoomPeersList', {
+          roomUsersPair,
+          roomPeerIdList
+        })
       }
-      console.log('離開房間後剩下的 peer', socketHandlerObj.roomPeerIdList);
-      // 代表都完成了
-      callback({
-        acknowledged: true
-      });
-      // 全部的人都廣播
-      const roomUsersPair = socketHandlerObj.roomUsersPair;
-      const roomPeerIdList = socketHandlerObj.roomPeerIdList;
-      socketHandlerObj.subNamespace.emit('changeRoomPeersList', {
-        roomUsersPair,
-        roomPeerIdList
-      })
+    } catch (error) {
+      socket.emit('customError', error);
     }
   });
 }
@@ -157,13 +161,13 @@ module.exports = {
     //     roomPeerIdList[roomId] = [];
     //   }
     //   roomUsersPair[roomId].push(joinInfo.userInfo);
-  
+
     //   // WebRTC 事件
     //   roomPeerIdList[roomId].push({
     //     peerId: peerId,
     //     user: joinInfo.userInfo
     //   });
-  
+
     //   socket.join(roomId);
     //   console.log('加入後房間跟用戶的狀況', roomUsersPair)
     //   console.log('加入後房間的 roomPeerIdList', roomPeerIdList);
@@ -212,7 +216,7 @@ module.exports = {
     //         socket.leave(leaveRoomId);
     //       }
     //     }
-    
+
     //     // 移除 WebRTC 裡面的配對 peerId
     //     if (roomPeerIdList[leaveRoomId]) {
     //       const removeIndex = roomPeerIdList[leaveRoomId].findIndex(eachPeerDetailInfo => {
