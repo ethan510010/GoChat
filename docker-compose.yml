@@ -1,15 +1,19 @@
 version: "3"
 services: 
+  certbot:
+    image: certbot/certbot
   nginx:
     image: nginx:latest
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - /etc/letsencrypt/:/etc/letsencrypt/
     depends_on:
       - node
     ports:
       - "80:80" # docker 內部 80 指向 localhost 的80
-  redis:
-    image: redis:5.0.7
+      - "443":"443"
+  # redis:
+  #   image: redis:5.0.7
   node:
     build: .
     ports:
