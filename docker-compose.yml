@@ -11,7 +11,7 @@ services:
       - Chatvas
     ports:
       - "80:80" # docker 內部 80 指向 localhost 的80
-      - "443":"443"
+      - "443:443"
   # redis:
   #   image: redis:5.0.7
   Chatvas:
