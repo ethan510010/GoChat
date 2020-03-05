@@ -14,7 +14,7 @@ services:
       - "443:443"
   # redis:
   #   image: redis:5.0.7
-  Chatvas:
+  chatvas:
     build: .
     ports:
       - 3000:3000
