@@ -50,7 +50,7 @@ const deleteRoomCanvas = async (roomId) => {
     const deleteResult = await exec(`
       delete from canvas_image where roomId=${roomId}
     `);
-    if (deleteResult[0]) {
+    if (deleteResult) {
       return true;
     } else {
       return false;
