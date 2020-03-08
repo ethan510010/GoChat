@@ -17,9 +17,10 @@ services:
   chatvas:
     build: .
     volumes:
-      - "etc/letsencrypt:/etc/letsencrypt"
+      - "/etc/letsencrypt:/etc/letsencrypt"
     ports:
-      - 3000:3000
+      - "3000:3000"
+      - "9000:9000"     
 
 
 
