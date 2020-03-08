@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('easychat:server');
 var http = require('http');
+var fs = require('fs');
 // 導入 socketio
 var io = require('../socket/socketAPI')
 // 導入 peer server
