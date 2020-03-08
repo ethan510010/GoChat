@@ -41,7 +41,7 @@ let currentUserPeerId;
 let peer = new Peer(`currentUserId${currentUserDetail.userId}`, {
   host: 'https://interchatvas.com',
   port: 9000,
-  path: '/peerjs'
+  path: '/api'
 });
 // let peer = new Peer();
 let connectionList = [];
