@@ -13,14 +13,8 @@ var languageRouter = require('./routes/language');
 var userLanguageRouter = require('./routes/userLanguage');
 var namespaceRouter = require('./routes/namespace');
 var chatPageRouter = require('./routes/chat');
-const expressPeerServer = require('peer').ExpressPeerServer;
 
 var app = express();
-
-var myPeerServer = require('http').Server(app);
-myPeerServer.listen(9000);
-
-const peerServer = expressPeerServer(myPeerServer);
 // aws 設定
 aws.config.update({
   secretAccessKey: process.env.awsSecretKey,
@@ -67,15 +61,7 @@ app.use('/language', languageRouter);
 app.use('/userLanguage', userLanguageRouter);
 app.use('/namespace', namespaceRouter);
 app.use('/chat', chatPageRouter);
-app.use('/peer', peerServer);
 
-peerServer.on('connection', (id) => {
-  console.log('client peerId', id);
-}) 
-
-peerServer.on('disconnect', (id) => {
-  console.log('bye peerId', id);
-})
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
