@@ -6,7 +6,7 @@ services:
     image: nginx:latest
     volumes:
       - "./nginx:/etc/nginx/conf.d"
-      - "/etc/letsencrypt:/etc/letsencrypt:rwx"
+      - "/etc/letsencrypt:/etc/letsencrypt"
     depends_on:
       - chatvas
     ports:
@@ -16,6 +16,8 @@ services:
   #   image: redis:5.0.7
   chatvas:
     build: .
+    volumes:
+      - "etc/letsencrypt:/etc/letsencrypt"
     ports:
       - 3000:3000
 
