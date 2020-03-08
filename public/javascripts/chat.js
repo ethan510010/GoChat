@@ -40,7 +40,7 @@ const callBtn = document.getElementById('callVideo');
 let currentUserPeerId;
 let peer = new Peer(`currentUserId${currentUserDetail.userId}`, {
   host: '/',
-  port: 3000,
+  port: 9000,
   path: '/api'
 });
 // let peer = new Peer();

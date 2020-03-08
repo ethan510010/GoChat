@@ -24,12 +24,12 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-// var peerHttpServer = http.Server(app);
-// peerHttpServer.listen(9000);
+var peerHttpServer = http.Server(app);
+peerHttpServer.listen(9000);
 // 啟動 Socket.io
 io.getSocketio(server)
 // 啟動 peer server
-const peerServer = expressPeerServer(server);
+const peerServer = expressPeerServer(peerHttpServer);
 peerServerForWebRTC.getPeerServer(peerServer, app);
 /**
  * Listen on provided port, on all network interfaces.
