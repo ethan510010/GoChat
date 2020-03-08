@@ -174,7 +174,7 @@ describe('users api intergration test', () => {
     })
   })
   // join room 事件測試
-  test('send message', (done) => {
+  test('join room event', (done) => {
     const client1 = ioClient.connect(`http://localhost:3000/namespaceId=3`);
     const client2 = ioClient.connect(`http://localhost:3000/namespaceId=3`);
     const client3 = ioClient.connect(`http://localhost:3000/namespaceId=2`);
@@ -185,9 +185,29 @@ describe('users api intergration test', () => {
         roomTitle: 'general'
       },
       userInfo: {
-        
+        userId: 2,
+        provider: 'native',
+        expiredTime: 1584030705572,
+        lastSelectedRoomId: 3,
+        lastSelectedRoomTitle: 'general',
+        selectedLanguage: 'zh-TW',
+        name: 'user2',
+        email: 'user2@gmail.com',
+        avatarUrl: 'https://user2Avatar.jpg'
       }
+    }, (callbackInfo) => {
+      expect(callbackInfo.roomInfo).toEqual(
+        expect.objectContaining({
+          roomId: 3,
+          roomTitle: 'general'
+        }) 
+      )
+      done()
     })
+    // client1.on('allPeersForRoom', (info) => {
+    //   expect(info.roomId).toBe(3);
+    //   done();
+    // })
   })
 })
 
