@@ -9,6 +9,9 @@ var debug = require('debug')('easychat:server');
 var http = require('http');
 // 導入 socketio
 var io = require('../socket/socketAPI')
+// 導入 peer server
+var expressPeerServer = require('peer').ExpressPeerServer;
+var peerServerForWebRTC = require('../peerServer/peerServer.js');
 /**
  * Get port from environment and store in Express.
  */
@@ -24,6 +27,9 @@ var server = http.createServer(app);
 
 // 啟動 Socket.io
 io.getSocketio(server)
+// 啟動 peer server
+const peerServer = expressPeerServer(server);
+peerServerForWebRTC.getPeerServer(peerServer);
 /**
  * Listen on provided port, on all network interfaces.
  */
