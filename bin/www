@@ -11,7 +11,7 @@ var http = require('http');
 var io = require('../socket/socketAPI')
 // 導入 peer server
 var { PeerServer } = require('peer');
-// var peerServerForWebRTC = require('../peerServer/peerServer.js');
+var peerServerForWebRTC = require('../peerServer/peerServer.js');
 
 const peerServer = PeerServer({
   port: 9000,
@@ -42,7 +42,7 @@ var server = http.createServer(app);
 io.getSocketio(server)
 // 啟動 peer server
 // const peerServer = expressPeerServer(peerHttpServer);
-// peerServerForWebRTC.getPeerServer(peerServer, app);
+peerServerForWebRTC.getPeerServer(peerServer);
 /**
  * Listen on provided port, on all network interfaces.
  */

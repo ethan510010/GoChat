@@ -1,6 +1,5 @@
 let peerServerForWebRTC = {}
-peerServerForWebRTC.getPeerServer = async function (peerServer, app) {
-  app.use('/api', peerServer);
+peerServerForWebRTC.getPeerServer = async function (peerServer) {
 
   peerServer.on('connection', (id) => {
     console.log('client peerId', id);
