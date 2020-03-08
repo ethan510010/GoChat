@@ -10,8 +10,20 @@ var http = require('http');
 // 導入 socketio
 var io = require('../socket/socketAPI')
 // 導入 peer server
-var expressPeerServer = require('peer').ExpressPeerServer;
-var peerServerForWebRTC = require('../peerServer/peerServer.js');
+var { PeerServer } = require('peer');
+// var peerServerForWebRTC = require('../peerServer/peerServer.js');
+
+const peerServer = PeerServer({
+  port: 9000,
+  ssl: {
+    key: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/fullchain.pem') 
+  },
+  path: '/peerjs',
+  proxied: true
+})
+
+
 /**
  * Get port from environment and store in Express.
  */
@@ -24,13 +36,13 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-var peerHttpServer = http.Server(app);
-peerHttpServer.listen(9000);
+// var peerHttpServer = http.Server(app);
+// peerHttpServer.listen(9000);
 // 啟動 Socket.io
 io.getSocketio(server)
 // 啟動 peer server
-const peerServer = expressPeerServer(peerHttpServer);
-peerServerForWebRTC.getPeerServer(peerServer, app);
+// const peerServer = expressPeerServer(peerHttpServer);
+// peerServerForWebRTC.getPeerServer(peerServer, app);
 /**
  * Listen on provided port, on all network interfaces.
  */

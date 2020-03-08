@@ -41,7 +41,7 @@ let currentUserPeerId;
 let peer = new Peer(`currentUserId${currentUserDetail.userId}`, {
   host: '/',
   port: 9000,
-  path: '/api'
+  path: '/peerjs'
 });
 // let peer = new Peer();
 let connectionList = [];
