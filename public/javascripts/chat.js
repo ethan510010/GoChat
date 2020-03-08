@@ -39,7 +39,7 @@ const callBtn = document.getElementById('callVideo');
 // create a peer connection with peer obj
 let currentUserPeerId;
 let peer = new Peer(`currentUserId${currentUserDetail.userId}`, {
-  host: 'interchatvas.com',
+  host: 'https://interchatvas.com',
   port: 9000,
   path: '/peerjs'
 });
