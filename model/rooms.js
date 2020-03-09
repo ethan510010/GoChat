@@ -34,20 +34,6 @@ const insertNewRoom = async (roomName, namespaceId, userIdList) => {
   }
 }
 
-const listExistedRooms = async () => {
-  try {
-    const allRooms = await exec(`
-    select name from room
-  `);
-    allRoomsName = allRooms.map((eachRoom) => {
-      return eachRoom.name;
-    });
-    return allRoomsName;
-  } catch (error) {
-    throw new AppError(error.message, 500);
-  }
-}
-
 const getRooms = async (userId) => {
   try {
     const roomsOfUser = await exec(`
@@ -150,7 +136,6 @@ const userLeaveRoom = async (roomId, userId) => {
 
 module.exports = {
   insertNewRoom,
-  listExistedRooms,
   getRoomsOfNamespaceAndUser,
   getAllRoomsOfNamespace,
   getRooms,
