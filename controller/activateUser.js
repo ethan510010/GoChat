@@ -35,7 +35,7 @@ const activateUser = async (req, res) => {
             uiLangauge: uiLangauge
           });
         } catch (error) {
-          throw error;
+          res.status(500).send('Server error');
         }
       } else {
         res.render('sign', {

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/stylesheets/normalize.css">
   <link rel="stylesheet" href="/stylesheets/chatPage.css">
   <link rel="stylesheet" href="/stylesheets/customConfirm.css">
+  <link rel="icon" type="image/png" href="/images/chatvas.png" alt="">
 </head>
 <body>
   <!-- <div class="header">
@@ -245,9 +246,9 @@
   </div>
   <%- include('./customAlert.ejs'); %>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
-  <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+  <!-- <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script> -->
   <!-- <script src="/javascripts/peer.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.0.0/peerjs.min.js"></script> -->
+  <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
   <script src="/javascripts/customAlert.js"></script>
   <script type="text/javascript">
     let currentNamespaceId = <%- currentNamespaceId %>;
@@ -277,5 +278,7 @@
   <script src="/javascripts/changePage.js"></script>
   <script src="/javascripts/searchRoom.js"></script>
   <script src="/javascripts/changeLanguage.js"></script>
+  <!-- 錯誤處理 -->
+  <script src="/javascripts/socketErrorHandler.js"></script>
 </body>
 </html>

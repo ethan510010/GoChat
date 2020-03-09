@@ -1,7 +1,9 @@
 const { exec } = require('../db/mysql');
+const AppError = require('../common/customError');
 
 const getUserInfoByUserId = async (userId) => {
-  const userProfileResult = await exec(`
+  try {
+    const userProfileResult = await exec(`
     select 
     tempTable.userId, 
     tempTable.provider, 
@@ -24,6 +26,9 @@ const getUserInfoByUserId = async (userId) => {
     return userProfileResult[0];
   } else {
     return null;
+  }
+  } catch (error) {
+    throw new AppError(error.message, 500);
   }
 }
 

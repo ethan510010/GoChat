@@ -38,7 +38,12 @@ let scrollFinished = false;
 const callBtn = document.getElementById('callVideo');
 // create a peer connection with peer obj
 let currentUserPeerId;
-let peer = new Peer();
+let peer = new Peer(`currentUserId${currentUserDetail.userId}`, {
+  host: '/',
+  port: 9000,
+  path: '/peerjs'
+});
+// let peer = new Peer();
 let connectionList = [];
 
 peer.on('open', function () {
@@ -550,6 +555,7 @@ function showChatContent(avatarUrl, name, chatMsgResults, fromUserId, messageTim
     messageImageTag.classList.add('imageMessage');
     messageImageTag.src = chatMsgResults[0];
     const downloadImageLink = document.createElement('a');
+    downloadImageLink.setAttribute('download', 'download');
     downloadImageLink.href = chatMsgResults[0];
     downloadImageLink.appendChild(messageImageTag);
     messagesDiv.append(downloadImageLink);

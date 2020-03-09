@@ -54,7 +54,7 @@ const chatPageContent = async (req, res) => {
       currentNamespaceDefaultRoom: allRoomsOfCurrentUserAndNamespace[0]
     })
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).send('Server error');
   }
 }
 

@@ -1,0 +1,4 @@
+apps:
+  - script: ./bin/www
+    name: Chatvas
+    watch: true

@@ -62,8 +62,7 @@ const userSignin = async (req, res) => {
           })
         }
       } catch (err) {
-        console.log(err.message);
-        res.status(500).send(err.message);
+        res.status(500).send('Server error');
       }
       break;
     case 'facebook':
@@ -129,8 +128,7 @@ const userSignin = async (req, res) => {
           }
         })
       } catch (error) {
-        console.log(error);
-        res.status(500).send('新增用戶FB資料錯誤');
+        res.status(500).send('Server error');
       }
       break;
     default:
@@ -182,7 +180,7 @@ const signupUser = async (req, res) => {
     }
     transporter.sendMail(mailOptions, (err, data) => {
       if (err) {
-        res.status(500).send(err.message);
+        res.status(500).send('Server error');
       } else {
         res.status(200).json({
           data: {
@@ -200,23 +198,9 @@ const signupUser = async (req, res) => {
         })
       }
     })
-    // res.status(200).json({
-    //   data: {
-    //     accessToken: accessToken,
-    //     expiredDate: tokenExpiredDate,
-    //     user: {
-    //       id: userId,
-    //       provider: 'native',
-    //       name: username,
-    //       email: email,
-    //       avatarUrl: '/images/defaultAvatar.png',
-    //       selectedLanguage: selectedLanguage
-    //     }
-    //   }
-    // })
   } catch (err) {
     console.log(err)
-    res.status(500).send(err.message)
+    res.status(500).send('Server error');
   }
 }
 

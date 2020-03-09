@@ -7,7 +7,7 @@ window.onload = function() {
     const startY = e.clientY;
     resizeTag.top = resizeTag.offsetTop;
     document.onmousemove = function(e) {
-      const endY = e.clientY;
+      const endY = e.clientY - 50;
       let moveLen = resizeTag.top + (endY - startY);
       const maxMoveLen = chatContentDiv.clientHeight - resizeTag.offsetHeight;
       if (moveLen < 60) {
