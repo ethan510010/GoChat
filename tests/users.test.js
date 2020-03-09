@@ -216,10 +216,17 @@ describe('users api intergration test', () => {
       )
       done()
     })
-    // client1.on('allPeersForRoom', (info) => {
-    //   expect(info.roomId).toBe(3);
-    //   done();
-    // })
+    client1.on('allPeersForRoom', (info) => {
+      console.log(info.peersRoomPair)
+      expect(info.peersRoomPair['3']).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            peerId: 'client1PeerId'
+          }),
+        ])
+      )
+      done()
+    })
   })
 })
 
