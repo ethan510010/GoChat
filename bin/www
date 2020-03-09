@@ -9,21 +9,29 @@ var debug = require('debug')('easychat:server');
 var http = require('http');
 var fs = require('fs');
 // 導入 socketio
-var io = require('../socket/socketAPI')
+var io = require('../socket/socketAPI');
 // 導入 peer server
 var { PeerServer } = require('peer');
 var peerServerForWebRTC = require('../peerServer/peerServer.js');
+require('dotenv').config();
 
-const peerServer = PeerServer({
-  port: 9000,
-  ssl: {
-    key: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/fullchain.pem') 
-  },
-  path: '/peerjs',
-  proxied: true
-})
-
+let peerServer;
+if (process.env.environment === 'production') {
+  peerServer = PeerServer({
+    port: 9000,
+    ssl: {
+      key: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/interchatvas.com/fullchain.pem') 
+    },
+    path: '/peerjs',
+    proxied: true
+  })
+} else if (process.env.environment === 'development') {
+  peerServer = PeerServer({
+    port: 9000,
+    path: '/peerjs'
+  })
+}
 
 /**
  * Get port from environment and store in Express.

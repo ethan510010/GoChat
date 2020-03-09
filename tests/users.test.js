@@ -19,10 +19,6 @@ beforeAll(async () => {
 // 測試使用者相關的 api
 describe('users api intergration test', () => {
 
-  // beforeEach(() => {
-  //   console.log('測試前執行')
-  // })
-
   // test('get canvas image exists', async () => {
   //   console.log('存在的 canvas')
   //   const result = await getRoomCanvasImg(2);
@@ -73,16 +69,6 @@ describe('users api intergration test', () => {
   //   }).set('Content-Type', 'application/json')
   //     .expect(200)
   //   expect(response.body.data).toBe('該用戶已存在');
-  // })
-
-  // 更新使用者大頭貼 (有問題，晚點處理)
-  // test('renew user avatar', async () => {
-  //   const formData = new FormData();
-  //   formData.append('userAvatar', null);
-  //   formData.append('userId', 3);
-
-  //   const response = await request(app).put('/users/renewUserAvatar').attch()
-  //   console.log(response.body.data)
   // })
 
   // 更新使用者選到的房間
