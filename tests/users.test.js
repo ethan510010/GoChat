@@ -200,7 +200,19 @@ describe('users api intergration test', () => {
         expect.objectContaining({
           roomId: 3,
           roomTitle: 'general'
-        }) 
+        }), 
+      )
+      expect(callbackInfo.userInfo).toEqual(
+        expect.objectContaining({
+          avatarUrl: "https://user2Avatar.jpg", 
+          email: "user2@gmail.com", 
+          expiredTime: 1584030705572, 
+          lastSelectedRoomId: 3, 
+          lastSelectedRoomTitle: "general", 
+          name: "user2", 
+          provider: "native", 
+          selectedLanguage: "zh-TW"
+        })
       )
       done()
     })

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest"
+    "test": "jest",
+    "debugger": "node --inspect-brk ./node_modules/jest/bin/jest --runInBand --no-cache --no-watchman"
   },
   "jest": {
     "testEnvironment": "node"
