@@ -114,7 +114,7 @@ if (signinBtn) {
       } else {
         // 登入成功，但要看是否有激活該帳戶，有的話才跳轉到 settingBlock
         if (response.data.isActive === false) {
-          showCustomAlert('該 Email 尚未被驗證，請收取驗證信或是重新註冊');
+          showCustomAlert('The email address is anot active, please receive verified email or register again.')
         } else {
           document.cookie = `access_token=${response.data.accessToken}`;
           showUserSettingBlock(response.data.user);
