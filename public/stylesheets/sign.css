@@ -57,8 +57,6 @@ body, html {
   left: 0;
   height: calc(100% - 85px);
   background-color: #f8f8f8;
-  /* top: 70px; */
-  /* background-color: rgb(237, 237, 237); */
 }
 
 .function_area {
