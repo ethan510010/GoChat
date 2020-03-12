@@ -8,7 +8,7 @@ context.strokeStyle = '#000000';
 context.lineWidth = 5;
 context.fillStyle = '#FFFFFF';
 context.fillRect(0, 0, canvas.width, canvas.height);
-let currentStrokeColor = '';
+let currentStrokeColor = '#000000';
 
 // 紀錄 canvas 是否有動作
 let isDrawing = false;
