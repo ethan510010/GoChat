@@ -5,10 +5,10 @@ const { checkTokenExpired } = require('../middleware/checkTokenExpired');
 
 router.get('/', checkTokenExpired, namespacePage);
 
-router.post('/createNamespace', createNamespace);
+router.post('/', createNamespace);
 
-router.put('/updateNamespace', updateNamespace);
+router.put('/', updateNamespace);
 
-router.post('/invitePeople', invitePeopleToNamespace);
+router.post('/people', invitePeopleToNamespace);
 
 module.exports = router;

@@ -78,7 +78,7 @@ editAvatar.addEventListener('change', function (e) {
     method: 'PUT',
     body: formData
   }
-  fetch('/users/renewUserAvatar', options)
+  fetch('/users/userAvatar', options)
   .then(response => response.json())
   .catch(error => console.log(error))
   .then((validResponse) => {

@@ -296,10 +296,10 @@ if the email has already existed:
 }
 ```
 * #### User renew avatar
-##### End Point: `/users/renewUserAvatar`
+##### End Point: `/users/userAvatar`
 ##### Method: `PUT`
 ##### Request Example: 
-`https://interchatvas.com/users/renewUserAvatar`
+`https://interchatvas.com/users/userAvatar`
 ##### Request Headers: 
 
 | Field | Type | Description |
@@ -337,10 +337,10 @@ if the email has already existed:
 }
 ```
 * #### User update selected workspace
-##### End Point: `/users/updateSelectedNamespace`
+##### End Point: `/users/selectedNamespace`
 ##### Method: `PUT`
 ##### Request Example: 
-`https://interchatvas.com/users/updateSelectedNamespace`
+`https://interchatvas.com/users/selectedNamespace`
 ##### Request Headers: 
 
 | Field | Type | Description |
@@ -378,10 +378,10 @@ if the email has already existed:
 ```
 ### Workspace Related api
 * #### create new workspace
-##### End Point: `/namespace/createNamespace`
+##### End Point: `/namespace`
 ##### Method: `POST`
 ##### Request Example: 
-`https://interchatvas.com/namespace/createNamespace`
+`https://interchatvas.com/namespace`
 ##### Request Headers: 
 
 | Field | Type | Description |
@@ -421,10 +421,10 @@ if the email has already existed:
 }
 ```
 * #### update existed workspace
-##### End Point: `/namespace/updateNamespace`
+##### End Point: `/namespace`
 ##### Method: `PUT`
 ##### Request Example: 
-`https://interchatvas.com/namespace/updateNamespace`
+`https://interchatvas.com/namespace`
 ##### Request Headers: 
 
 | Field | Type | Description |
@@ -463,10 +463,10 @@ if the email has already existed:
 }
 ```
 * #### invite people to workspace
-##### End Point: `/namespace/invitePeople`
+##### End Point: `/namespace/people`
 ##### Method: `POST`
 ##### Request Example: 
-`https://interchatvas.com/namespace/invitePeople`
+`https://interchatvas.com/namespace/people`
 ##### Request Headers: 
 
 | Field | Type | Description |

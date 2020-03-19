@@ -73,7 +73,7 @@ describe('users api intergration test', () => {
 
   // 更新使用者選到的房間
   //   test('renew user selected namespace', async () => {
-  //     const response = await request(app).put('/users/updateSelectedNamespace').send({
+  //     const response = await request(app).put('/users/selectedNamespace').send({
   //       userId: 2,
   //       newSelectedNamespaceId: 2
   //     }).set('Content-Type', 'application/json')
@@ -95,7 +95,7 @@ describe('users api intergration test', () => {
 
   // describe('namespace api intergration test', () => {
   //   test('create namespace api', async () => {
-  //     const response = await request(app).post('/namespace/createnamespace').send({
+  //     const response = await request(app).post('/namespace').send({
   //       namespaceName: 'Hello',
   //       createNamespaceUserId: 2
   //     })
@@ -104,7 +104,7 @@ describe('users api intergration test', () => {
   //   })
 
   //   test('update namespace api', async () => {
-  //     const response = await request(app).put('/namespace/updateNamespace').send({
+  //     const response = await request(app).put('/namespace').send({
   //       updateNamespaceId: 4,
   //       updateNamespaceName: 'World'
   //     })

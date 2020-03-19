@@ -75,7 +75,7 @@ inviteButton.addEventListener('click', async function() {
       showCustomAlert('workspace name can not be empty');
       return;
     }  
-    const createNamespaceResult = await encapsulateFetch('/namespace/createNamespace', {
+    const createNamespaceResult = await encapsulateFetch('/namespace', {
       namespaceName: namespaceInput,
       createNamespaceUserId: userId
     }, 'POST');
@@ -111,7 +111,7 @@ inviteButton.addEventListener('click', async function() {
     }
     inputModal.style.display = 'none';
     showLoading();
-    const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
+    const sendEmailResult = await encapsulateFetch('/namespace/people', {
       emailList: emailList,
       namespaceId: newNamespaceId,
       newDefaultRoomId: newDefaultRoomId,
@@ -129,7 +129,7 @@ inviteButton.addEventListener('click', async function() {
   } else {
     const updateNamespaceTitleTag = beSelectedNamespaceBlock.children[0];
     const shouldUpdateNamespaceId = beSelectedNamespaceBlock.id.replace('namespaceId_', '');
-    const updateNamespaceResult = await encapsulateFetch('/namespace/updateNamespace', {
+    const updateNamespaceResult = await encapsulateFetch('/namespace', {
       updateNamespaceId: shouldUpdateNamespaceId,
       updateNamespaceName: document.querySelector('.namespace_input input').value
     }, 'PUT');
@@ -144,7 +144,7 @@ inviteButton.addEventListener('click', async function() {
     // 開始 loading，讓 modal 消失
     inputModal.style.display = 'none';
     showLoading()
-    const sendEmailResult = await encapsulateFetch('/namespace/invitePeople', {
+    const sendEmailResult = await encapsulateFetch('/namespace/people', {
       emailList: emailList,
       namespaceId: shouldUpdateNamespaceId,
       newDefaultRoomId: updateNamespaceResult.thisNamespaceDefaultRoomId,
@@ -171,7 +171,7 @@ namespacesArea.addEventListener('click', async function (e) {
     switch (e.target.className) {
       case 'enter_namespace_btn':
         // 打 api 更新使用者最後點擊的 namespace 及該 namespace 綁定的 default general room
-        await encapsulateFetch('/users/updateSelectedNamespace', {
+        await encapsulateFetch('/users/selectedNamespace', {
           userId: currentUser.userId,
           newSelectedNamespaceId: beTappedNamespaceId
         }, 'PUT');

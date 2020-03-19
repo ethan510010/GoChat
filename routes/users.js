@@ -18,12 +18,8 @@ router.post('/signup', checkExistedUser, signupUser);
 
 router.get('/profile', checkTokenExpired, getUserProfile);
 
-router.get('/listUsers', listAllUsers);
+router.put('/userAvatar', updateAvatar);
 
-router.put('/renewUserAvatar', updateAvatar);
-
-router.put('/renewUserSelectedRoom', updateUserRoom);
-
-router.put('/updateSelectedNamespace', updateUserSelectNamespace);
+router.put('/selectedNamespace', updateUserSelectNamespace);
 
 module.exports = router;
