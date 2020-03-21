@@ -9,6 +9,12 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
+// password 驗證只能輸入英文字母跟數字
+function validPassord(password) {
+  const pattern = /^[A-Za-z0-9][A-Za-z0-9]*$/;
+  return pattern.test(String(password).toLowerCase());
+}
+
 // 註冊事件
 const signupUserNameInputTag = document.querySelector('.enter_username input');
 const signupUserEmailTag = document.querySelector('.enter_email_for_signup input');
@@ -26,6 +32,11 @@ const signupBtn = document.querySelector('.signup_btn');
 if (signupBtn) {
   signupBtn.addEventListener('click', (e) => {
     
+    if (!validPassord(signupUserPasswordTag.value)) {
+      showCustomAlert('The passord can only be english and number characters');
+      return;
+    }
+
     let bodyParas;
     if (defaultRoomId) {
       bodyParas = {
