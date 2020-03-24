@@ -21,17 +21,16 @@ const getUserInfoByUserId = async (userId) => {
     inner join room
     on tempTable.lastSelectedRoomId=room.id
     where tempTable.userId=${userId}
-  `)
-  if (userProfileResult.length > 0) {
-    return userProfileResult[0];
-  } else {
+  `);
+    if (userProfileResult.length > 0) {
+      return userProfileResult[0];
+    }
     return null;
-  }
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
-  getUserInfoByUserId
-}
+  getUserInfoByUserId,
+};

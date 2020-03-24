@@ -32,7 +32,7 @@ const listSpecifiedRoomMessages = async (roomId, userSelectedLanguge, page) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const saveTranslatedContent = async (translateObj) => {
   try {
@@ -44,13 +44,14 @@ const saveTranslatedContent = async (translateObj) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getMessagesCache = async (roomId, language, page) => {
   try {
     const cacheResults = await listEachRoomMessagesCache(roomId, page);
     if (cacheResults.length > 0) {
-      let correspondedResults = [];
+      const correspondedResults = [];
+      // eslint-disable-next-line array-callback-return
       cacheResults.map((eachCacheMessage) => {
         const eachValidMessage = JSON.parse(eachCacheMessage);
         const responseMessage = {
@@ -59,26 +60,25 @@ const getMessagesCache = async (roomId, language, page) => {
           userId: eachValidMessage.userId,
           messageType: eachValidMessage.messageType,
           id: eachValidMessage.messageId,
-          language: language,
+          language,
           translatedContent: eachValidMessage[language],
           provider: eachValidMessage.provider,
           name: eachValidMessage.name,
           email: eachValidMessage.email,
-          avatarUrl: eachValidMessage.avatarUrl
-        }
+          avatarUrl: eachValidMessage.avatarUrl,
+        };
         correspondedResults.push(responseMessage);
-      })
+      });
       return correspondedResults;
-    } else {
-      return [];
     }
+    return [];
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
   listSpecifiedRoomMessages,
   saveTranslatedContent,
-  getMessagesCache
-}
+  getMessagesCache,
+};

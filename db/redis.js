@@ -14,25 +14,22 @@ const saveCacheMessage = (fullMessage) => {
   // 也把訊息存到 redis，存之前先確定現在有幾組房間的 key，為了不讓 redis 爆掉，我們每次就最多維持 100 組房間，每一組最多 60 筆資料
   redisClient.keys('*', (err, keys) => {
     if (err) {
-      console.log(err);
       return;
-    }   
+    }
     if (keys.length >= 100) {
-      console.log(keys);   
-      redisClient.del(keys[0], (err, result) => {
-        if (err) {
-          console.log(err);
+      redisClient.del(keys[0], (delError) => {
+        if (delError) {
           return;
         }
         redisClient.lpush(`roomId${fullMessage.roomId}`, JSON.stringify(fullMessage));
         redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
-      }); 
+      });
     } else {
       redisClient.lpush(`roomId${fullMessage.roomId}`, JSON.stringify(fullMessage));
       redisClient.ltrim(`roomId${fullMessage.roomId}`, 0, 59);
     }
-  })
-}
+  });
+};
 
 const listEachRoomMessagesCache = (roomId, page) => {
   return new Promise((resolve, reject) => {

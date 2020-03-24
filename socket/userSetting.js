@@ -1,6 +1,7 @@
 const { updateUserNameOrAvatar } = require('../model/users');
 const { handleBufferUpload } = require('./common');
 const { updateUserLanguage } = require('../model/language');
+
 const editUserAvatar = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
   // 更新使用者大頭貼
@@ -10,13 +11,13 @@ const editUserAvatar = (socketHandlerObj) => {
       const s3Path = await handleBufferUpload(avatarData, `${userInfo.userId}_${Date.now()}_${fileName}`);
       await updateUserNameOrAvatar(userInfo.userId, undefined, s3Path);
       callback({
-        newAvatarUrl: s3Path
-      })  
+        newAvatarUrl: s3Path,
+      });
     } catch (error) {
-      socket.emit('customError', error); 
+      socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const editUserName = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -25,13 +26,13 @@ const editUserName = (socketHandlerObj) => {
     try {
       await updateUserNameOrAvatar(userId, newUserName, undefined);
       callback({
-        newUserName
-      })  
+        newUserName,
+      });
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const editUserLanguage = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -40,16 +41,16 @@ const editUserLanguage = (socketHandlerObj) => {
     try {
       await updateUserLanguage(userId, selectedLanguage);
       callback({
-        selectedLanguage
-      })  
+        selectedLanguage,
+      });
     } catch (error) {
-      socket.emit('customError', error); 
+      socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 module.exports = {
   editUserAvatar,
   editUserName,
-  editUserLanguage
-}
+  editUserLanguage,
+};

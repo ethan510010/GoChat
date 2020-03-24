@@ -1,4 +1,6 @@
 require('dotenv').config();
+const rp = require('request-promise');
+const nodemailer = require('nodemailer');
 const {
   insertUser,
   searchFBUser,
@@ -9,57 +11,65 @@ const {
   getAllUsers,
   updateUserSelectedRoom,
   updateUserLastNamespace,
-  updateUserNameOrAvatar
+  updateUserNameOrAvatar,
 } = require('../model/users');
 const { generateAccessToken, hashThirdPartyLoginToken, generateActiveToken } = require('../common/common');
-const rp = require('request-promise');
-const nodemailer = require('nodemailer');
 
 // 登入
 const userSignin = async (req, res) => {
   // 被邀請到某個 namespace 底下才會有該房間
-  const { email, password, signinway, thirdPartyAuthToken, beInvitedRoomId } = req.body;
+  const {
+    email, password, signinway, thirdPartyAuthToken, beInvitedRoomId,
+  } = req.body;
   switch (signinway) {
     case 'native':
-      const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
+      const {
+        accessToken,
+        tokenExpiredDate,
+        hashedUserPassword,
+      } = generateAccessToken(email, password);
       try {
-        const { userId, hasUser, name, avatarUrl, selectedLanguage, isActive } = await searchUser(email, hashedUserPassword);
+        const {
+          userId, hasUser, name, avatarUrl, selectedLanguage, isActive,
+        } = await searchUser(email, hashedUserPassword);
         if (hasUser) {
           if (isActive) {
             // 重新登入要更新 token
-            const updateResult = await updateUserToken(userId, accessToken, tokenExpiredDate, beInvitedRoomId);
+            const updateResult = await updateUserToken(
+              userId, accessToken, tokenExpiredDate, beInvitedRoomId,
+            );
             if (updateResult === true) {
               res.status(200).json({
                 data: {
-                  accessToken: accessToken,
+                  accessToken,
                   expiredDate: tokenExpiredDate,
                   user: {
                     id: userId,
                     provider: 'native',
-                    email: email,
-                    name: name,
-                    avatarUrl: avatarUrl,
-                    selectedLanguage: selectedLanguage
-                  }
-                }
-              })
+                    email,
+                    name,
+                    avatarUrl,
+                    selectedLanguage,
+                  },
+                },
+              });
             } else {
               res.status(200).json({
-                data: '更新Token失敗'
-              })
+                data: '更新Token失敗',
+              });
             }
           } else {
             // 代表此用戶沒有被激活
             res.status(200).json({
               data: {
-                isActive: false
-              }
-            })
+                isActive: false,
+              },
+            });
           }
         } else {
           res.status(200).json({
-            data: '此用戶不存在'
-          })
+            data: '此用戶不存在',
+          });
         }
       } catch (err) {
         res.status(500).send('Server error');
@@ -79,7 +89,11 @@ const userSignin = async (req, res) => {
       const fbUserName = fbResponse.name;
       const fbPicture = fbResponse.picture.data.url;
       const fbEmail = fbResponse.email;
-      const { hasedThirdPartyToken, tokenExpiredTime, thirdPartyLoginCustomToken } = hashThirdPartyLoginToken(thirdPartyAuthToken);
+      const {
+        hasedThirdPartyToken,
+        tokenExpiredTime,
+        thirdPartyLoginCustomToken,
+      } = hashThirdPartyLoginToken(thirdPartyAuthToken);
       try {
         // 如果該 fb user email 不存在就新增使用者 fb 資料 (類似註冊)，否則就單純更新
         let validUserId = 0;
@@ -95,7 +109,7 @@ const userSignin = async (req, res) => {
             fbPicture,
             fbEmail,
             fbUserName,
-            beInvitedRoomId
+            beInvitedRoomId,
           );
           validSelectedLanguage = selectedLanguage;
         } else {
@@ -108,7 +122,7 @@ const userSignin = async (req, res) => {
             fbEmail,
             '',
             fbUserName,
-            beInvitedRoomId
+            beInvitedRoomId,
           );
           validUserId = userId;
           validSelectedLanguage = selectedLanguage;
@@ -123,10 +137,10 @@ const userSignin = async (req, res) => {
               name: fbUserName,
               email: fbEmail,
               avatarUrl: fbPicture,
-              selectedLanguage: validSelectedLanguage
-            }
-          }
-        })
+              selectedLanguage: validSelectedLanguage,
+            },
+          },
+        });
       } catch (error) {
         res.status(500).send('Server error');
       }
@@ -134,15 +148,21 @@ const userSignin = async (req, res) => {
     default:
       break;
   }
-}
+};
 
 // 註冊
 const signupUser = async (req, res) => {
   // 只有被邀請的用戶才會有 beInvitedRoomId
-  const { username, email, password, beInvitedRoomId } = req.body;
-  const { accessToken, tokenExpiredDate, hashedUserPassword } = generateAccessToken(email, password);
+  const {
+    username, email, password, beInvitedRoomId,
+  } = req.body;
+  const {
+    accessToken,
+    tokenExpiredDate,
+    hashedUserPassword,
+  } = generateAccessToken(email, password);
   try {
-    const activeToken = generateActiveToken()
+    const activeToken = generateActiveToken();
     const { userId, selectedLanguage } = await insertUser(
       accessToken,
       '',
@@ -153,7 +173,7 @@ const signupUser = async (req, res) => {
       hashedUserPassword,
       username,
       beInvitedRoomId,
-      activeToken
+      activeToken,
     );
     // 剛註冊時沒有大頭貼網址，所以 avatar 預設我們給 '/images/defaultAvatar.png'
     // 寄送驗證信
@@ -163,10 +183,10 @@ const signupUser = async (req, res) => {
       requireTLS: true,
       auth: {
         user: process.env.gmailAccount,
-        pass: process.env.gmailPassword
-      }
+        pass: process.env.gmailPassword,
+      },
     });
-    let inviteUrl ='';
+    let inviteUrl = '';
     if (process.env.environment === 'development') {
       inviteUrl = `${process.env.devHost}/signup?activeToken=${activeToken}`;
     } else if (process.env.environment === 'production') {
@@ -175,34 +195,34 @@ const signupUser = async (req, res) => {
     const mailOptions = {
       from: process.env.gmailAccount,
       to: email,
-      subject: `Activate the account you register for Chatvas`,
-      text: `active account link: ${inviteUrl}`
-    }
-    transporter.sendMail(mailOptions, (err, data) => {
+      subject: 'Activate the account you register for Chatvas',
+      text: `active account link: ${inviteUrl}`,
+    };
+    transporter.sendMail(mailOptions, (err) => {
       if (err) {
         res.status(500).send('Server error');
       } else {
         res.status(200).json({
           data: {
-            accessToken: accessToken,
+            accessToken,
             expiredDate: tokenExpiredDate,
             user: {
               id: userId,
               provider: 'native',
               name: username,
-              email: email,
+              email,
               avatarUrl: '/images/defaultAvatar.png',
-              selectedLanguage: selectedLanguage
-            }
-          }
-        })
+              selectedLanguage,
+            },
+          },
+        });
       }
-    })
+    });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send('Server error');
   }
-}
+};
 
 // 使用者資料
 const getUserProfile = async (req, res) => {
@@ -210,48 +230,48 @@ const getUserProfile = async (req, res) => {
   try {
     const userProfile = await getUserProfileByToken(accessToken);
     res.status(200).json({
-      data: userProfile
+      data: userProfile,
     });
   } catch (error) {
     res.status(500).json({
-      data: error.message
-    })
+      data: error.message,
+    });
   }
-}
+};
 
 // 列出全部用戶
 const listAllUsers = async (req, res) => {
   try {
     const allUsers = await getAllUsers();
     res.status(200).json({
-      data: allUsers
-    })
+      data: allUsers,
+    });
   } catch (error) {
     res.status(500).json({
-      data: error.message
-    })
+      data: error.message,
+    });
   }
-}
+};
 
 // 更新使用者大頭貼
 const updateAvatar = async (req, res) => {
   const userAvatarUrl = `https://d1pj9pkj6g3ldu.cloudfront.net/${req.files.userAvatar[0].key}`;
-  const userId = req.body.userId;
+  const { userId } = req.body;
   try {
     const updateResult = await updateUserNameOrAvatar(userId, undefined, userAvatarUrl);
     // const updateResult = await updateUserAvatar(userId, userAvatarUrl);
     if (updateResult) {
       res.status(200).json({
         data: {
-          userId: userId,
-          avatarUrl: userAvatarUrl
-        }
-      })
+          userId,
+          avatarUrl: userAvatarUrl,
+        },
+      });
     }
   } catch (error) {
-    res.status(500).send(error.message)
+    res.status(500).send(error.message);
   }
-}
+};
 
 const updateUserRoom = async (req, res) => {
   const { userId, roomId } = req.body;
@@ -260,15 +280,15 @@ const updateUserRoom = async (req, res) => {
     if (updateResult) {
       res.status(200).json({
         data: {
-          userId: userId,
-          selectedRoomId: roomId
-        }
-      })
+          userId,
+          selectedRoomId: roomId,
+        },
+      });
     }
   } catch (error) {
     res.status(500).send(error.message);
   }
-}
+};
 
 // 更新使用者選擇的 namespace
 const updateUserSelectNamespace = async (req, res) => {
@@ -276,13 +296,13 @@ const updateUserSelectNamespace = async (req, res) => {
   try {
     await updateUserLastNamespace(userId, newSelectedNamespaceId);
     res.status(200).send({
-      userId: userId,
-      updateNamespaceId: newSelectedNamespaceId
-    })
+      userId,
+      updateNamespaceId: newSelectedNamespaceId,
+    });
   } catch (error) {
     res.status(500).send(error.message);
   }
-}
+};
 
 module.exports = {
   userSignin,
@@ -291,5 +311,5 @@ module.exports = {
   listAllUsers,
   updateAvatar,
   updateUserRoom,
-  updateUserSelectNamespace
-}
+  updateUserSelectNamespace,
+};

@@ -6,13 +6,13 @@ const checkExistedUser = async (req, res, next) => {
   const hasAlreadyExisted = await checkExistingUserEmail(email);
   if (hasAlreadyExisted) {
     res.status(200).json({
-      data: '該用戶已存在'
-    })
+      data: '該用戶已存在',
+    });
   } else {
     next();
   }
-}
+};
 
-module.exports = { 
-  checkExistedUser
-}
+module.exports = {
+  checkExistedUser,
+};

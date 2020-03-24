@@ -16,17 +16,16 @@ const getUserProfileByUserId = async (userId) => {
     left join fb_info
     on tempTable.userId=fb_info.userId
     where tempTable.userId=${userId}
-  `)
+  `);
     if (userProfileResult.length > 0) {
       return userProfileResult[0];
-    } else {
-      return null;
     }
+    return null;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
-  getUserProfileByUserId
-}
+  getUserProfileByUserId,
+};

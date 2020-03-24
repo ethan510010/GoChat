@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 
 const host = process.env.NODE_ENV === 'test' ? process.env.testMySQLHost : process.env.mysqlHost;
 const user = process.env.NODE_ENV === 'test' ? process.env.testMySQLUser : process.env.mysqlUser;
@@ -7,13 +7,13 @@ const port = process.env.NODE_ENV === 'test' ? process.env.testMySQLPort : proce
 const database = process.env.NODE_ENV === 'test' ? process.env.testMySQLDatabase : process.env.mysqlDatabase;
 
 const mySQLConfig = {
-  host: host,
-  user: user,
-  password: password,
-  port: port,
-  database: database
-}
+  host,
+  user,
+  password,
+  port,
+  database,
+};
 
 module.exports = {
-  mySQLConfig
-}
+  mySQLConfig,
+};

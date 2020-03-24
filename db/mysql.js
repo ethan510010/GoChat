@@ -12,8 +12,8 @@ function exec(sql) {
         return;
       }
       resolve(result);
-    })
-  })
+    });
+  });
 }
 
 function execWithParaObj(sql, paraObj) {
@@ -24,8 +24,8 @@ function execWithParaObj(sql, paraObj) {
         return;
       }
       resolve(result);
-    })
-  })
+    });
+  });
 }
 
 // 測試封裝 transaction
@@ -38,8 +38,8 @@ function createConnection() {
         return;
       }
       resolve(connection);
-    })
-  })
+    });
+  });
 }
 
 function startTransaction(connection) {
@@ -49,11 +49,11 @@ function startTransaction(connection) {
         return connection.rollback(() => {
           connection.release();
           reject(transactionErr);
-        })
+        });
       }
       resolve();
-    })
-  })
+    });
+  });
 }
 
 function query(connection, sql, params) {
@@ -63,11 +63,11 @@ function query(connection, sql, params) {
         return connection.rollback(() => {
           connection.release();
           reject(err);
-        })
+        });
       }
       resolve(result);
-    })
-  })
+    });
+  });
 }
 
 function commit(connection, customResult) {
@@ -82,8 +82,8 @@ function commit(connection, customResult) {
       resolve(customResult);
       connection.release();
       console.log('transaction 完成');
-    })
-  })
+    });
+  });
 }
 
 module.exports = {
@@ -93,5 +93,5 @@ module.exports = {
   createConnection,
   startTransaction,
   query,
-  commit
-}
+  commit,
+};

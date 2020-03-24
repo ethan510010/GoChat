@@ -1,6 +1,6 @@
+const nodemailer = require('nodemailer');
 const { getUserInfoByUserId } = require('../model/chat');
 const { getNamespacesForUser, createNamespaceAndBindingGeneralRoom, renewNamespace } = require('../model/namespace');
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const namespacePage = async (req, res) => {
@@ -9,31 +9,35 @@ const namespacePage = async (req, res) => {
     const validNamespaces = await getNamespacesForUser(userId);
     const currentUser = await getUserInfoByUserId(userId);
     res.render('namespace', {
-      currentUser: currentUser,
-      namespaces: validNamespaces
-    })
+      currentUser,
+      namespaces: validNamespaces,
+    });
   } catch (error) {
     res.status(500).send('Server error');
   }
-}
+};
 
 const createNamespace = async (req, res) => {
   const { namespaceName, createNamespaceUserId } = req.body;
   try {
-    const { newNamespaceId, newDefaultRoomId, newNamespaceName } = await createNamespaceAndBindingGeneralRoom(namespaceName, createNamespaceUserId);
+    const {
+      newNamespaceId,
+      newDefaultRoomId,
+      newNamespaceName,
+    } = await createNamespaceAndBindingGeneralRoom(namespaceName, createNamespaceUserId);
     res.status(200).send({
       data: {
         namespaceId: newNamespaceId,
-        newDefaultRoomId: newDefaultRoomId,
-        newNamespaceName: newNamespaceName
-      }
-    })
+        newDefaultRoomId,
+        newNamespaceName,
+      },
+    });
   } catch (error) {
     res.status(500).send({
-      data: error.message
+      data: error.message,
     });
   }
-}
+};
 
 const updateNamespace = async (req, res) => {
   const { updateNamespaceId, updateNamespaceName } = req.body;
@@ -42,32 +46,47 @@ const updateNamespace = async (req, res) => {
     const defaultRoomId = await renewNamespace(updateNamespaceId, updateNamespaceName);
     res.status(200).json({
       data: {
-        updateNamespaceName: updateNamespaceName,
-        thisNamespaceDefaultRoomId: defaultRoomId
-      }
-    })
+        updateNamespaceName,
+        thisNamespaceDefaultRoomId: defaultRoomId,
+      },
+    });
   } catch (error) {
     res.status(500).send({
-      data: error.message
-    })
+      data: error.message,
+    });
   }
-}
+};
+
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+
+const sendEmail = (transporter, mailOptions) => new Promise((resolve, reject) => {
+  transporter.sendMail(mailOptions, (err) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve('success');
+    }
+  });
+});
 
 const invitePeopleToNamespace = async (req, res) => {
-  const { emailList, namespaceId, newDefaultRoomId, invitor } = req.body;
+  const {
+    emailList, namespaceId, newDefaultRoomId, invitor,
+  } = req.body;
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     requireTLS: true,
     auth: {
       user: process.env.gmailAccount,
-      pass: process.env.gmailPassword
-    }
-  })
+      pass: process.env.gmailPassword,
+    },
+  });
 
-  let sendEmailPromiseList = [];
+  const sendEmailPromiseList = [];
   for (let i = 0; i < emailList.length; i++) {
     const email = emailList[i];
+    let inviteUrl = '';
     if (process.env.environment === 'development') {
       inviteUrl = `${process.env.devHost}/signin?inviteNamespaceId=${namespaceId}&defaultRoomId=${newDefaultRoomId}`;
     } else if (process.env.environment === 'production') {
@@ -77,12 +96,14 @@ const invitePeopleToNamespace = async (req, res) => {
       from: process.env.gmailAccount,
       to: email,
       subject: `You are invited to join Interchatvas by ${invitor}`,
-      text: `Your Interchatvas link: ${inviteUrl}`
-    }
+      text: `Your Interchatvas link: ${inviteUrl}`,
+    };
     try {
       // 因為 nodemailer 用 promiseAll 太密集送會有問題，讓每一次送 email 間隔 1.5s
+      // eslint-disable-next-line no-await-in-loop
       await sleep(1500);
-      const sendResult = await sendEmail(transporter, mailOptions);  
+      // eslint-disable-next-line no-await-in-loop
+      const sendResult = await sendEmail(transporter, mailOptions);
       sendEmailPromiseList.push(sendResult);
     } catch (error) {
       console.log(error);
@@ -92,8 +113,8 @@ const invitePeopleToNamespace = async (req, res) => {
   }
 
   res.status(200).send({
-    data: sendEmailPromiseList
-  })
+    data: sendEmailPromiseList,
+  });
   // Promise.all(sendEmailPromiseList).then((results) => {
   //   res.status(200).send({
   //     data: results
@@ -104,29 +125,11 @@ const invitePeopleToNamespace = async (req, res) => {
   //     data: error.message
   //   })
   // })
-}
-
-const sleep = (time) => {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-const sendEmail = (transporter, mailOptions) => {
-  return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.log(err);
-        reject(err)
-      } else {
-        console.log(info.response)
-        resolve('success')
-      }
-    })
-  })
-}
+};
 
 module.exports = {
   namespacePage,
   createNamespace,
   invitePeopleToNamespace,
-  updateNamespace
-}
+  updateNamespace,
+};

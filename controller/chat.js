@@ -2,27 +2,32 @@ const { getUserInfoByUserId } = require('../model/chat');
 const { getRoomsOfNamespaceAndUser, getAllRoomsOfNamespace } = require('../model/rooms');
 const {
   getAllUsersOfNamespaceExclusiveSelf,
-  getUsersOfRoom } = require('../model/users');
+  getUsersOfRoom,
+} = require('../model/users');
 
 const chatPageContent = async (req, res) => {
   // inputUserId 就是當前用戶 id
   const inputUserId = req.query.userId;
   const inputNamespaceId = req.query.namespaceId;
   try {
-    let userProfile = await getUserInfoByUserId(inputUserId);
+    const userProfile = await getUserInfoByUserId(inputUserId);
     const {
       avatarUrl,
-      lastSelectedRoomTitle
+      lastSelectedRoomTitle,
     } = userProfile;
     // render 出用戶資料
     const uiAvatar = avatarUrl === '' ? '/images/defaultAvatar.png' : avatarUrl;
     userProfile.avatarUrl = uiAvatar;
     // render 出現在有在該 namespace而且此用戶有被加入的房間
-    const allRoomsOfCurrentUserAndNamespace = await getRoomsOfNamespaceAndUser(inputNamespaceId, inputUserId);
+    const allRoomsOfCurrentUserAndNamespace = await getRoomsOfNamespaceAndUser(
+      inputNamespaceId, inputUserId,
+    );
     // render 出在該 namespace 底下的所有用戶，但不包含自己
-    const allUsersOfNamespaceExclusiceSelf = await getAllUsersOfNamespaceExclusiveSelf(inputNamespaceId, inputUserId);
+    const allUsersOfNamespaceExclusiceSelf = await getAllUsersOfNamespaceExclusiveSelf(
+      inputNamespaceId, inputUserId,
+    );
     // render 出全部現存的房間
-    const  { namespaceName, allRoomsName }  = await getAllRoomsOfNamespace(inputNamespaceId);
+    const { namespaceName, allRoomsName } = await getAllRoomsOfNamespace(inputNamespaceId);
     let userLanguage = '';
     switch (userProfile.selectedLanguage) {
       case 'en':
@@ -37,6 +42,8 @@ const chatPageContent = async (req, res) => {
       case 'es':
         userLanguage = 'Spanish';
         break;
+      default:
+        break;
     }
     // render 出用戶最後選擇的房間的用戶
     const usersOfRoom = await getUsersOfRoom(userProfile.lastSelectedRoomId);
@@ -49,15 +56,15 @@ const chatPageContent = async (req, res) => {
       allRooms: allRoomsName,
       currentNamespaceId: inputNamespaceId,
       currentNamespaceName: namespaceName,
-      userLanguage: userLanguage,
-      usersOfRoom: usersOfRoom,
-      currentNamespaceDefaultRoom: allRoomsOfCurrentUserAndNamespace[0]
-    })
+      userLanguage,
+      usersOfRoom,
+      currentNamespaceDefaultRoom: allRoomsOfCurrentUserAndNamespace[0],
+    });
   } catch (error) {
     res.status(500).send('Server error');
   }
-}
+};
 
 module.exports = {
-  chatPageContent
-}
+  chatPageContent,
+};

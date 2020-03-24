@@ -1,36 +1,38 @@
-const socket_io = require('socket.io');
+const socketIO = require('socket.io');
 const { changeRoomHandler, joinRoomHandler, disconnectHandler } = require('./recordRoomAndUser');
 const { messageHandler } = require('./messageHandler');
-const { getRoomCanvas, drawCanvas, eraseCanvas, clearCanvas, saveEachTimeDrawResult } = require('./canvasHandler');
+const {
+  getRoomCanvas, drawCanvas, eraseCanvas, clearCanvas, saveEachTimeDrawResult,
+} = require('./canvasHandler');
 const { editUserAvatar, editUserName, editUserLanguage } = require('./userSetting');
 const { createRoom, updateRoomMember, leaveRoom } = require('./roomHandler');
 const { roomPlayingVideoOverHandler, roomIsPlayingHandler } = require('./video');
 const { listUsersOfRoom, searchUsersUnderNamespaceAndNotRoom, searchAllUsersExclusiveSelfInNamespace } = require('./usersHandler');
 const { getHistory } = require('./historyHandler');
 
-let roomUsersPair = {};
-let socketio = {};
+const roomUsersPair = {};
+const socketio = {};
 // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
 // 用來記錄當前 room 跟 peerId 的 list
-let roomPeerIdList = {};
+const roomPeerIdList = {};
 
-socketio.getSocketio = async function (server) {
-  const io = socket_io(server, {
-    pingTimeout: 60000
+socketio.getSocketio = async (server) => {
+  const io = socketIO(server, {
+    pingTimeout: 60000,
   });
   // 註冊 socket io for eachNamespace
-  io.of(/^\/namespaceId=\d+$/).on('connect', function (socket) {
+  io.of(/^\/namespaceId=\d+$/).on('connect', (socket) => {
     // 用來記錄當前 socket 進到的 roomId，作為斷線時移除使用
     // let currentSelectedRoomId = 0;
     // 有人連線進來
     // 包一個共用物件
     const socketHandlerObj = {
-      socket: socket,
+      socket,
       subNamespace: socket.nsp,
       currentSelectedRoomId: 0,
-      roomPeerIdList: roomPeerIdList,
-      roomUsersPair: roomUsersPair
-    }
+      roomPeerIdList,
+      roomUsersPair,
+    };
     // 加入房間的邏輯
     joinRoomHandler(socketHandlerObj);
     // 更換房間的邏輯
@@ -55,7 +57,7 @@ socketio.getSocketio = async function (server) {
     saveEachTimeDrawResult(socketHandlerObj);
     // 房間正在播放影片
     roomIsPlayingHandler(socketHandlerObj);
-    // 斷線處理 
+    // 斷線處理
     disconnectHandler(socketHandlerObj);
     // 取得現在在 namespaceId 底下但不在該房間下的用戶
     searchUsersUnderNamespaceAndNotRoom(socketHandlerObj);
@@ -73,7 +75,7 @@ socketio.getSocketio = async function (server) {
     roomPlayingVideoOverHandler(socketHandlerObj);
     // 用戶退群
     leaveRoom(socketHandlerObj);
-  })
+  });
 };
 
 module.exports = socketio;

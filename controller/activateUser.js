@@ -7,7 +7,9 @@ const activateUser = async (req, res) => {
     case '/signup':
       if (activeToken) {
         try {
-          const { userId, userEmail, userName, accessToken, selectedLanguage } = await activateGeneralUser(activeToken);
+          const {
+            userId, userEmail, userName, accessToken, selectedLanguage,
+          } = await activateGeneralUser(activeToken);
           // 直接登入
           let uiLangauge = '';
           switch (selectedLanguage) {
@@ -23,16 +25,18 @@ const activateUser = async (req, res) => {
             case 'es':
               uiLangauge = 'Spanish';
               break;
+            default:
+              break;
           }
           res.render('sign', {
             presentSigninUI: undefined,
             title: 'Chatvas',
             directlyLogin: true,
-            userId: userId,
+            userId,
             email: userEmail,
             name: userName,
-            accessToken: accessToken,
-            uiLangauge: uiLangauge
+            accessToken,
+            uiLangauge,
           });
         } catch (error) {
           res.status(500).send('Server error');
@@ -46,7 +50,7 @@ const activateUser = async (req, res) => {
           email: undefined,
           name: undefined,
           accessToken: undefined,
-          uiLangauge: undefined
+          uiLangauge: undefined,
         });
       }
       break;
@@ -59,13 +63,14 @@ const activateUser = async (req, res) => {
         email: undefined,
         name: undefined,
         accessToken: undefined,
-        uiLangauge: undefined
+        uiLangauge: undefined,
       });
       break;
+    default:
+      break;
   }
-
-}
+};
 
 module.exports = {
-  activateUser
-}
+  activateUser,
+};

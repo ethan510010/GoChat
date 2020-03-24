@@ -3,7 +3,8 @@ const {
   createConnection,
   startTransaction,
   query,
-  commit } = require('../db/mysql');
+  commit,
+} = require('../db/mysql');
 const AppError = require('../common/customError');
 
 const insertUser = async (
@@ -27,8 +28,8 @@ const insertUser = async (
     password,
     name,
     beInvitedRoomId,
-    activeToken
-  }
+    activeToken,
+  };
   let insertUserBasicSQL = '';
   if (beInvitedRoomId) {
     insertUserBasicSQL = `
@@ -79,10 +80,10 @@ const insertUser = async (
     const connection = await createConnection();
     await startTransaction(connection);
     const insertUserResult = await query(connection, insertUserBasicSQL, [userInfoObj.accessToken,
-    userInfoObj.fbAccessToken,
-    userInfoObj.provider,
-    userInfoObj.expiredDate,
-    userInfoObj.beInvitedRoomId]);
+      userInfoObj.fbAccessToken,
+      userInfoObj.provider,
+      userInfoObj.expiredDate,
+      userInfoObj.beInvitedRoomId]);
     const userId = insertUserResult.insertId;
     // 要帶進去的參數根據 provider 變換
     let parameters = [];
@@ -94,27 +95,29 @@ const insertUser = async (
           userInfoObj.password,
           userInfoObj.name,
           userId,
-          userInfoObj.activeToken]
+          userInfoObj.activeToken];
         break;
       case 'facebook':
-        parameters = [userInfoObj.avatarUrl, userInfoObj.name, userInfoObj.email, userId]
+        parameters = [userInfoObj.avatarUrl, userInfoObj.name, userInfoObj.email, userId];
+        break;
+      default:
         break;
     }
     await query(connection, insertUserDetailSQL, parameters);
     // 每個新創建的用戶都會被綁定到 general 這個 room，這個 room 的 id 都是 1
     // 但如果是被邀請的人，下面的 roomId 就不是1，而是被邀請的 roomId
-    let userRoomJunctionRoomId = userInfoObj.beInvitedRoomId ? userInfoObj.beInvitedRoomId : 1;
+    const userRoomJunctionRoomId = userInfoObj.beInvitedRoomId ? userInfoObj.beInvitedRoomId : 1;
     await query(connection, `insert into user_room_junction set roomId=${userRoomJunctionRoomId}, userId=${userId}`);
     const userInfoList = await query(connection, `SELECT user.selected_language as selectedLanguage from user where id=${userId}`);
     const commitResult = await commit(connection, {
-      userId: userId,
-      selectedLanguage: userInfoList[0].selectedLanguage
+      userId,
+      selectedLanguage: userInfoList[0].selectedLanguage,
     });
     return commitResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateUserFBInfo = async (
   userId,
@@ -135,8 +138,8 @@ const updateUserFBInfo = async (
     avatarUrl,
     fbEmail,
     fbUserName,
-    beInvitedRoomId
-  }
+    beInvitedRoomId,
+  };
   let updateGeneralUserInfoSQL = '';
   if (beInvitedRoomId) {
     updateGeneralUserInfoSQL = `
@@ -147,7 +150,7 @@ const updateUserFBInfo = async (
       expired_date=?,
       last_selected_room_id=?
       where id=${userId}
-    `
+    `;
   } else {
     updateGeneralUserInfoSQL = `
       update user set
@@ -156,7 +159,7 @@ const updateUserFBInfo = async (
       provider=?,
       expired_date=?
       where id=${userId}
-    `
+    `;
   }
   const updateFBUserDetailsSQL = `
     update fb_info set
@@ -164,16 +167,18 @@ const updateUserFBInfo = async (
     fb_name=?,
     fb_email=?
     where userId=${userId}
-  `
+  `;
   try {
     const connection = await createConnection();
     await startTransaction(connection);
     await query(connection, updateGeneralUserInfoSQL, [userInfoObj.accessToken,
-    userInfoObj.fbAccessToken,
-    userInfoObj.provider,
-    userInfoObj.expiredDate,
-    userInfoObj.beInvitedRoomId]);
-    await query(connection, updateFBUserDetailsSQL, [userInfoObj.avatarUrl, userInfoObj.fbUserName, userInfoObj.fbEmail]);
+      userInfoObj.fbAccessToken,
+      userInfoObj.provider,
+      userInfoObj.expiredDate,
+      userInfoObj.beInvitedRoomId]);
+    await query(connection,
+      updateFBUserDetailsSQL,
+      [userInfoObj.avatarUrl, userInfoObj.fbUserName, userInfoObj.fbEmail]);
     // 如果有 beInvitedRoomId (beInvitedRoomId 不是 undefined)，代表是被邀請的，
     // 就必須再 insert 到 user_room_junction 這張 table，但是如果該用戶已經被綁定到該 room 過，就不應該再重複插入 (擋掉使用者又是從信件中按連結)
     // 否則代表是一般 FB 重新登入，就不需此步驟
@@ -184,12 +189,12 @@ const updateUserFBInfo = async (
         await query(connection, `insert into user_room_junction set roomId=${userInfoObj.beInvitedRoomId}, userId=${userInfoObj.userId}`);
       }
     }
-    const commitResult = await commit(connection, (userInfoObj.userId))
+    const commitResult = await commit(connection, (userInfoObj.userId));
     return commitResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const checkExistingUserEmail = async (email) => {
   const searchUserSQL = `
@@ -201,13 +206,12 @@ const checkExistingUserEmail = async (email) => {
     const searchResult = await exec(searchUserSQL);
     if (searchResult.length > 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const searchUser = async (email, password) => {
   const searchUserSQL = `
@@ -219,11 +223,11 @@ const searchUser = async (email, password) => {
     general_user_info.isActive as isActive
     from user inner join general_user_info on user.id=general_user_info.userId
     WHERE email='${email}' and password='${password}'
-  `
+  `;
   try {
     const searchResult = await exec(searchUserSQL);
     if (searchResult.length > 0) {
-      const validAvatarUrl = searchResult[0].avatarUrl === '' ? '/images/defaultAvatar.png' : searchResult[0].avatarUrl
+      const validAvatarUrl = searchResult[0].avatarUrl === '' ? '/images/defaultAvatar.png' : searchResult[0].avatarUrl;
       return {
         userId: searchResult[0].userId,
         name: searchResult[0].name,
@@ -232,16 +236,15 @@ const searchUser = async (email, password) => {
         isActive: searchResult[0].isActive,
         hasUser: true,
       };
-    } else {
-      return {
-        userId: 0,
-        hasUser: false,
-      };
     }
+    return {
+      userId: 0,
+      hasUser: false,
+    };
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const searchFBUser = async (fbEmail) => {
   try {
@@ -251,31 +254,30 @@ const searchFBUser = async (fbEmail) => {
     fb_info.userId from user inner join fb_info 
     on user.id=fb_info.userId 
     where fb_email='${fbEmail}'
-  `)
+  `);
     if (searchResult.length > 0) {
       return {
         userId: searchResult[0].userId,
         selectedLanguage: searchResult[0].selectedLanguage,
-        hasFBUser: true
-      };
-    } else {
-      return {
-        userId: null,
-        hasFBUser: false
+        hasFBUser: true,
       };
     }
+    return {
+      userId: null,
+      hasFBUser: false,
+    };
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
-  let userObj = {
+  const userObj = {
     userId: id,
-    token: token,
-    expiredTime: expiredTime,
-    beInvitedRoomId: beInvitedRoomId
-  }
+    token,
+    expiredTime,
+    beInvitedRoomId,
+  };
   try {
     const connection = await createConnection();
     await startTransaction(connection);
@@ -286,34 +288,30 @@ const updateUserToken = async (id, token, expiredTime, beInvitedRoomId) => {
       const updateResult = await commit(connection, userObj.userId);
       if (updateResult) {
         return true;
-      } else {
-        return false;
       }
+      return false;
+
       // 有 beInvitedRoomId 代表為有被邀請的重新登入，但要先確定是不是已經被綁定過到該房間裡面了 (這個是要擋使用者自己從信中點邀請連結避免重複 insert)
-    } else {
-      const searchResults = await query(connection, `select * from user_room_junction where roomId=${userObj.beInvitedRoomId} and userId=${userObj.userId}`);
-      // 代表該用戶已經被綁定到該房間了
-      if (searchResults.length > 0) {
-        const commitResult = await commit(connection, userObj.userId);
-        if (commitResult) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        await query(connection, `INSERT INTO user_room_junction SET userId=?, roomId=?`, [userObj.userId, userObj.beInvitedRoomId]);
-        const commitResult = await commit(connection, userObj.userId);
-        if (commitResult) {
-          return true;
-        } else {
-          return false;
-        }
-      }
     }
+    const searchResults = await query(connection, `select * from user_room_junction where roomId=${userObj.beInvitedRoomId} and userId=${userObj.userId}`);
+    // 代表該用戶已經被綁定到該房間了
+    if (searchResults.length > 0) {
+      const commitResult = await commit(connection, userObj.userId);
+      if (commitResult) {
+        return true;
+      }
+      return false;
+    }
+    await query(connection, 'INSERT INTO user_room_junction SET userId=?, roomId=?', [userObj.userId, userObj.beInvitedRoomId]);
+    const commitResult = await commit(connection, userObj.userId);
+    if (commitResult) {
+      return true;
+    }
+    return false;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getUserProfileByToken = async (token) => {
   const getProviderSQL = `
@@ -326,12 +324,14 @@ const getUserProfileByToken = async (token) => {
     inner join room
     on user.last_selected_room_id = room.id
     where access_token='${token}' 
-  `
+  `;
   try {
     const userRoughInfo = await exec(getProviderSQL);
     if (userRoughInfo[0]) {
-      const { provider, expiredTime, selectedLanguage, lastSelectedRoomId, roomTitle } = userRoughInfo[0];
-      let userProfile = {};
+      const {
+        provider, expiredTime, selectedLanguage, lastSelectedRoomId, roomTitle,
+      } = userRoughInfo[0];
+      const userProfile = {};
       switch (provider) {
         case 'native':
           const userDetail = await exec(`
@@ -377,33 +377,34 @@ const getUserProfileByToken = async (token) => {
             userProfile.lastSelectedRoomTitle = roomTitle;
           }
           break;
+        default:
+          break;
       }
       return userProfile;
     }
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getTokenExpiredTime = async (token) => {
   try {
     const tokenExpiredTime = await exec(`
     select expired_date as expiredTime
     from user where access_token='${token}'
-  `)
+  `);
     if (tokenExpiredTime[0].expiredTime) {
       return {
-        expiredTime: tokenExpiredTime[0].expiredTime
-      }
-    } else {
-      return {
-        expiredTime: 0
-      }
+        expiredTime: tokenExpiredTime[0].expiredTime,
+      };
     }
+    return {
+      expiredTime: 0,
+    };
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getAllUsers = async () => {
   try {
@@ -418,12 +419,12 @@ const getAllUsers = async () => {
     on user.id=general_user_info.userId) as tempTable
     left join fb_info
     on tempTable.userId=fb_info.userId
-  `)
+  `);
     return users;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getAllUsersOfNamespaceExclusiveSelf = async (namespaceId, selfUserId) => {
   try {
@@ -459,7 +460,7 @@ const getAllUsersOfNamespaceExclusiveSelf = async (namespaceId, selfUserId) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
   try {
@@ -468,29 +469,29 @@ const updateUserNameOrAvatar = async (userId, newUserName, userAvatar) => {
     await startTransaction(connection);
     if (newUserName) {
       const userInfoList = await query(connection, `select provider from user where id = ${userId}`);
-      const provider = userInfoList[0].provider;
+      const { provider } = userInfoList[0];
       if (provider === 'native') {
         await query(connection, `update general_user_info SET name=? where userId=${userId}`, [newUserName]);
       } else if (provider === 'facebook') {
         await query(connection, `update fb_info SET fb_name=? where userId=${userId}`, [newUserName]);
       }
-      return await commit(connection, { updateInfo: newUserName })
+      return await commit(connection, { updateInfo: newUserName });
     }
 
     if (userAvatar) {
       const userInfoList = await query(connection, `select provider from user where id = ${userId}`);
-      const provider = userInfoList[0].provider;
+      const { provider } = userInfoList[0];
       if (provider === 'native') {
         await query(connection, `update general_user_info SET avatarUrl=? where userId=${userId}`, [userAvatar]);
       } else if (provider === 'facebook') {
         await query(connection, `update fb_info SET fb_avatar_url=? where userId=${userId}`, [userAvatar]);
       }
-      return await commit(connection, { updateInfo: userAvatar })
+      return await commit(connection, { updateInfo: userAvatar });
     }
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateUserSelectedRoom = async (userId, roomId) => {
   try {
@@ -500,13 +501,12 @@ const updateUserSelectedRoom = async (userId, roomId) => {
   `);
     if (updateResult) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateUserLastNamespace = async (userId, namespaceId) => {
   try {
@@ -516,9 +516,10 @@ const updateUserLastNamespace = async (userId, namespaceId) => {
     from user 
     where id=${userId}
   `);
-    // 如果新選擇的與當前的 namespaceId 不一致，就更新 user 選擇的 namespace 及 
+    // 如果新選擇的與當前的 namespaceId 不一致，就更新 user 選擇的 namespace 及
     // user 最後選擇的 roomId 綁定到新的 namespace 底下的 general room
-    if (userLatestSelectedNamespaceId[0] && userLatestSelectedNamespaceId[0].lastSelectedNamespaceId !== parseInt(namespaceId, 10)) {
+    if (userLatestSelectedNamespaceId[0]
+      && userLatestSelectedNamespaceId[0].lastSelectedNamespaceId !== parseInt(namespaceId, 10)) {
       const connection = await createConnection();
       await startTransaction(connection);
       const searchResults = await query(connection, `SELECT room.id as roomId, room.name as roomName, namespaceId, namespaceName from namespace inner join room on namespace.id=room.namespaceId where namespaceId=${namespaceId} order by roomId`);
@@ -528,22 +529,22 @@ const updateUserLastNamespace = async (userId, namespaceId) => {
         await query(connection, `UPDATE user SET last_selected_room_id=${namespaceGeneralRoomId}, last_selected_namespace_id=${namespaceId} where id=${userId}`);
       }
       const commitResult = await commit(connection, {
-        namespaceId: namespaceId
+        namespaceId,
       });
       if (commitResult) {
         return {
-          namespaceId
-        }
+          namespaceId,
+        };
       }
     } else {
       return {
-        namespaceId
+        namespaceId,
       };
     }
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getUsersOfRoom = async (roomId) => {
   try {
@@ -570,13 +571,12 @@ const getUsersOfRoom = async (roomId) => {
       on wholeUsersTable.userId=user_room_junction.userId
       inner join room
       on user_room_junction.roomId=room.id
-      where roomId=${roomId}`
-    );
+      where roomId=${roomId}`);
     return queryResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getUsersOfRoomExclusiveSelf = async (roomId, selfUserId) => {
   try {
@@ -604,13 +604,12 @@ const getUsersOfRoomExclusiveSelf = async (roomId, selfUserId) => {
         on wholeUsersTable.userId=user_room_junction.userId
         inner join room
         on user_room_junction.roomId=room.id
-        where roomId=${roomId} and wholeUsersTable.userId<>${selfUserId}`
-    );
+        where roomId=${roomId} and wholeUsersTable.userId<>${selfUserId}`);
     return queryResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const searchUserTokenExpiredTime = async (token, userId) => {
   try {
@@ -619,19 +618,18 @@ const searchUserTokenExpiredTime = async (token, userId) => {
   `);
     if (searchedUsers[0]) {
       return searchedUsers[0];
-    } else {
-      return [];
     }
+    return [];
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const activateGeneralUser = async (activeToken) => {
   try {
     const connection = await createConnection();
     await startTransaction(connection);
-    await query(connection, `UPDATE general_user_info SET isActive=1 where activeToken=?`, [activeToken]);
+    await query(connection, 'UPDATE general_user_info SET isActive=1 where activeToken=?', [activeToken]);
     const userInfoResults = await query(connection, `SELECT 
       general_user_info.userId as userId, 
       general_user_info.email as email, 
@@ -645,13 +643,13 @@ const activateGeneralUser = async (activeToken) => {
       userEmail: userInfoResults[0].email,
       userName: userInfoResults[0].name,
       accessToken: userInfoResults[0].accessToken,
-      selectedLanguage: userInfoResults[0].selectedLanguage
+      selectedLanguage: userInfoResults[0].selectedLanguage,
     });
-    return commitResult;  
+    return commitResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
   insertUser,
@@ -670,5 +668,5 @@ module.exports = {
   getUsersOfRoomExclusiveSelf,
   updateUserNameOrAvatar,
   searchUserTokenExpiredTime,
-  activateGeneralUser
-}
+  activateGeneralUser,
+};

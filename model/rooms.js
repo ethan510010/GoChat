@@ -3,18 +3,19 @@ const {
   createConnection,
   startTransaction,
   query,
-  commit } = require('../db/mysql');
+  commit,
+} = require('../db/mysql');
 const AppError = require('../common/customError');
 
 const insertNewRoom = async (roomName, namespaceId, userIdList) => {
   const insertRoomSQL = `
     insert into room set name=?, namespaceId=${namespaceId}
-  `
+  `;
   const userRoomJuntionSQL = `
     insert into user_room_junction 
     set roomId=?,
     userId=?
-  `
+  `;
   try {
     const connection = await createConnection();
     await startTransaction(connection);
@@ -22,17 +23,18 @@ const insertNewRoom = async (roomName, namespaceId, userIdList) => {
     const roomId = insertRoomResult.insertId;
     for (let i = 0; i < userIdList.length; i++) {
       const eachUserId = userIdList[i];
+      // eslint-disable-next-line no-await-in-loop
       await query(connection, userRoomJuntionSQL, [roomId, eachUserId]);
     }
     const createNewRoomResult = await commit(connection, {
       channelId: roomId,
-      allUsers: userIdList
+      allUsers: userIdList,
     });
     return createNewRoomResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getRooms = async (userId) => {
   try {
@@ -46,7 +48,7 @@ const getRooms = async (userId) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getRoomsOfNamespaceAndUser = async (namespaceId, userId) => {
   try {
@@ -62,7 +64,7 @@ const getRoomsOfNamespaceAndUser = async (namespaceId, userId) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getAllRoomsOfNamespace = async (namespaceId) => {
   try {
@@ -72,21 +74,19 @@ const getAllRoomsOfNamespace = async (namespaceId) => {
     on room.namespaceId=namespace.id
     where namespaceId=${namespaceId}
   `);
-    const namespaceName = roomsOfNamespace[0].namespaceName;
-    const allRoomsName = roomsOfNamespace.map((eachRoom) => {
-      return eachRoom.roomName;
-    })
+    const { namespaceName } = roomsOfNamespace[0];
+    const allRoomsName = roomsOfNamespace.map((eachRoom) => eachRoom.roomName);
     return {
       namespaceName,
-      allRoomsName
+      allRoomsName,
     };
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const updateRoom = async (roomId, userIdList) => {
-  const searchRepeatedUserSQL = `select * from user_room_junction where roomId=? and userId in (?) for update`;
+  const searchRepeatedUserSQL = 'select * from user_room_junction where roomId=? and userId in (?) for update';
   const updateRoomMemberSQL = `
     insert into user_room_junction
     set roomId=?, userId=?
@@ -95,27 +95,26 @@ const updateRoom = async (roomId, userIdList) => {
     const connection = await createConnection();
     await startTransaction(connection);
     const searchedUsers = await query(connection, searchRepeatedUserSQL, [roomId, userIdList]);
-    const searchedUserIdList = searchedUsers.map((user) => {
-      return user.userId;
-    });
+    const searchedUserIdList = searchedUsers.map((user) => user.userId);
     // userIdList 與撈出來的比對取差集，差集才是真的要進 DB 的 user
-    const shouldInsertUserIdList = userIdList.filter((userId) => {
-      return (searchedUserIdList.indexOf(userId) === -1);
-    })
+    const shouldInsertUserIdList = userIdList.filter(
+      (userId) => (searchedUserIdList.indexOf(userId) === -1),
+    );
     for (let i = 0; i < shouldInsertUserIdList.length; i++) {
       const userId = shouldInsertUserIdList[i];
+      // eslint-disable-next-line no-await-in-loop
       await query(connection, updateRoomMemberSQL, [roomId, userId]);
     }
     const updateRoomMemberResult = await commit(connection, {
-      shouldInsertUserIdList: shouldInsertUserIdList,
-      roomId: roomId,
-      userIdList: userIdList
+      shouldInsertUserIdList,
+      roomId,
+      userIdList,
     });
     return updateRoomMemberResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const userLeaveRoom = async (roomId, userId) => {
   const leaveRoomSQL = `
@@ -126,13 +125,12 @@ const userLeaveRoom = async (roomId, userId) => {
     const deleteResult = await exec(leaveRoomSQL);
     if (deleteResult) {
       return true;
-    } else {
-      return false;
-    }  
+    }
+    return false;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
   insertNewRoom,
@@ -140,5 +138,5 @@ module.exports = {
   getAllRoomsOfNamespace,
   getRooms,
   updateRoom,
-  userLeaveRoom
-}
+  userLeaveRoom,
+};

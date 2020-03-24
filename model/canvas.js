@@ -3,7 +3,8 @@ const {
   createConnection,
   startTransaction,
   query,
-  commit } = require('../db/mysql');
+  commit,
+} = require('../db/mysql');
 const AppError = require('../common/customError');
 
 const handleRoomCanvasImage = async (canvasObj) => {
@@ -17,18 +18,17 @@ const handleRoomCanvasImage = async (canvasObj) => {
     if (canvasSearchResult.length === 0) {
       const result = await query(connection, insertQuery);
       return await commit(connection, {
-        insertResult: result
+        insertResult: result,
       });
-    } else {
-      const result = await query(connection, updateQuery);
-      return await commit(connection, {
-        updateResult: result
-      })
     }
+    const result = await query(connection, updateQuery);
+    return await commit(connection, {
+      updateResult: result,
+    });
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const getRoomCanvasImg = async (roomId) => {
   try {
@@ -36,14 +36,13 @@ const getRoomCanvasImg = async (roomId) => {
       select * from canvas_image where roomId=${roomId}
     `);
     if (result[0]) {
-      return result[0].canvasUrl
-    } else {
-      return ''
+      return result[0].canvasUrl;
     }
+    return '';
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 const deleteRoomCanvas = async (roomId) => {
   try {
@@ -52,17 +51,15 @@ const deleteRoomCanvas = async (roomId) => {
     `);
     if (deleteResult) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
   handleRoomCanvasImage,
   getRoomCanvasImg,
-  deleteRoomCanvas
-}
-
+  deleteRoomCanvas,
+};

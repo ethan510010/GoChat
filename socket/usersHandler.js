@@ -1,6 +1,6 @@
 const { getUsersOfRoom, getUsersOfRoomExclusiveSelf, getAllUsersOfNamespaceExclusiveSelf } = require('../model/users');
 
-const listUsersOfRoom = (socketHandlerObj, roomUsersPair) => {
+const listUsersOfRoom = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
   socket.on('getUsersOfRoom', async (validRoomId) => {
     try {
@@ -8,13 +8,13 @@ const listUsersOfRoom = (socketHandlerObj, roomUsersPair) => {
       const usersOfRoom = await getUsersOfRoom(validRoomId);
       socket.emit('showUsersOfRoom', {
         usersOfRoom,
-        roomUsersPair: socketHandlerObj.roomUsersPair
+        roomUsersPair: socketHandlerObj.roomUsersPair,
       });
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const searchUsersUnderNamespaceAndNotRoom = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -23,13 +23,13 @@ const searchUsersUnderNamespaceAndNotRoom = (socketHandlerObj) => {
     try {
       const usersOfRoom = await getUsersOfRoomExclusiveSelf(roomId, selfUserId);
       callback({
-        usersOfRoom
-      })
+        usersOfRoom,
+      });
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const searchAllUsersExclusiveSelfInNamespace = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -38,16 +38,16 @@ const searchAllUsersExclusiveSelfInNamespace = (socketHandlerObj) => {
     try {
       const validAllUsers = await getAllUsersOfNamespaceExclusiveSelf(currentNamespaceId, userId);
       callback({
-        validAllUsers
-      })  
+        validAllUsers,
+      });
     } catch (error) {
       socket.emit('customError', error);
-    } 
-  })
-}
+    }
+  });
+};
 
 module.exports = {
   listUsersOfRoom,
   searchUsersUnderNamespaceAndNotRoom,
-  searchAllUsersExclusiveSelfInNamespace
-}
+  searchAllUsersExclusiveSelfInNamespace,
+};

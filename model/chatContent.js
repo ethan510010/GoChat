@@ -8,13 +8,13 @@ const insertChatMessage = async (messageObj) => {
     messageContent=?, 
     userId=?, 
     roomId=?,
-    messageType=?`, [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId, messageObj.messageType])
+    messageType=?`, [messageObj.createdTime, messageObj.messageContent, messageObj.userId, messageObj.roomId, messageObj.messageType]);
     return insertMessageResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
-  insertChatMessage
-}
+  insertChatMessage,
+};

@@ -4,10 +4,10 @@ const roomPlayingVideoOverHandler = (socketHandlerObj) => {
     const { roomId, roomPlayingVideo } = roomPlayingOverInfo;
     subNamespace.emit('getRoomPlayingVideoOver', {
       finisedVideoRoomId: roomId,
-      roomPlayingVideo: roomPlayingVideo
-    })
-  })
-}
+      roomPlayingVideo,
+    });
+  });
+};
 
 const roomIsPlayingHandler = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -16,12 +16,12 @@ const roomIsPlayingHandler = (socketHandlerObj) => {
     // 自己不需要接收
     socket.broadcast.to(roomId).emit('whichRoomPlayingVideo', {
       roomId,
-      videoPlaying
-    })
-  })
-}
+      videoPlaying,
+    });
+  });
+};
 
 module.exports = {
   roomPlayingVideoOverHandler,
-  roomIsPlayingHandler
-}
+  roomIsPlayingHandler,
+};

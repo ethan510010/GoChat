@@ -1,4 +1,4 @@
-const { getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas')
+const { getRoomCanvasImg, deleteRoomCanvas } = require('../model/canvas');
 const { handleBufferUpload } = require('./common');
 const { handleRoomCanvasImage } = require('../model/canvas');
 
@@ -12,22 +12,22 @@ const getRoomCanvas = (socketHandlerObj) => {
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const drawCanvas = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('draw', async (drawInfoFromClient) => {
     subNamespace.to(drawInfoFromClient.roomDetail.roomId).emit('showDrawData', drawInfoFromClient);
-  })
-}
+  });
+};
 
 const eraseCanvas = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('erase', (eraseInfo) => {
     subNamespace.to(eraseInfo.roomDetail.roomId).emit('eraseDrawData', eraseInfo);
-  })
-}
+  });
+};
 
 const clearCanvas = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
@@ -39,8 +39,8 @@ const clearCanvas = (socketHandlerObj) => {
     } catch (error) {
       subNamespace.to(clearCanvasMsg.roomDetail.roomId).emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const saveEachTimeDrawResult = (socketHandlerObj) => {
   const { socket } = socketHandlerObj;
@@ -50,18 +50,18 @@ const saveEachTimeDrawResult = (socketHandlerObj) => {
       const canvasImagePath = await handleBufferUpload(eachTimeDrawResult.drawPathUrl, `${Date.now()}_canvas${eachTimeDrawResult.roomDetail.roomId}`);
       await handleRoomCanvasImage({
         roomId: eachTimeDrawResult.roomDetail.roomId,
-        canvasUrl: canvasImagePath
-      })
+        canvasUrl: canvasImagePath,
+      });
     } catch (error) {
       console.log(error);
     }
-  })
-}
+  });
+};
 
 module.exports = {
   getRoomCanvas,
   drawCanvas,
   eraseCanvas,
   clearCanvas,
-  saveEachTimeDrawResult
-}
+  saveEachTimeDrawResult,
+};

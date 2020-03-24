@@ -1,50 +1,56 @@
 const { insertNewRoom, updateRoom, userLeaveRoom } = require('../model/rooms');
+
 const createRoom = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('createRoom', async (newRoomInfo) => {
     try {
       const { channelName, namespaceId, userIdList } = newRoomInfo;
-      const { channelId, bindingNamespaceId } = await insertNewRoom(channelName, namespaceId, userIdList);
+      const {
+        channelId,
+        bindingNamespaceId,
+      } = await insertNewRoom(channelName, namespaceId, userIdList);
       // 廣播給全部人，可以即時看到被加進去的房間
       subNamespace.emit('newRoomCreated', {
         newRoom: {
           roomId: channelId,
-          roomName: channelName
+          roomName: channelName,
         },
         bindingNamespaceId,
-        userIdList
-      })
+        userIdList,
+      });
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const updateRoomMember = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
   socket.on('updateRoomMember', async (updateInfo, callback) => {
-    const { inviterUserId, room, userList, newAddedMemberIdList } = updateInfo;
+    const {
+      inviterUserId, room, userList, newAddedMemberIdList,
+    } = updateInfo;
     try {
       const { shouldInsertUserIdList } = await updateRoom(room.roomId, newAddedMemberIdList);
       // userList 是返回給邀請發起人的
       // 取交集是真的要返回給被邀請人的
-      const validUserList = userList.filter((user) => {
-        return (shouldInsertUserIdList.indexOf(user.userId) > -1);
-      })
+      const validUserList = userList.filter(
+        (user) => (shouldInsertUserIdList.indexOf(user.userId) > -1),
+      );
       subNamespace.emit('receiveUpdateNewMember', {
         inviterUserId,
         room,
         userList,
-        validUserList
-      })
+        validUserList,
+      });
       callback({
-        updateFinished: true
-      })
+        updateFinished: true,
+      });
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 const leaveRoom = (socketHandlerObj) => {
   const { socket, subNamespace } = socketHandlerObj;
@@ -56,8 +62,8 @@ const leaveRoom = (socketHandlerObj) => {
       if (leaveResult) {
         subNamespace.to(leaveRoomId).emit('leaveRoomNotification', {
           leaveUser: dataFromClient.leaveUser,
-          leaveRoom: dataFromClient.leaveRoom
-        })
+          leaveRoom: dataFromClient.leaveRoom,
+        });
         // if (roomUsersPair[leaveRoomId]) {
         //   // 移除
         //   io.to(leaveRoomId).emit('leaveRoomNotification', {
@@ -77,11 +83,11 @@ const leaveRoom = (socketHandlerObj) => {
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 module.exports = {
   createRoom,
   updateRoomMember,
-  leaveRoom
-}
+  leaveRoom,
+};

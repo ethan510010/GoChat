@@ -3,7 +3,8 @@ const {
   createConnection,
   startTransaction,
   query,
-  commit } = require('../db/mysql');
+  commit,
+} = require('../db/mysql');
 const AppError = require('../common/customError');
 
 const getNamespacesForUser = async (userId) => {
@@ -17,18 +18,16 @@ const getNamespacesForUser = async (userId) => {
     // 列出該用戶底下全部的 namespace，但 systemDefault 預設的過濾掉 (systemDefault 的 namespaceId 為 1)
     if (namespacesOfUser.length > 0) {
       // 為系統預設的
-      console.log(namespacesOfUser)
       if (namespacesOfUser[0].namespaceId === 1) {
         namespacesOfUser.splice(0, 1);
       }
       return namespacesOfUser;
-    } else {
-      return [];
     }
+    return [];
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 // 每個新建的 namespace 都會綁定一個 general room，而且創建 namespace 的人 DB 也要綁定該 namespace
 const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespaceUserId) => {
@@ -44,15 +43,16 @@ const createNamespaceAndBindingGeneralRoom = async (namespaceName, createNamespa
     const commitResult = await commit(connection, {
       newNamespaceId: createNamespaceId,
       newDefaultRoomId: newNamespaceGeneralRoomId,
-      newNamespaceName: namespaceName
+      newNamespaceName: namespaceName,
     });
     return commitResult;
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 // 更新 namespace
+// eslint-disable-next-line consistent-return
 const renewNamespace = async (namespaceId, namespaceName) => {
   try {
     const connection = await createConnection();
@@ -65,17 +65,17 @@ const renewNamespace = async (namespaceId, namespaceName) => {
       const defaultRoomId = selectDefaulRoomResults[0].roomId;
       await query(connection, `update namespace set namespaceName=? where id=${namespaceId}`, [namespaceName]);
       await commit(connection, {
-        defaultRoomId: defaultRoomId
+        defaultRoomId,
       });
       return defaultRoomId;
     }
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
   getNamespacesForUser,
   createNamespaceAndBindingGeneralRoom,
-  renewNamespace
-}
+  renewNamespace,
+};

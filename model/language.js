@@ -11,8 +11,8 @@ const updateUserLanguage = async (userId, language) => {
   } catch (error) {
     throw new AppError(error.message, 500);
   }
-}
+};
 
 module.exports = {
-  updateUserLanguage
-}
+  updateUserLanguage,
+};

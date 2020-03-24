@@ -8,16 +8,16 @@ const messageHandler = (socketHandlerObj) => {
   const { subNamespace, socket } = socketHandlerObj;
   socket.on('clientMessage', async (dataFromClient) => {
     // 用來處理要存到 redis cache 的每一筆資料
-    let messageRedisCache = {};
+    const messageRedisCache = {};
     // 儲存訊息到 mySQL
-    let messageObj = {
+    const messageObj = {
       createdTime: dataFromClient.messageTime,
       messageContent: dataFromClient.messageContent,
       userId: dataFromClient.userInfo.userId,
       roomId: dataFromClient.roomDetail.roomId,
       messageType: dataFromClient.messageType,
-      fileName: dataFromClient.fileName
-    }
+      fileName: dataFromClient.fileName,
+    };
     if (dataFromClient.messageType === 'image') {
       const s3Path = await handleBufferUpload(dataFromClient.messageContent, `${dataFromClient.messageTime}_${dataFromClient.fileName}`);
       messageObj.messageContent = s3Path;
@@ -39,7 +39,7 @@ const messageHandler = (socketHandlerObj) => {
             await saveTranslatedContent({
               messageId: createMessageResult.insertId,
               language: eachLanguage,
-              translatedContent: eachTransResult
+              translatedContent: eachTransResult,
             });
             dataFromClient[eachLanguage] = eachTransResult;
             messageRedisCache[eachLanguage] = eachTransResult;
@@ -50,7 +50,7 @@ const messageHandler = (socketHandlerObj) => {
             await saveTranslatedContent({
               messageId: createMessageResult.insertId,
               language: eachLanguage,
-              translatedContent: messageObj.messageContent
+              translatedContent: messageObj.messageContent,
             });
             messageRedisCache[eachLanguage] = messageObj.messageContent;
           }
@@ -77,15 +77,15 @@ const messageHandler = (socketHandlerObj) => {
           newMessageRoomId: dataFromClient.roomDetail.roomId,
           messageTime: dataFromClient.messageTime,
           newMessageContent: dataFromClient.messageContent,
-          messageFromUser: dataFromClient.userInfo.name
-        })
+          messageFromUser: dataFromClient.userInfo.name,
+        });
       }
     } catch (error) {
       socket.emit('customError', error);
     }
-  })
-}
+  });
+};
 
 module.exports = {
-  messageHandler 
-}
+  messageHandler,
+};
