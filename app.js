@@ -1,35 +1,35 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const aws = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 require('dotenv').config();
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var languageRouter = require('./routes/language');
-var userLanguageRouter = require('./routes/userLanguage');
-var namespaceRouter = require('./routes/namespace');
-var chatPageRouter = require('./routes/chat');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const languageRouter = require('./routes/language');
+const userLanguageRouter = require('./routes/userLanguage');
+const namespaceRouter = require('./routes/namespace');
+const chatPageRouter = require('./routes/chat');
 
-var app = express();
+const app = express();
 // aws 設定
 aws.config.update({
   secretAccessKey: process.env.awsSecretKey,
-  accessKeyId: process.env.awsAccessKeyId
+  accessKeyId: process.env.awsAccessKeyId,
 });
 const awsS3 = new aws.S3();
 const fileStorage = multerS3({
   s3: awsS3,
   bucket: 'chatvas',
   acl: 'public-read',
-  key: function (req, file, callback) {
+  key(req, file, callback) {
     callback(null, `${Date.now()}_${file.originalname}`);
   },
-  metadata: function (req, file, callback) {
-    callback(null, {fieldName: file.fieldname});
+  metadata(req, file, callback) {
+    callback(null, { fieldName: file.fieldname });
   },
   // contentType: multerS3.AUTO_CONTENT_TYPE, ( 讓使用者可以直接下載 )
 });
@@ -42,7 +42,7 @@ app.use(
     {
       name: 'messageImage',
       maxCount: 1,
-    }
+    },
   ]),
 );
 // view engine setup
@@ -63,12 +63,12 @@ app.use('/namespace', namespaceRouter);
 app.use('/chat', chatPageRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
