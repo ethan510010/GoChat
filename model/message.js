@@ -73,6 +73,7 @@ const getMessagesCache = async (roomId, language, page) => {
     }
     return [];
   } catch (error) {
+    // 這邊是 redis 錯誤
     throw new AppError(error.message, 500);
   }
 };

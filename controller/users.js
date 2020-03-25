@@ -22,7 +22,7 @@ const userSignin = async (req, res) => {
     email, password, signinway, thirdPartyAuthToken, beInvitedRoomId,
   } = req.body;
   switch (signinway) {
-    case 'native':
+    case 'native': {
       const {
         accessToken,
         tokenExpiredDate,
@@ -75,7 +75,8 @@ const userSignin = async (req, res) => {
         res.status(500).send('Server error');
       }
       break;
-    case 'facebook':
+    }
+    case 'facebook': {
       // 拿取使用者 fb 資料
       const options = {
         uri: 'https://graph.facebook.com/me',
@@ -145,6 +146,7 @@ const userSignin = async (req, res) => {
         res.status(500).send('Server error');
       }
       break;
+    }
     default:
       break;
   }
@@ -219,7 +221,6 @@ const signupUser = async (req, res) => {
       }
     });
   } catch (err) {
-    console.log(err);
     res.status(500).send('Server error');
   }
 };

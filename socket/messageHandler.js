@@ -3,6 +3,7 @@ const { insertChatMessage } = require('../model/chatContent');
 const { translationPromise } = require('../common/common');
 const { saveTranslatedContent } = require('../model/message');
 const { saveCacheMessage } = require('../db/redis');
+const AppError = require('../common/customError');
 
 const messageHandler = (socketHandlerObj) => {
   const { subNamespace, socket } = socketHandlerObj;
@@ -36,6 +37,7 @@ const messageHandler = (socketHandlerObj) => {
           for (let i = 0; i < transList.length; i++) {
             const eachTransResult = transList[i].translatedText;
             const eachLanguage = languageArrangement[i];
+            // eslint-disable-next-line no-await-in-loop
             await saveTranslatedContent({
               messageId: createMessageResult.insertId,
               language: eachLanguage,
@@ -47,6 +49,7 @@ const messageHandler = (socketHandlerObj) => {
         } else if (dataFromClient.messageType === 'image') {
           for (let i = 0; i < languageArrangement.length; i++) {
             const eachLanguage = languageArrangement[i];
+            // eslint-disable-next-line no-await-in-loop
             await saveTranslatedContent({
               messageId: createMessageResult.insertId,
               language: eachLanguage,
@@ -58,7 +61,7 @@ const messageHandler = (socketHandlerObj) => {
 
         // 組裝 redis cache 結構 (翻譯的部分在上面組裝)
         messageRedisCache.messageContent = messageObj.messageContent;
-        messageRedisCache.createdTime = messageObj.createdTime,
+        messageRedisCache.createdTime = messageObj.createdTime;
         messageRedisCache.userId = messageObj.userId;
         messageRedisCache.messageType = messageObj.messageType;
         messageRedisCache.messageId = createMessageResult.insertId;
@@ -67,9 +70,12 @@ const messageHandler = (socketHandlerObj) => {
         messageRedisCache.email = dataFromClient.userInfo.email;
         messageRedisCache.avatarUrl = dataFromClient.userInfo.avatarUrl;
         messageRedisCache.roomId = dataFromClient.roomDetail.roomId;
-        console.log('組裝的 cache 訊息', messageRedisCache);
         // // 儲存成功發送出去，並存到 redis
-        saveCacheMessage(messageRedisCache);
+        try {
+          await saveCacheMessage(messageRedisCache);
+        } catch (error) {
+          // 這邊就算 redis 掛掉，也繼續讓訊息出去，因為至少 mySQL 有成功
+        }
         subNamespace.to(dataFromClient.roomDetail.roomId).emit('message', dataFromClient);
         // 要讓不在該房間的但擁有該房間的用戶可以收到通知，利用 broadcast (新訊息提示功能)
         socket.broadcast.emit('newMessageMention', {
@@ -81,7 +87,7 @@ const messageHandler = (socketHandlerObj) => {
         });
       }
     } catch (error) {
-      socket.emit('customError', error);
+      socket.emit('customError', new AppError(error.message, 500));
     }
   });
 };

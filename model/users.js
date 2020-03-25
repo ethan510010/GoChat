@@ -333,16 +333,16 @@ const getUserProfileByToken = async (token) => {
       } = userRoughInfo[0];
       const userProfile = {};
       switch (provider) {
-        case 'native':
+        case 'native': {
           const userDetail = await exec(`
-            select user.id as userId, 
-            avatarUrl, 
-            email, 
-            name from user 
-            inner join general_user_info 
-            on user.id=general_user_info.userId
-            where access_token='${token}' 
-        `);
+          select user.id as userId, 
+          avatarUrl, 
+          email, 
+          name from user 
+          inner join general_user_info 
+          on user.id=general_user_info.userId
+          where access_token='${token}' 
+      `);
           if (userDetail[0]) {
             userProfile.userId = userDetail[0].userId;
             userProfile.avatarUrl = userDetail[0].avatarUrl;
@@ -355,16 +355,17 @@ const getUserProfileByToken = async (token) => {
             userProfile.lastSelectedRoomTitle = roomTitle;
           }
           break;
-        case 'facebook':
+        }
+        case 'facebook': {
           const fbUserDetail = await exec(`
-            select user.id as userId, 
-            fb_avatar_url as avatarUrl, 
-            fb_email as email, 
-            fb_name as name from user 
-            inner join fb_info 
-            on user.id=fb_info.userId
-            where access_token='${token}' 
-          `);
+          select user.id as userId, 
+          fb_avatar_url as avatarUrl, 
+          fb_email as email, 
+          fb_name as name from user 
+          inner join fb_info 
+          on user.id=fb_info.userId
+          where access_token='${token}' 
+        `);
           if (fbUserDetail[0]) {
             userProfile.userId = fbUserDetail[0].userId;
             userProfile.avatarUrl = fbUserDetail[0].avatarUrl;
@@ -377,6 +378,7 @@ const getUserProfileByToken = async (token) => {
             userProfile.lastSelectedRoomTitle = roomTitle;
           }
           break;
+        }
         default:
           break;
       }

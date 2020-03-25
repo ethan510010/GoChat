@@ -106,6 +106,7 @@ const invitePeopleToNamespace = async (req, res) => {
       const sendResult = await sendEmail(transporter, mailOptions);
       sendEmailPromiseList.push(sendResult);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
     // const eachEmailPromise = sendEmail(transporter, mailOptions)
