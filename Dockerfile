@@ -3,7 +3,7 @@ FROM node:10.15.1
 WORKDIR /workspace
 # 複製當前目錄 (.) 到 container 的 /workspace 資料夾
 COPY ./package.json /workspace
-RUN npm install
+RUN npm install --only production
 RUN npm i pm2 -g
 COPY . /workspace
 # 容器切換到 /workspace 資料夾
