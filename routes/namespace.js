@@ -6,12 +6,12 @@ const {
 } = require('../controller/namespace');
 const { checkTokenExpired } = require('../middleware/checkTokenExpired');
 
-router.get('/', checkTokenExpired, namespacePage);
+router.get('/namespace', checkTokenExpired, namespacePage);
 
-router.post('/', createNamespace);
+router.post('/namespace', createNamespace);
 
-router.put('/', updateNamespace);
+router.put('/namespace', updateNamespace);
 
-router.post('/people', invitePeopleToNamespace);
+router.post('/namespace/people', invitePeopleToNamespace);
 
 module.exports = router;

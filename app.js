@@ -55,12 +55,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/language', languageRouter);
-app.use('/userLanguage', userLanguageRouter);
-app.use('/namespace', namespaceRouter);
-app.use('/chat', chatPageRouter);
+app.use('/', [indexRouter,
+  usersRouter,
+  languageRouter,
+  userLanguageRouter,
+  namespaceRouter,
+  chatPageRouter]);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

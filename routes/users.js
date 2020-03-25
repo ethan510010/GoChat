@@ -11,14 +11,14 @@ const {
 const { checkExistedUser } = require('../middleware/checkExistedUser');
 const { checkTokenExpired } = require('../middleware/checkTokenExpired');
 
-router.post('/signin', userSignin);
+router.post('/users/signin', userSignin);
 
-router.post('/signup', checkExistedUser, signupUser);
+router.post('/users/signup', checkExistedUser, signupUser);
 
-router.get('/profile', checkTokenExpired, getUserProfile);
+router.get('/users/profile', checkTokenExpired, getUserProfile);
 
-router.put('/userAvatar', updateAvatar);
+router.put('/users/userAvatar', updateAvatar);
 
-router.put('/selectedNamespace', updateUserSelectNamespace);
+router.put('/users/selectedNamespace', updateUserSelectNamespace);
 
 module.exports = router;
