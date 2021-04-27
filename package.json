@@ -29,7 +29,7 @@
     "nodemon": "^2.0.2",
     "peer": "^0.2.10",
     "peerjs": "^1.2.0",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "socket.io": "^2.3.0",
